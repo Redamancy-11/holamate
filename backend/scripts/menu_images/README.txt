@@ -1,0 +1,1 @@
+Thả các ảnh menu tại đây, đặt tên theo vendorId (ví dụ: com-tam-ktx.png)

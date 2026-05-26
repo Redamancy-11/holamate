@@ -1,0 +1,91 @@
+{
+  "vendor": {
+    "name": "Hồ Hoàn Kiếm",
+    "category": "food",
+    "address": "Ngõ 1, Phố Hồ Hoàn Kiếm, Hà Nội",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        105.854,
+        21.0285
+      ]
+    },
+    "vietmapPlaceId": "vietmap-hồ-hoàn-kiếm-8669",
+    "marketMedianPrice": 45000,
+    "priceRange": {
+      "min": 12000,
+      "max": 79000
+    },
+    "riskBadge": "high",
+    "sources": [
+      "shopeefood",
+      "vietmap",
+      "social"
+    ],
+    "raw": {
+      "shopeefood": {
+        "vendor_name": "Hồ Hoàn Kiếm",
+        "category": "food",
+        "items": [
+          {
+            "name": "Phở gà",
+            "price": 45000
+          },
+          {
+            "name": "Bún chả",
+            "price": 79000
+          },
+          {
+            "name": "Trà đá",
+            "price": 12000
+          }
+        ],
+        "marketMedianPrice": 45000,
+        "priceRange": {
+          "min": 12000,
+          "max": 79000
+        },
+        "source": "shopeefood"
+      },
+      "vietmap": {
+        "name": "Hồ Hoàn Kiếm",
+        "address": "Ngõ 1, Phố Hồ Hoàn Kiếm, Hà Nội",
+        "coordinates": {
+          "lat": 21.03219712907122,
+          "lng": 105.85575619645108
+        },
+        "vietmapPlaceId": "vietmap-hồ-hoàn-kiếm-8669",
+        "geojson": {
+          "type": "Point",
+          "coordinates": [
+            105.854,
+            21.0285
+          ]
+        },
+        "source": "vietmap"
+      },
+      "social": {
+        "vendor_name": "Hồ Hoàn Kiếm",
+        "query": [
+          "Hồ Hoàn Kiếm chặt chém",
+          "Hồ Hoàn Kiếm phốt",
+          "Hồ Hoàn Kiếm gửi xe đắt"
+        ],
+        "riskBadge": "high",
+        "evidence": [
+          {
+            "source": "tiktok",
+            "text": "Bài đăng cảnh báo Hồ Hoàn Kiếm chặt chém giá."
+          },
+          {
+            "source": "facebook",
+            "text": "Comment tiêu cực: \"Giá ở Hồ Hoàn Kiếm quá cao\"."
+          }
+        ],
+        "source": "social"
+      }
+    },
+    "updatedAt": "2026-05-21T02:07:56.991604Z"
+  },
+  "generatedAt": "2026-05-21T02:07:56.991648Z"
+}

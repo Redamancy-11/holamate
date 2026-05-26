@@ -1,0 +1,91 @@
+{
+  "vendor": {
+    "name": "Lăng Bác",
+    "category": "food",
+    "address": "Ngõ 1, Phố Lăng Bác, Hà Nội",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        105.854,
+        21.0285
+      ]
+    },
+    "vietmapPlaceId": "vietmap-lăng-bác-7601",
+    "marketMedianPrice": 45000,
+    "priceRange": {
+      "min": 12000,
+      "max": 79000
+    },
+    "riskBadge": "high",
+    "sources": [
+      "shopeefood",
+      "vietmap",
+      "social"
+    ],
+    "raw": {
+      "shopeefood": {
+        "vendor_name": "Lăng Bác",
+        "category": "food",
+        "items": [
+          {
+            "name": "Phở gà",
+            "price": 45000
+          },
+          {
+            "name": "Bún chả",
+            "price": 79000
+          },
+          {
+            "name": "Trà đá",
+            "price": 12000
+          }
+        ],
+        "marketMedianPrice": 45000,
+        "priceRange": {
+          "min": 12000,
+          "max": 79000
+        },
+        "source": "shopeefood"
+      },
+      "vietmap": {
+        "name": "Lăng Bác",
+        "address": "Ngõ 1, Phố Lăng Bác, Hà Nội",
+        "coordinates": {
+          "lat": 21.028919899531246,
+          "lng": 105.85492273152204
+        },
+        "vietmapPlaceId": "vietmap-lăng-bác-7601",
+        "geojson": {
+          "type": "Point",
+          "coordinates": [
+            105.854,
+            21.0285
+          ]
+        },
+        "source": "vietmap"
+      },
+      "social": {
+        "vendor_name": "Lăng Bác",
+        "query": [
+          "Lăng Bác chặt chém",
+          "Lăng Bác phốt",
+          "Lăng Bác gửi xe đắt"
+        ],
+        "riskBadge": "high",
+        "evidence": [
+          {
+            "source": "tiktok",
+            "text": "Bài đăng cảnh báo Lăng Bác chặt chém giá."
+          },
+          {
+            "source": "facebook",
+            "text": "Comment tiêu cực: \"Giá ở Lăng Bác quá cao\"."
+          }
+        ],
+        "source": "social"
+      }
+    },
+    "updatedAt": "2026-05-21T02:07:56.990045Z"
+  },
+  "generatedAt": "2026-05-21T02:07:56.990152Z"
+}

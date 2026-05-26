@@ -1,0 +1,25 @@
+node_modules/
+.env
+.DS_Store
+dist/
+build/
+
+# Python virtual environment
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Scraper profile, debug screenshots & temporary files
+tools/data_pipeline/chrome_profile/
+tools/data_pipeline/debug_page.html
+tools/data_pipeline/debug_screenshot.png
+tools/data_pipeline/test_nav_screenshot.png
+tools/data_pipeline/*.json
+tools/data_pipeline/.tmp_*
+
+# Temporary menu images for OCR
+backend/scripts/menu_images/*.png
+backend/scripts/menu_images/*.jpg
+backend/scripts/menu_images/*.jpeg
+backend/scripts/menu_images/*.webp

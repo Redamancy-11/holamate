@@ -1,0 +1,272 @@
+[
+  {
+    "id": "vietmap-hồ-hoàn-kiếm-8669",
+    "name": "Hồ Hoàn Kiếm",
+    "category": "food",
+    "address": "Ngõ 1, Phố Hồ Hoàn Kiếm, Hà Nội",
+    "vietmapPlaceId": "vietmap-hồ-hoàn-kiếm-8669",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        105.854,
+        21.0285
+      ]
+    },
+    "marketMedianPrice": 45000,
+    "priceRange": {
+      "min": 12000,
+      "max": 79000
+    },
+    "riskBadge": "high",
+    "sources": [
+      "shopeefood",
+      "vietmap",
+      "social"
+    ],
+    "raw": {
+      "shopeefood": {
+        "vendor_name": "Hồ Hoàn Kiếm",
+        "category": "food",
+        "items": [
+          {
+            "name": "Phở gà",
+            "price": 45000
+          },
+          {
+            "name": "Bún chả",
+            "price": 79000
+          },
+          {
+            "name": "Trà đá",
+            "price": 12000
+          }
+        ],
+        "marketMedianPrice": 45000,
+        "priceRange": {
+          "min": 12000,
+          "max": 79000
+        },
+        "source": "shopeefood"
+      },
+      "vietmap": {
+        "name": "Hồ Hoàn Kiếm",
+        "address": "Ngõ 1, Phố Hồ Hoàn Kiếm, Hà Nội",
+        "coordinates": {
+          "lat": 21.03219712907122,
+          "lng": 105.85575619645108
+        },
+        "vietmapPlaceId": "vietmap-hồ-hoàn-kiếm-8669",
+        "geojson": {
+          "type": "Point",
+          "coordinates": [
+            105.854,
+            21.0285
+          ]
+        },
+        "source": "vietmap"
+      },
+      "social": {
+        "vendor_name": "Hồ Hoàn Kiếm",
+        "query": [
+          "Hồ Hoàn Kiếm chặt chém",
+          "Hồ Hoàn Kiếm phốt",
+          "Hồ Hoàn Kiếm gửi xe đắt"
+        ],
+        "riskBadge": "high",
+        "evidence": [
+          {
+            "source": "tiktok",
+            "text": "Bài đăng cảnh báo Hồ Hoàn Kiếm chặt chém giá."
+          },
+          {
+            "source": "facebook",
+            "text": "Comment tiêu cực: \"Giá ở Hồ Hoàn Kiếm quá cao\"."
+          }
+        ],
+        "source": "social"
+      }
+    },
+    "createdAt": "2026-05-21T02:07:56.991604Z",
+    "updatedAt": "2026-05-21T02:07:56.991604Z"
+  },
+  {
+    "id": "vietmap-lăng-bác-7601",
+    "name": "Lăng Bác",
+    "category": "food",
+    "address": "Ngõ 1, Phố Lăng Bác, Hà Nội",
+    "vietmapPlaceId": "vietmap-lăng-bác-7601",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        105.854,
+        21.0285
+      ]
+    },
+    "marketMedianPrice": 45000,
+    "priceRange": {
+      "min": 12000,
+      "max": 79000
+    },
+    "riskBadge": "high",
+    "sources": [
+      "shopeefood",
+      "vietmap",
+      "social"
+    ],
+    "raw": {
+      "shopeefood": {
+        "vendor_name": "Lăng Bác",
+        "category": "food",
+        "items": [
+          {
+            "name": "Phở gà",
+            "price": 45000
+          },
+          {
+            "name": "Bún chả",
+            "price": 79000
+          },
+          {
+            "name": "Trà đá",
+            "price": 12000
+          }
+        ],
+        "marketMedianPrice": 45000,
+        "priceRange": {
+          "min": 12000,
+          "max": 79000
+        },
+        "source": "shopeefood"
+      },
+      "vietmap": {
+        "name": "Lăng Bác",
+        "address": "Ngõ 1, Phố Lăng Bác, Hà Nội",
+        "coordinates": {
+          "lat": 21.028919899531246,
+          "lng": 105.85492273152204
+        },
+        "vietmapPlaceId": "vietmap-lăng-bác-7601",
+        "geojson": {
+          "type": "Point",
+          "coordinates": [
+            105.854,
+            21.0285
+          ]
+        },
+        "source": "vietmap"
+      },
+      "social": {
+        "vendor_name": "Lăng Bác",
+        "query": [
+          "Lăng Bác chặt chém",
+          "Lăng Bác phốt",
+          "Lăng Bác gửi xe đắt"
+        ],
+        "riskBadge": "high",
+        "evidence": [
+          {
+            "source": "tiktok",
+            "text": "Bài đăng cảnh báo Lăng Bác chặt chém giá."
+          },
+          {
+            "source": "facebook",
+            "text": "Comment tiêu cực: \"Giá ở Lăng Bác quá cao\"."
+          }
+        ],
+        "source": "social"
+      }
+    },
+    "createdAt": "2026-05-21T02:07:56.990045Z",
+    "updatedAt": "2026-05-21T02:07:56.990045Z"
+  },
+  {
+    "id": "vietmap-phố-cổ-hà-nội-8411",
+    "name": "Phố Cổ Hà Nội",
+    "category": "food",
+    "address": "Ngõ 1, Phố Phố Cổ Hà Nội, Hà Nội",
+    "vietmapPlaceId": "vietmap-phố-cổ-hà-nội-8411",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        105.854,
+        21.0285
+      ]
+    },
+    "marketMedianPrice": 45000,
+    "priceRange": {
+      "min": 12000,
+      "max": 79000
+    },
+    "riskBadge": "medium",
+    "sources": [
+      "shopeefood",
+      "vietmap",
+      "social"
+    ],
+    "raw": {
+      "shopeefood": {
+        "vendor_name": "Phố Cổ Hà Nội",
+        "category": "food",
+        "items": [
+          {
+            "name": "Phở gà",
+            "price": 45000
+          },
+          {
+            "name": "Bún chả",
+            "price": 79000
+          },
+          {
+            "name": "Trà đá",
+            "price": 12000
+          }
+        ],
+        "marketMedianPrice": 45000,
+        "priceRange": {
+          "min": 12000,
+          "max": 79000
+        },
+        "source": "shopeefood"
+      },
+      "vietmap": {
+        "name": "Phố Cổ Hà Nội",
+        "address": "Ngõ 1, Phố Phố Cổ Hà Nội, Hà Nội",
+        "coordinates": {
+          "lat": 21.033198550236666,
+          "lng": 105.85501392765985
+        },
+        "vietmapPlaceId": "vietmap-phố-cổ-hà-nội-8411",
+        "geojson": {
+          "type": "Point",
+          "coordinates": [
+            105.854,
+            21.0285
+          ]
+        },
+        "source": "vietmap"
+      },
+      "social": {
+        "vendor_name": "Phố Cổ Hà Nội",
+        "query": [
+          "Phố Cổ Hà Nội chặt chém",
+          "Phố Cổ Hà Nội phốt",
+          "Phố Cổ Hà Nội gửi xe đắt"
+        ],
+        "riskBadge": "medium",
+        "evidence": [
+          {
+            "source": "tiktok",
+            "text": "Bài đăng cảnh báo Phố Cổ Hà Nội chặt chém giá."
+          },
+          {
+            "source": "facebook",
+            "text": "Comment tiêu cực: \"Giá ở Phố Cổ Hà Nội quá cao\"."
+          }
+        ],
+        "source": "social"
+      }
+    },
+    "createdAt": "2026-05-21T02:07:56.990938Z",
+    "updatedAt": "2026-05-21T02:07:56.990938Z"
+  }
+]

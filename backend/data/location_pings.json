@@ -1,0 +1,1314 @@
+[
+  {
+    "userId": null,
+    "coords": [
+      105.8529,
+      21.0288
+    ],
+    "accuracy": 12,
+    "timestamp": "2026-05-22T00:00:00.000Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Khu phố cổ, Phường Hoàn Kiếm, Hà Nội, 11024, Việt Nam",
+    "placeName": "Hà Nội",
+    "district": "Phường Hoàn Kiếm",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 416995399,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "relation",
+      "osm_id": 16673455,
+      "lat": "21.0287232",
+      "lon": "105.8514628",
+      "category": "highway",
+      "type": "pedestrian",
+      "place_rank": 26,
+      "importance": 0.05340616388189513,
+      "addresstype": "road",
+      "name": "",
+      "display_name": "Khu phố cổ, Phường Hoàn Kiếm, Hà Nội, 11024, Việt Nam",
+      "address": {
+        "quarter": "Khu phố cổ",
+        "suburb": "Phường Hoàn Kiếm",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "postcode": "11024",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0256222",
+        "21.0318350",
+        "105.8509881",
+        "105.8538145"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.28000.2113"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.5193405978394,
+      21.013540000000404
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-24T03:35:40.083Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Quốc lộ 21 - Đường Hồ Chí Minh",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238409964,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "way",
+      "osm_id": 975270328,
+      "lat": "21.0135934",
+      "lon": "105.5190878",
+      "category": "highway",
+      "type": "trunk",
+      "place_rank": 26,
+      "importance": 0.05340616388189513,
+      "addresstype": "road",
+      "name": "Quốc lộ 21 - Đường Hồ Chí Minh",
+      "display_name": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Quốc lộ 21 - Đường Hồ Chí Minh",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0081887",
+        "21.0200611",
+        "105.5180899",
+        "105.5203700"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52829994145094,
+      21.013229390655297
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-24T03:35:45.593Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Hà Nội",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238417065,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "way",
+      "osm_id": 1241374537,
+      "lat": "21.0132796",
+      "lon": "105.5282591",
+      "category": "highway",
+      "type": "tertiary",
+      "place_rank": 26,
+      "importance": 0.05340616388189513,
+      "addresstype": "road",
+      "name": "",
+      "display_name": "Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0126356",
+        "21.0163246",
+        "105.5274626",
+        "105.5320516"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.53211298372452,
+      21.01586307168334
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-24T03:35:53.358Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Viện Khoa học và Công nghệ Việt Nam – Hàn Quốc, Đường N15, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Viện Khoa học và Công nghệ Việt Nam – Hàn Quốc",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238574211,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "way",
+      "osm_id": 1147594065,
+      "lat": "21.0159509",
+      "lon": "105.5331543",
+      "category": "amenity",
+      "type": "research_institute",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "Viện Khoa học và Công nghệ Việt Nam – Hàn Quốc",
+      "display_name": "Viện Khoa học và Công nghệ Việt Nam – Hàn Quốc, Đường N15, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "amenity": "Viện Khoa học và Công nghệ Việt Nam – Hàn Quốc",
+        "road": "Đường N15",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138033",
+        "21.0177861",
+        "105.5315158",
+        "105.5350234"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.53393753528883,
+      21.014069121539123
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-24T03:35:54.976Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Viện Khoa học và Công nghệ Việt Nam – Hàn Quốc, Đường N15, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Viện Khoa học và Công nghệ Việt Nam – Hàn Quốc",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238574211,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "way",
+      "osm_id": 1147594065,
+      "lat": "21.0159509",
+      "lon": "105.5331543",
+      "category": "amenity",
+      "type": "research_institute",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "Viện Khoa học và Công nghệ Việt Nam – Hàn Quốc",
+      "display_name": "Viện Khoa học và Công nghệ Việt Nam – Hàn Quốc, Đường N15, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "amenity": "Viện Khoa học và Công nghệ Việt Nam – Hàn Quốc",
+        "road": "Đường N15",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138033",
+        "21.0177861",
+        "105.5315158",
+        "105.5350234"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.53339267620515,
+      21.015966000419425
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-24T03:35:59.193Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Viện Khoa học và Công nghệ Việt Nam – Hàn Quốc, Đường N15, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Viện Khoa học và Công nghệ Việt Nam – Hàn Quốc",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238122515,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "way",
+      "osm_id": 1147594065,
+      "lat": "21.0159509",
+      "lon": "105.5331543",
+      "category": "amenity",
+      "type": "research_institute",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "Viện Khoa học và Công nghệ Việt Nam – Hàn Quốc",
+      "display_name": "Viện Khoa học và Công nghệ Việt Nam – Hàn Quốc, Đường N15, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "amenity": "Viện Khoa học và Công nghệ Việt Nam – Hàn Quốc",
+        "road": "Đường N15",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138033",
+        "21.0177861",
+        "105.5315158",
+        "105.5350234"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.51289816004163,
+      21.02860272305807
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-24T03:36:03.936Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Tiểu đoàn 334, Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, 34000, Việt Nam",
+    "placeName": "Tiểu đoàn 334",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 239056351,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "way",
+      "osm_id": 1073109940,
+      "lat": "21.0290263",
+      "lon": "105.5114813",
+      "category": "military",
+      "type": "base",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "military",
+      "name": "Tiểu đoàn 334",
+      "display_name": "Tiểu đoàn 334, Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, 34000, Việt Nam",
+      "address": {
+        "military": "Tiểu đoàn 334",
+        "road": "Quốc lộ 21 - Đường Hồ Chí Minh",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "postcode": "34000",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0264576",
+        "21.0317902",
+        "105.5097583",
+        "105.5139010"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-25T15:44:07.938Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Quốc lộ 21 - Đường Hồ Chí Minh",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 222301484,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Quốc lộ 21 - Đường Hồ Chí Minh",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-25T15:45:53.410Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Quốc lộ 21 - Đường Hồ Chí Minh",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 222301484,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Quốc lộ 21 - Đường Hồ Chí Minh",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-25T15:46:06.528Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Quốc lộ 21 - Đường Hồ Chí Minh",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 222301484,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Quốc lộ 21 - Đường Hồ Chí Minh",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-25T15:46:20.815Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Quốc lộ 21 - Đường Hồ Chí Minh",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 222301484,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Quốc lộ 21 - Đường Hồ Chí Minh",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-25T15:46:21.073Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Quốc lộ 21 - Đường Hồ Chí Minh",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 222301484,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Quốc lộ 21 - Đường Hồ Chí Minh",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-25T15:46:34.024Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Quốc lộ 21 - Đường Hồ Chí Minh",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 222301484,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Quốc lộ 21 - Đường Hồ Chí Minh",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-25T15:46:34.253Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Quốc lộ 21 - Đường Hồ Chí Minh",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 222301484,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Quốc lộ 21 - Đường Hồ Chí Minh",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-25T15:46:58.456Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Quốc lộ 21 - Đường Hồ Chí Minh",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 222301484,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Quốc lộ 21 - Đường Hồ Chí Minh",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-25T16:55:30.847Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238689848,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "postcode": "13117",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-26T02:39:31.224Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Quốc lộ 21 - Đường Hồ Chí Minh",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 222301484,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Quốc lộ 21 - Đường Hồ Chí Minh",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-26T02:40:10.084Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Quốc lộ 21 - Đường Hồ Chí Minh",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 222301484,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Quốc lộ 21 - Đường Hồ Chí Minh",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-26T02:40:15.107Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Quốc lộ 21 - Đường Hồ Chí Minh",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 222301484,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Quốc lộ 21 - Đường Hồ Chí Minh",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-26T06:14:10.762Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238689848,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "postcode": "13117",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-26T06:25:55.628Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238689848,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "postcode": "13117",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.53178604766788,
+      21.01646444548473
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-26T06:26:03.382Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+    "placeName": "Hà Nội",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 239099231,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "way",
+      "osm_id": 595787130,
+      "lat": "21.0165410",
+      "lon": "105.5319511",
+      "category": "highway",
+      "type": "residential",
+      "place_rank": 26,
+      "importance": 0.05340616388189513,
+      "addresstype": "road",
+      "name": "",
+      "display_name": "Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+      "address": {
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "postcode": "13117",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0163246",
+        "21.0201551",
+        "105.5307356",
+        "105.5320516"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52367562394835,
+      21.007650874149988
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-26T06:26:11.990Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Hà Nội",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238248111,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "way",
+      "osm_id": 1241374535,
+      "lat": "21.0095805",
+      "lon": "105.5238015",
+      "category": "highway",
+      "type": "tertiary",
+      "place_rank": 26,
+      "importance": 0.05340616388189513,
+      "addresstype": "road",
+      "name": "",
+      "display_name": "Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0095805",
+        "21.0097405",
+        "105.5235656",
+        "105.5241243"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52041405778584,
+      21.016444415231362
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-26T06:26:15.951Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Quốc lộ 21 - Đường Hồ Chí Minh",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238111381,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "way",
+      "osm_id": 975270328,
+      "lat": "21.0165892",
+      "lon": "105.5197037",
+      "category": "highway",
+      "type": "trunk",
+      "place_rank": 26,
+      "importance": 0.05340616388189513,
+      "addresstype": "road",
+      "name": "Quốc lộ 21 - Đường Hồ Chí Minh",
+      "display_name": "Quốc lộ 21 - Đường Hồ Chí Minh, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Quốc lộ 21 - Đường Hồ Chí Minh",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0081887",
+        "21.0200611",
+        "105.5180899",
+        "105.5203700"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-26T07:30:46.046Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238689848,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "postcode": "13117",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-26T07:33:35.040Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238689848,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "postcode": "13117",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-26T07:38:14.907Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238689848,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "postcode": "13117",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-05-26T07:44:37.189Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238689848,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "postcode": "13117",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  }
+]

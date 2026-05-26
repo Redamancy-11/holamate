@@ -1,0 +1,91 @@
+{
+  "vendor": {
+    "name": "Phố Cổ Hà Nội",
+    "category": "food",
+    "address": "Ngõ 1, Phố Phố Cổ Hà Nội, Hà Nội",
+    "location": {
+      "type": "Point",
+      "coordinates": [
+        105.854,
+        21.0285
+      ]
+    },
+    "vietmapPlaceId": "vietmap-phố-cổ-hà-nội-8411",
+    "marketMedianPrice": 45000,
+    "priceRange": {
+      "min": 12000,
+      "max": 79000
+    },
+    "riskBadge": "medium",
+    "sources": [
+      "shopeefood",
+      "vietmap",
+      "social"
+    ],
+    "raw": {
+      "shopeefood": {
+        "vendor_name": "Phố Cổ Hà Nội",
+        "category": "food",
+        "items": [
+          {
+            "name": "Phở gà",
+            "price": 45000
+          },
+          {
+            "name": "Bún chả",
+            "price": 79000
+          },
+          {
+            "name": "Trà đá",
+            "price": 12000
+          }
+        ],
+        "marketMedianPrice": 45000,
+        "priceRange": {
+          "min": 12000,
+          "max": 79000
+        },
+        "source": "shopeefood"
+      },
+      "vietmap": {
+        "name": "Phố Cổ Hà Nội",
+        "address": "Ngõ 1, Phố Phố Cổ Hà Nội, Hà Nội",
+        "coordinates": {
+          "lat": 21.033198550236666,
+          "lng": 105.85501392765985
+        },
+        "vietmapPlaceId": "vietmap-phố-cổ-hà-nội-8411",
+        "geojson": {
+          "type": "Point",
+          "coordinates": [
+            105.854,
+            21.0285
+          ]
+        },
+        "source": "vietmap"
+      },
+      "social": {
+        "vendor_name": "Phố Cổ Hà Nội",
+        "query": [
+          "Phố Cổ Hà Nội chặt chém",
+          "Phố Cổ Hà Nội phốt",
+          "Phố Cổ Hà Nội gửi xe đắt"
+        ],
+        "riskBadge": "medium",
+        "evidence": [
+          {
+            "source": "tiktok",
+            "text": "Bài đăng cảnh báo Phố Cổ Hà Nội chặt chém giá."
+          },
+          {
+            "source": "facebook",
+            "text": "Comment tiêu cực: \"Giá ở Phố Cổ Hà Nội quá cao\"."
+          }
+        ],
+        "source": "social"
+      }
+    },
+    "updatedAt": "2026-05-21T02:07:56.990938Z"
+  },
+  "generatedAt": "2026-05-21T02:07:56.990947Z"
+}
