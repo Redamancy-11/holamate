@@ -5,7 +5,8 @@ import {
   createOrder,
   getOrderById,
   getMyOrders,
-  updateOrderStatus
+  updateOrderStatus,
+  deleteOrder
 } from '../services/api';
 import vietmapgl from '@vietmap/vietmap-gl-js/dist/vietmap-gl';
 import '@vietmap/vietmap-gl-js/dist/vietmap-gl.css';
@@ -21,7 +22,7 @@ const normalizeVietnamese = (str) => {
 };
 
 const OrderFood = () => {
-  const { user, loading: authLoading, setShowAuthModal } = useContext(AuthContext);
+  const { user, loading: authLoading, setShowAuthModal, notificationClickedOrder, setNotificationClickedOrder } = useContext(AuthContext);
   const [vendors, setVendors] = useState([]);
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -210,6 +211,98 @@ const OrderFood = () => {
     };
     fetchHistory();
   }, [user, activeOrder]);
+
+  // Listen for notification clicks to auto-select/track an order
+  useEffect(() => {
+    if (notificationClickedOrder) {
+      const found = orderHistory.find(o => o._id === notificationClickedOrder._id);
+      if (found) {
+        setActiveOrder(found);
+      } else {
+        getOrderById(notificationClickedOrder._id)
+          .then(order => {
+            setActiveOrder(order);
+          })
+          .catch(err => console.warn('Could not load order from notification:', err.message));
+      }
+      setNotificationClickedOrder(null);
+    }
+  }, [notificationClickedOrder, orderHistory, setNotificationClickedOrder]);
+
+  // Reorder handler
+  const handleReorder = (order) => {
+    const matchedVendor = vendors.find(v => (v.id || v._id) === order.vendor);
+    if (!matchedVendor) {
+      alert('Không tìm thấy cửa hàng này nữa.');
+      return;
+    }
+    
+    const currentSelId = selectedVendor?.id || selectedVendor?._id;
+    const vId = matchedVendor.id || matchedVendor._id;
+    if (cart.length > 0 && currentSelId !== vId) {
+      if (!window.confirm('Đặt lại đơn hàng này sẽ thay thế giỏ hàng hiện tại của bạn. Tiếp tục?')) {
+        return;
+      }
+    }
+
+    setCustomerName(order.customerName || '');
+    setCustomerPhone(order.customerPhone || '');
+    
+    const standardAddresses = [
+      "Ký túc xá Dom A",
+      "Ký túc xá Dom B",
+      "Ký túc xá Dom C",
+      "Ký túc xá Dom D",
+      "Ký túc xá Dom E",
+      "Ký túc xá Dom F",
+      "Tòa nhà Alpha",
+      "Tòa nhà Beta"
+    ];
+    if (standardAddresses.includes(order.deliveryAddress)) {
+      setDeliveryAddress(order.deliveryAddress);
+      setCustomAddress('');
+    } else {
+      setDeliveryAddress('Khác');
+      setCustomAddress(order.deliveryAddress);
+    }
+    
+    setSelectedVendor(matchedVendor);
+    
+    const reorderItems = order.items.map(item => ({
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity
+    }));
+    setCart(reorderItems);
+    setActiveOrder(null);
+
+    // Scroll to menu section
+    setTimeout(() => {
+      const menuEl = document.getElementById('vendor-menu-section');
+      if (menuEl) {
+        menuEl.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 400, behavior: 'smooth' });
+      }
+    }, 150);
+
+    alert('Đã chọn lại các món từ đơn cũ. Bạn có thể bấm nút + ở thực đơn bên dưới để đặt thêm món nếu muốn!');
+  };
+
+  // Hide order from history (buyer)
+  const handleDeleteOrderHistory = async (orderId) => {
+    if (!window.confirm('Bạn có chắc chắn muốn xóa đơn hàng này khỏi lịch sử?')) return;
+    try {
+      await deleteOrder(orderId);
+      const history = await getMyOrders();
+      setOrderHistory(Array.isArray(history) ? history : []);
+      if (activeOrder && activeOrder._id === orderId) {
+        setActiveOrder(null);
+      }
+    } catch (err) {
+      alert('Không thể xóa đơn hàng khỏi lịch sử: ' + (err.response?.data?.error || err.message));
+    }
+  };
 
   // Cancel order handler
   const handleCancelOrder = async (orderId) => {
@@ -756,7 +849,7 @@ const OrderFood = () => {
 
                       {/* Selected Restaurant Menu */}
                       {selectedVendor && (
-                        <div>
+                        <div id="vendor-menu-section">
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: 12, marginBottom: 20 }}>
                             <div>
                               <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>2. Thực Đơn: {selectedVendor.name}</h3>
@@ -990,9 +1083,27 @@ const OrderFood = () => {
                             return (
                               <div key={order._id} style={{
                                 background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
-                                borderRadius: 12, padding: '12px 14px', fontSize: '.82rem'
+                                borderRadius: 12, padding: '12px 14px', fontSize: '.82rem', position: 'relative'
                               }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                                {/* Close/delete x button for completed/cancelled orders */}
+                                {(order.status === 'completed' || order.status === 'cancelled') && (
+                                  <button
+                                    onClick={() => handleDeleteOrderHistory(order._id)}
+                                    style={{
+                                      position: 'absolute', top: 10, right: 10,
+                                      background: 'none', border: 'none', color: '#EF4444',
+                                      fontSize: '1.15rem', cursor: 'pointer', fontWeight: 'bold',
+                                      padding: '2px 6px', transition: 'all 0.2s', zIndex: 5
+                                    }}
+                                    title="Xóa khỏi lịch sử"
+                                    onMouseEnter={e => e.currentTarget.style.color = '#ff5c5c'}
+                                    onMouseLeave={e => e.currentTarget.style.color = '#EF4444'}
+                                  >
+                                    &times;
+                                  </button>
+                                )}
+
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, paddingRight: (order.status === 'completed' || order.status === 'cancelled') ? 24 : 0 }}>
                                   <span style={{ fontWeight: 700, color: '#fff' }}>{order.vendorName}</span>
                                   <span style={{
                                     background: `${statusColors[order.status]}22`,
@@ -1010,15 +1121,27 @@ const OrderFood = () => {
                                     💬 Ghi chú từ quán: {order.sellerNote}
                                   </div>
                                 )}
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
                                   <span style={{ color: '#FF9800', fontWeight: 700 }}>{formatPrice(order.totalAmount)}</span>
-                                  <div style={{ display: 'flex', gap: 8 }}>
+                                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                                    {/* Reorder Button */}
+                                    <button
+                                      onClick={() => handleReorder(order)}
+                                      style={{
+                                        background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)',
+                                        color: '#10B981', padding: '3px 8px', borderRadius: 6,
+                                        fontSize: '.72rem', fontWeight: 600, cursor: 'pointer'
+                                      }}
+                                    >
+                                      Đặt lại + ➕
+                                    </button>
+
                                     {order.status === 'pending' && (
                                       <button
                                         onClick={() => handleCancelOrder(order._id)}
                                         style={{
                                           background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)',
-                                          color: '#EF4444', padding: '3px 10px', borderRadius: 6,
+                                          color: '#EF4444', padding: '3px 8px', borderRadius: 6,
                                           fontSize: '.72rem', fontWeight: 600, cursor: 'pointer'
                                         }}
                                       >
@@ -1030,7 +1153,7 @@ const OrderFood = () => {
                                         onClick={() => setActiveOrder(order)}
                                         style={{
                                           background: 'rgba(242,112,36,0.15)', border: '1px solid rgba(242,112,36,0.3)',
-                                          color: '#F27024', padding: '3px 10px', borderRadius: 6,
+                                          color: '#F27024', padding: '3px 8px', borderRadius: 6,
                                           fontSize: '.72rem', fontWeight: 600, cursor: 'pointer'
                                         }}
                                       >

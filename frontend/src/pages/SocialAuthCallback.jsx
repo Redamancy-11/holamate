@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 
 const SocialAuthCallback = () => {
-  const { setUser } = useContext(AuthContext);
+  const { setUser, setSellerUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const [status, setStatus] = useState('Đang xác thực tài khoản...');
 
@@ -19,14 +19,19 @@ const SocialAuthCallback = () => {
 
     if (token && _id && name && email) {
       const userData = { _id, name, email, avatar, role, vendor_id, token };
-      localStorage.setItem('hanomate_user', JSON.stringify(userData));
-      setUser(userData);
+      const key = role === 'seller' ? 'hanomate_seller_user' : 'hanomate_user';
+      localStorage.setItem(key, JSON.stringify(userData));
+      if (role === 'seller') {
+        setSellerUser(userData);
+      } else {
+        setUser(userData);
+      }
       setStatus('Đăng nhập thành công! Đang chuyển hướng...');
       setTimeout(() => navigate('/'), 1200);
     } else {
       setStatus('Không thể xác thực tài khoản. Vui lòng thử lại.');
     }
-  }, [navigate, setUser]);
+  }, [navigate, setUser, setSellerUser]);
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, background: '#0B1728', color: '#fff' }}>

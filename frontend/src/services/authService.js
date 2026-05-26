@@ -7,7 +7,8 @@ const authService = {
   register: async (userData) => {
     const response = await axios.post(`${API_URL}/register`, userData);
     if (response.data.token) {
-      localStorage.setItem('hanomate_user', JSON.stringify(response.data));
+      const key = response.data.role === 'seller' ? 'hanomate_seller_user' : 'hanomate_user';
+      localStorage.setItem(key, JSON.stringify(response.data));
     }
     return response.data;
   },
@@ -16,7 +17,8 @@ const authService = {
   login: async (userData) => {
     const response = await axios.post(`${API_URL}/login`, userData);
     if (response.data.token) {
-      localStorage.setItem('hanomate_user', JSON.stringify(response.data));
+      const key = response.data.role === 'seller' ? 'hanomate_seller_user' : 'hanomate_user';
+      localStorage.setItem(key, JSON.stringify(response.data));
     }
     return response.data;
   },
@@ -25,19 +27,30 @@ const authService = {
   socialLogin: async (userData) => {
     const response = await axios.post(`${API_URL}/social`, userData);
     if (response.data.token) {
-      localStorage.setItem('hanomate_user', JSON.stringify(response.data));
+      const key = response.data.role === 'seller' ? 'hanomate_seller_user' : 'hanomate_user';
+      localStorage.setItem(key, JSON.stringify(response.data));
     }
     return response.data;
   },
 
-  // Đăng xuất
+  // Đăng xuất buyer
   logout: () => {
     localStorage.removeItem('hanomate_user');
   },
 
-  // Lấy user hiện tại
+  // Đăng xuất seller
+  logoutSeller: () => {
+    localStorage.removeItem('hanomate_seller_user');
+  },
+
+  // Lấy user hiện tại (buyer)
   getCurrentUser: () => {
     return JSON.parse(localStorage.getItem('hanomate_user'));
+  },
+
+  // Lấy seller hiện tại
+  getCurrentSellerUser: () => {
+    return JSON.parse(localStorage.getItem('hanomate_seller_user'));
   },
 };
 

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
-import { getVendorById, updateVendor, getOrdersByVendor, getSellerOrders, updateOrderStatus, scanVendorMenu } from '../services/api';
+import { getVendorById, updateVendor, getOrdersByVendor, getSellerOrders, updateOrderStatus, scanVendorMenu, deleteOrder } from '../services/api';
 import vietmapgl from '@vietmap/vietmap-gl-js/dist/vietmap-gl';
 import '@vietmap/vietmap-gl-js/dist/vietmap-gl.css';
 
 const SellerDashboard = () => {
-  const { user, loading: authLoading, setShowAuthModal, logout } = useContext(AuthContext);
+  const { sellerUser: user, loading: authLoading, setShowAuthModal, logoutSeller: logout, notificationClickedOrder, setNotificationClickedOrder } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('orders'); // 'orders', 'store', or 'guide'
@@ -270,6 +270,40 @@ const SellerDashboard = () => {
     }, 10000);
     return () => clearInterval(interval);
   }, [user, orders, activeTab]);
+
+  // Listen to notificationClickedOrder to highlight specific orders
+  useEffect(() => {
+    if (notificationClickedOrder && orders.length > 0) {
+      const found = orders.find(o => o._id === notificationClickedOrder._id);
+      if (found) {
+        setActiveTab('orders');
+        setTimeout(() => {
+          const card = document.getElementById(`order-card-${found._id}`);
+          if (card) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            card.style.outline = '2px solid #FF7A00';
+            card.style.boxShadow = '0 0 30px rgba(255,122,0,0.4)';
+            setTimeout(() => {
+              card.style.outline = 'none';
+              card.style.boxShadow = 'none';
+            }, 3000);
+          }
+        }, 150);
+      }
+      setNotificationClickedOrder(null);
+    }
+  }, [notificationClickedOrder, orders, setNotificationClickedOrder]);
+
+  const handleDeleteOrder = async (orderId) => {
+    if (!window.confirm('Bạn có chắc muốn xóa đơn hàng này khỏi lịch sử?')) return;
+    try {
+      await deleteOrder(orderId);
+      showFlashMessage('Đã ẩn đơn hàng khỏi lịch sử', 'success');
+      loadOrdersInfo();
+    } catch (err) {
+      showFlashMessage('Không thể xóa đơn hàng: ' + (err.response?.data?.error || err.message), 'error');
+    }
+  };
 
   const showFlashMessage = (text, type = 'info') => {
     setMessage({ text, type });
@@ -825,7 +859,7 @@ const SellerDashboard = () => {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {orders.map((order) => (
-                  <div key={order._id} style={{
+                  <div key={order._id} id={`order-card-${order._id}`} style={{
                     background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: 24,
                     display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 24, transition: 'all 0.3s',
                     boxShadow: order.status === 'pending' ? '0 0 20px rgba(245,158,11,0.1)' : 'none',
@@ -864,6 +898,36 @@ const SellerDashboard = () => {
                           zIndex: 5
                         }}
                         title="Hủy đơn hàng"
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+                      >
+                        &times;
+                      </button>
+                    )}
+
+                    {/* Dấu x để ẩn khỏi lịch sử */}
+                    {(order.status === 'completed' || order.status === 'cancelled') && (
+                      <button 
+                        onClick={() => handleDeleteOrder(order._id)}
+                        style={{
+                          position: 'absolute',
+                          top: 20,
+                          right: 20,
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          color: '#EF4444',
+                          border: 'none',
+                          width: 28,
+                          height: 28,
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          fontWeight: 'bold',
+                          transition: 'all 0.2s',
+                          zIndex: 5
+                        }}
+                        title="Xóa khỏi lịch sử"
                         onMouseEnter={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)'}
                         onMouseLeave={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
                       >

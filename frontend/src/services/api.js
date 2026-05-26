@@ -9,7 +9,12 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const stored = localStorage.getItem('hanomate_user');
+  const isSellerRequest = config.url.includes('/seller') || config.url.includes('/admin');
+  const storageKey = isSellerRequest ? 'hanomate_seller_user' : 'hanomate_user';
+  let stored = localStorage.getItem(storageKey);
+  if (!stored && isSellerRequest) {
+    stored = localStorage.getItem('hanomate_user');
+  }
   if (stored) {
     try {
       const parsed = JSON.parse(stored);
@@ -164,6 +169,11 @@ export const updateVendor = async (vendorId, vendorData) => {
 
 export const scanVendorMenu = async (vendorId, payload) => {
   const { data } = await api.post(`/admin/vendors/${vendorId}/scan-menu`, payload);
+  return data;
+};
+
+export const deleteOrder = async (id) => {
+  const { data } = await api.delete(`/orders/${id}`);
   return data;
 };
 

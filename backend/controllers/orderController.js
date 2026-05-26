@@ -151,7 +151,7 @@ const getMyOrders = async (req, res) => {
       return res.status(401).json({ error: 'Bạn cần đăng nhập để xem lịch sử đơn hàng' });
     }
 
-    const query = 'SELECT * FROM orders WHERE customer_id = $1 ORDER BY created_at DESC;';
+    const query = 'SELECT * FROM orders WHERE customer_id = $1 AND buyer_hidden = FALSE ORDER BY created_at DESC;';
     const result = await pool.query(query, [req.user.id]);
     res.json(result.rows.map(formatOrder));
   } catch (error) {
@@ -176,7 +176,7 @@ const getSellerOrders = async (req, res) => {
     }
 
     // Query by vendor_id OR seller_id to catch all orders
-    const query = 'SELECT * FROM orders WHERE vendor_id = $1 OR seller_id = $2 ORDER BY created_at DESC;';
+    const query = 'SELECT * FROM orders WHERE (vendor_id = $1 OR seller_id = $2) AND seller_hidden = FALSE ORDER BY created_at DESC;';
     const result = await pool.query(query, [vendorId, req.user.id]);
     res.json(result.rows.map(formatOrder));
   } catch (error) {
@@ -252,11 +252,50 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+// Soft delete / Hide order from history
+const deleteOrder = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!req.user) {
+      return res.status(401).json({ error: 'Bạn cần đăng nhập để ẩn đơn hàng' });
+    }
+
+    // Fetch order to verify ownership
+    const orderResult = await pool.query('SELECT * FROM orders WHERE id = $1', [id]);
+    if (!orderResult.rows.length) {
+      return res.status(404).json({ error: 'Không tìm thấy đơn hàng' });
+    }
+
+    const order = orderResult.rows[0];
+    const isSeller = req.user.role === 'seller' && (
+      req.user.vendor_id === order.vendor_id ||
+      req.user.id === order.seller_id
+    );
+    const isBuyer = req.user.id === order.customer_id;
+
+    if (!isSeller && !isBuyer) {
+      return res.status(403).json({ error: 'Bạn không có quyền ẩn đơn hàng này' });
+    }
+
+    if (isSeller) {
+      await pool.query('UPDATE orders SET seller_hidden = TRUE, updated_at = now() WHERE id = $1', [id]);
+    } else {
+      await pool.query('UPDATE orders SET buyer_hidden = TRUE, updated_at = now() WHERE id = $1', [id]);
+    }
+
+    res.json({ success: true, message: 'Đã ẩn đơn hàng khỏi lịch sử' });
+  } catch (error) {
+    console.error('Error hiding order:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createOrder,
   getOrderById,
   getOrders,
   getMyOrders,
   getSellerOrders,
-  updateOrderStatus
+  updateOrderStatus,
+  deleteOrder
 };

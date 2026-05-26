@@ -30,9 +30,14 @@ const connectPg = async () => {
     // Simple test query with client check to ensure connection
     const client = await pool.connect();
     await client.query('SELECT 1');
+    
+    // Add columns dynamically if they do not exist
+    await client.query('ALTER TABLE orders ADD COLUMN IF NOT EXISTS buyer_hidden BOOLEAN DEFAULT FALSE;');
+    await client.query('ALTER TABLE orders ADD COLUMN IF NOT EXISTS seller_hidden BOOLEAN DEFAULT FALSE;');
+    
     client.release();
     isPgConnected = true;
-    console.log('Postgres connected via DATABASE_URL');
+    console.log('Postgres connected and schema verified');
   } catch (err) {
     isPgConnected = false;
     console.error('Postgres connection failed:', err.message);

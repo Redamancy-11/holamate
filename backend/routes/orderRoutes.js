@@ -6,7 +6,8 @@ const {
   getOrders,
   getMyOrders,
   getSellerOrders,
-  updateOrderStatus
+  updateOrderStatus,
+  deleteOrder
 } = require('../controllers/orderController');
 const { protect, optionalProtect } = require('../middleware/auth');
 
@@ -27,5 +28,8 @@ router.get('/:id', getOrderById);
 
 // Update order status (with auth: seller can progress, buyer can cancel pending)
 router.put('/:id/status', optionalProtect, updateOrderStatus);
+
+// Soft delete / hide order from history (requires login)
+router.delete('/:id', protect, deleteOrder);
 
 module.exports = router;
