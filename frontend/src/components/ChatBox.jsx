@@ -88,7 +88,11 @@ const ChatBox = ({ defaultLocation = null }) => {
         };
         setLocError(msg[err.code] || 'Lỗi GPS không xác định.');
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 60000
+      }
     );
   };
 

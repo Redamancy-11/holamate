@@ -6,7 +6,7 @@ import vietmapgl from '@vietmap/vietmap-gl-js/dist/vietmap-gl';
 import '@vietmap/vietmap-gl-js/dist/vietmap-gl.css';
 
 const SellerDashboard = () => {
-  const { user } = useContext(AuthContext);
+  const { user, loading: authLoading, setShowAuthModal, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('orders'); // 'orders', 'store', or 'guide'
@@ -190,14 +190,7 @@ const SellerDashboard = () => {
     }
   };
 
-  // Redirect unauthorized users
-  useEffect(() => {
-    if (!user) {
-      navigate('/');
-    } else if (user.role !== 'seller') {
-      navigate('/order');
-    }
-  }, [user, navigate]);
+  // Redirect checks removed in favor of in-place UI auth prompts
 
   const loadVendorInfo = async () => {
     if (!user?.vendor_id) return;
@@ -481,7 +474,11 @@ const SellerDashboard = () => {
           (error) => {
             alert('Không thể lấy GPS hiện tại: ' + error.message);
           },
-          { enableHighAccuracy: true, timeout: 8000 }
+          {
+            enableHighAccuracy: false,
+            timeout: 10000,
+            maximumAge: 60000
+          }
         );
       } else {
         alert('Trình duyệt không hỗ trợ định vị GPS.');
@@ -641,6 +638,73 @@ const SellerDashboard = () => {
       default: return {};
     }
   };
+
+  if (authLoading) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0B1425', color: '#fff' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+          <div style={{ width: 48, height: 48, borderRadius: '50%', border: '4px solid rgba(242,112,36,0.1)', borderTopColor: '#F27024', animation: 'spin 1s linear infinite' }} />
+          <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem' }}>Đang tải xác thực...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div style={{
+        minHeight: '100vh', background: '#0B1425', color: '#fff',
+        backgroundImage: 'radial-gradient(circle at 50% -20%, rgba(242,112,36,0.12) 0%, transparent 60%)',
+        paddingTop: 100, paddingBottom: 60, display: 'flex', alignItems: 'center', justifyContent: 'center'
+      }}>
+        <div style={{ maxWidth: 450, width: '100%', margin: '0 20px', padding: 32, borderRadius: 24, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(242,112,36,0.2)', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', fontFamily: 'Inter, sans-serif' }}>
+          <div style={{ fontSize: '3.5rem', marginBottom: 20 }}>🏪</div>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginBottom: 12 }}>Kênh Người Bán (Seller)</h2>
+          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '.9rem', lineHeight: 1.6, marginBottom: 24 }}>
+            Chào mừng bạn đến với Kênh người bán HolaMate. Vui lòng đăng nhập với tài khoản Người bán để bắt đầu nhận đơn hàng và quản lý thực đơn của quán.
+          </p>
+          <button 
+            onClick={() => setShowAuthModal(true)} 
+            style={{ width: '100%', padding: '14px 20px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg,#F27024,#FF5722)', color: '#fff', fontWeight: 800, fontSize: '.95rem', cursor: 'pointer', boxShadow: '0 8px 16px rgba(242,112,36,0.25)', transition: 'transform 0.2s', fontFamily: 'Inter, sans-serif' }}
+          >
+            Đăng nhập / Đăng ký Kênh Người Bán
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (user.role !== 'seller') {
+    return (
+      <div style={{
+        minHeight: '100vh', background: '#0B1425', color: '#fff',
+        backgroundImage: 'radial-gradient(circle at 50% -20%, rgba(242,112,36,0.12) 0%, transparent 60%)',
+        paddingTop: 100, paddingBottom: 60, display: 'flex', alignItems: 'center', justifyContent: 'center'
+      }}>
+        <div style={{ maxWidth: 450, width: '100%', margin: '0 20px', padding: 32, borderRadius: 24, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(239,68,68,0.2)', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', fontFamily: 'Inter, sans-serif' }}>
+          <div style={{ fontSize: '3.5rem', marginBottom: 20 }}>⚠️</div>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginBottom: 12 }}>Yêu Cầu Tài Khoản Người Bán</h2>
+          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '.9rem', lineHeight: 1.6, marginBottom: 24 }}>
+            Tài khoản hiện tại của bạn không phải là tài khoản <strong>Người bán (Seller)</strong>. Hãy đăng nhập bằng tài khoản người bán hoặc liên hệ admin để đăng ký mở gian hàng nhé!
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <button 
+              onClick={() => { logout(); setShowAuthModal(true); }} 
+              style={{ width: '100%', padding: '14px 20px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg,#F27024,#FF5722)', color: '#fff', fontWeight: 800, fontSize: '.95rem', cursor: 'pointer', boxShadow: '0 8px 16px rgba(242,112,36,0.25)', transition: 'transform 0.2s', fontFamily: 'Inter, sans-serif' }}
+            >
+              Đăng nhập tài khoản khác
+            </button>
+            <button 
+              onClick={() => navigate('/')} 
+              style={{ width: '100%', padding: '14px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)', color: '#fff', fontWeight: 700, fontSize: '.9rem', cursor: 'pointer', transition: 'background 0.2s', fontFamily: 'Inter, sans-serif' }}
+            >
+              Quay lại Trang chủ
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (

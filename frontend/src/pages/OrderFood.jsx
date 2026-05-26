@@ -21,7 +21,7 @@ const normalizeVietnamese = (str) => {
 };
 
 const OrderFood = () => {
-  const { user } = useContext(AuthContext);
+  const { user, loading: authLoading, setShowAuthModal } = useContext(AuthContext);
   const [vendors, setVendors] = useState([]);
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -67,7 +67,11 @@ const OrderFood = () => {
         (error) => {
           console.warn('Geolocation lookup failed in OrderFood:', error.message);
         },
-        { enableHighAccuracy: true, timeout: 8000 }
+        {
+          enableHighAccuracy: false,
+          timeout: 10000,
+          maximumAge: 60000
+        }
       );
     }
   }, []);
@@ -379,6 +383,38 @@ const OrderFood = () => {
     });
     return results;
   }, [vendors, searchQuery, searchMode]);
+
+  if (authLoading) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#0b0704', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ border: '4px solid rgba(255,255,255,0.1)', borderTop: '4px solid #F27024', borderRadius: '50%', width: 50, height: 50, animation: 'spin 1s linear infinite' }} />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div style={{
+        minHeight: '100vh', background: '#0b0704', color: '#fff',
+        backgroundImage: 'radial-gradient(circle at 50% -20%, rgba(242,112,36,0.12) 0%, transparent 60%)',
+        paddingTop: 100, paddingBottom: 60, display: 'flex', alignItems: 'center', justifyContent: 'center'
+      }}>
+        <div style={{ maxWidth: 450, width: '100%', margin: '0 20px', padding: 32, borderRadius: 24, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(242,112,36,0.2)', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', fontFamily: 'Inter, sans-serif' }}>
+          <div style={{ fontSize: '3.5rem', marginBottom: 20 }}>🔒</div>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginBottom: 12 }}>Yêu Cầu Đăng Nhập</h2>
+          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '.9rem', lineHeight: 1.6, marginBottom: 24 }}>
+            Chào bạn! Để đặt đồ ăn giao tận phòng KTX Hòa Lạc, bạn cần đăng nhập tài khoản HanoMate của mình trước nhé.
+          </p>
+          <button 
+            onClick={() => setShowAuthModal(true)} 
+            style={{ width: '100%', padding: '14px 20px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg,#F27024,#FF5722)', color: '#fff', fontWeight: 800, fontSize: '.95rem', cursor: 'pointer', boxShadow: '0 8px 16px rgba(242,112,36,0.25)', transition: 'transform 0.2s', fontFamily: 'Inter, sans-serif' }}
+          >
+            Đăng nhập / Đăng ký ngay
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{

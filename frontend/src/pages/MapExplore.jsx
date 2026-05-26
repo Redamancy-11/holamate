@@ -296,7 +296,11 @@ const MapExplore = () => {
           setLocError('Gặp lỗi khi định vị thiết bị.');
         }
       },
-      { enableHighAccuracy: false, timeout: 15000, maximumAge: 0 }
+      {
+        enableHighAccuracy: false,
+        timeout: 10000,
+        maximumAge: 60000
+      }
     );
   };
 
@@ -372,7 +376,11 @@ const MapExplore = () => {
           console.warn('Định vị GPS thất bại hoặc bị từ chối:', err);
           setInitCoords(HOLA_CENTER);
         },
-        { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 }
+        {
+          enableHighAccuracy: false,
+          timeout: 10000,
+          maximumAge: 60000
+        }
       );
     } else {
       setInitCoords(HOLA_CENTER);
