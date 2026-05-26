@@ -9,11 +9,17 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const isSellerRequest = config.url.includes('/seller') || config.url.includes('/admin');
+  const roleHint = config.headers?.['X-Role-Hint'];
+  const isSellerRequest = config.url.includes('/seller') || config.url.includes('/admin')
+    || config.url.includes('/bulk-hide') || roleHint === 'seller';
   const storageKey = isSellerRequest ? 'hanomate_seller_user' : 'hanomate_user';
   let stored = localStorage.getItem(storageKey);
+  // Fallback: if primary key has no token, try the other one
   if (!stored && isSellerRequest) {
     stored = localStorage.getItem('hanomate_user');
+  }
+  if (!stored && !isSellerRequest) {
+    stored = localStorage.getItem('hanomate_seller_user');
   }
   if (stored) {
     try {
@@ -24,6 +30,10 @@ api.interceptors.request.use((config) => {
     } catch {
       // ignore invalid localStorage data
     }
+  }
+  // Clean up custom header before sending
+  if (roleHint) {
+    delete config.headers['X-Role-Hint'];
   }
   return config;
 });
@@ -177,8 +187,10 @@ export const scanVendorMenu = async (vendorId, payload) => {
   return data;
 };
 
-export const deleteOrder = async (id) => {
-  const { data } = await api.delete(`/orders/${id}`);
+export const deleteOrder = async (id, role = null) => {
+  const headers = {};
+  if (role) headers['X-Role-Hint'] = role;
+  const { data } = await api.delete(`/orders/${id}`, { headers });
   return data;
 };
 

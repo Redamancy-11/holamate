@@ -305,7 +305,7 @@ const SellerDashboard = () => {
       // Optimistic update in UI
       setOrders(prev => prev.filter(o => o._id !== orderId));
       setAllOrdersForStats(prev => prev.filter(o => o._id !== orderId));
-      await deleteOrder(orderId);
+      await deleteOrder(orderId, 'seller');
       showFlashMessage('Đã ẩn đơn hàng khỏi lịch sử', 'success');
       loadOrdersInfo();
       if (activeTab === 'stats') {
