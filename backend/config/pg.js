@@ -8,12 +8,17 @@ let pool = null;
 let isPgConnected = false;
 
 if (connectionString) {
-  // Supabase requires SSL; accept self-signed certs in many environments
-  pool = new Pool({
-    connectionString,
-    ssl: { rejectUnauthorized: false },
-    connectionTimeoutMillis: 4000, // Fail fast if blocked
-  });
+  try {
+    // Supabase requires SSL; accept self-signed certs in many environments
+    pool = new Pool({
+      connectionString,
+      ssl: { rejectUnauthorized: false },
+      connectionTimeoutMillis: 4000, // Fail fast if blocked
+    });
+  } catch (err) {
+    console.error('Error initializing PG Pool:', err.message);
+    pool = null;
+  }
 }
 
 const connectPg = async () => {

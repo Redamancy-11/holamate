@@ -142,8 +142,8 @@ export const getSellerOrders = async () => {
   return data;
 };
 
-export const updateOrderStatus = async (id, status) => {
-  const { data } = await api.put(`/orders/${id}/status`, { status });
+export const updateOrderStatus = async (id, status, sellerNote = undefined) => {
+  const { data } = await api.put(`/orders/${id}/status`, { status, sellerNote });
   return data;
 };
 

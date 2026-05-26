@@ -5,9 +5,19 @@ const { HANOI_VENDORS, HANOI_DISTRICTS, TRAVEL_TIPS } = require('../data/hanoiKn
 const { getTikTokContext, extractVendorsFromTikTok } = require('../data/tiktokData');
 
 // ── Init Gemini 2.0 Flash ──────────────────────────────────────────────────
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+let genAI = null;
+const getGenAI = () => {
+  if (!genAI) {
+    const key = process.env.GEMINI_API_KEY;
+    if (!key) {
+      console.warn('WARNING: GEMINI_API_KEY environment variable is not defined.');
+    }
+    genAI = new GoogleGenerativeAI(key || 'PLACEHOLDER_KEY');
+  }
+  return genAI;
+};
 
-const getModel = () => genAI.getGenerativeModel({
+const getModel = () => getGenAI().getGenerativeModel({
   model: 'gemini-flash-latest',
   generationConfig: {
     temperature: 0.85,

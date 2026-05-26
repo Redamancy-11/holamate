@@ -14,6 +14,7 @@ const formatOrder = (row) => ({
   totalAmount: row.total_amount,
   status: row.status,
   customerNote: row.customer_note,
+  sellerNote: row.seller_note,
   customerId: row.customer_id,
   sellerId: row.seller_id,
   deliveryLongitude: row.delivery_longitude ? Number(row.delivery_longitude) : null,
@@ -187,7 +188,7 @@ const getSellerOrders = async (req, res) => {
 // Update order status (only seller who owns the vendor, or the buyer who placed it for cancellation)
 const updateOrderStatus = async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status, sellerNote } = req.body;
     const validStatuses = ['pending', 'preparing', 'delivering', 'completed', 'cancelled'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ error: `Trạng thái không hợp lệ. Các trạng thái hợp lệ: ${validStatuses.join(', ')}` });
@@ -224,13 +225,26 @@ const updateOrderStatus = async (req, res) => {
       }
     }
 
-    const query = `
-      UPDATE orders 
-      SET status = $1, updated_at = now() 
-      WHERE id = $2 
-      RETURNING *;
-    `;
-    const result = await pool.query(query, [status, req.params.id]);
+    let query;
+    let params;
+    if (sellerNote !== undefined) {
+      query = `
+        UPDATE orders 
+        SET status = $1, seller_note = $2, updated_at = now() 
+        WHERE id = $3 
+        RETURNING *;
+      `;
+      params = [status, sellerNote, req.params.id];
+    } else {
+      query = `
+        UPDATE orders 
+        SET status = $1, updated_at = now() 
+        WHERE id = $2 
+        RETURNING *;
+      `;
+      params = [status, req.params.id];
+    }
+    const result = await pool.query(query, params);
     res.json(formatOrder(result.rows[0]));
   } catch (error) {
     console.error('Error updating order status:', error.message);

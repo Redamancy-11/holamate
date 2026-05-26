@@ -526,6 +526,11 @@ const OrderFood = () => {
             <div style={{ marginBottom: 28, fontSize: '.88rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>
               <div>📍 <strong>Người nhận:</strong> {activeOrder.customerName} — {activeOrder.customerPhone}</div>
               <div style={{ marginTop: 4 }}>🏠 <strong>Địa chỉ giao:</strong> {activeOrder.deliveryAddress}</div>
+              {activeOrder.sellerNote && (
+                <div style={{ marginTop: 10, padding: '8px 12px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)', borderRadius: 8, color: '#FCA5A5', fontSize: '.84rem' }}>
+                  💬 <strong>Ghi chú từ quán:</strong> {activeOrder.sellerNote}
+                </div>
+              )}
             </div>
 
             {/* Delivery Route Map */}
@@ -1000,6 +1005,11 @@ const OrderFood = () => {
                                 <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '.76rem', marginBottom: 4 }}>
                                   {order.items.map(i => `${i.name} x${i.quantity}`).join(', ')}
                                 </div>
+                                {order.sellerNote && (
+                                  <div style={{ color: '#FCA5A5', fontSize: '.76rem', marginBottom: 6, background: 'rgba(239,68,68,0.05)', padding: '4px 8px', borderRadius: 4 }}>
+                                    💬 Ghi chú từ quán: {order.sellerNote}
+                                  </div>
+                                )}
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                   <span style={{ color: '#FF9800', fontWeight: 700 }}>{formatPrice(order.totalAmount)}</span>
                                   <div style={{ display: 'flex', gap: 8 }}>

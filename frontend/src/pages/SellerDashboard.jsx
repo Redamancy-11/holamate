@@ -19,6 +19,8 @@ const SellerDashboard = () => {
 
   // Store coordinates
   const [storeCoords, setStoreCoords] = useState([105.52522, 21.01354]);
+  const [cancellingOrderId, setCancellingOrderId] = useState(null);
+  const [sellerCancelNote, setSellerCancelNote] = useState('');
 
   const miniMapContainerRef = useRef(null);
   const miniMapRef = useRef(null);
@@ -320,6 +322,27 @@ const SellerDashboard = () => {
       .addTo(map);
 
     miniMapMarkerRef.current = marker;
+
+    // Auto detect user location on load
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLng = position.coords.longitude;
+          const userLat = position.coords.latitude;
+          if (userLng > 104.0 && userLng < 106.5 && userLat > 20.0 && userLat < 22.0) {
+            const gpsCoords = [userLng, userLat];
+            setStoreCoords(gpsCoords);
+            marker.setLngLat(gpsCoords);
+            map.setCenter(gpsCoords);
+            showFlashMessage('Đã tự động định vị và ghim vị trí hiện tại của bạn trên bản đồ!', 'success');
+          }
+        },
+        (error) => {
+          console.warn('Geolocation auto-detect failed:', error.message);
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    }
 
     // Listen to dragend
     marker.on('dragend', () => {
@@ -815,6 +838,39 @@ const SellerDashboard = () => {
                       </div>
                     )}
 
+                    {/* Dấu x để hủy đơn nhanh */}
+                    {order.status !== 'completed' && order.status !== 'cancelled' && (
+                      <button 
+                        onClick={() => {
+                          setCancellingOrderId(order._id);
+                          setSellerCancelNote('');
+                        }}
+                        style={{
+                          position: 'absolute',
+                          top: 20,
+                          right: order.status === 'pending' ? 85 : 20,
+                          background: 'rgba(239, 68, 68, 0.1)',
+                          color: '#EF4444',
+                          border: 'none',
+                          width: 28,
+                          height: 28,
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          fontWeight: 'bold',
+                          transition: 'all 0.2s',
+                          zIndex: 5
+                        }}
+                        title="Hủy đơn hàng"
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+                      >
+                        &times;
+                      </button>
+                    )}
+
                     {/* Order Details Column */}
                     <div style={{ flex: '1 1 500px', display: 'flex', flexDirection: 'column', gap: 12 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
@@ -856,6 +912,12 @@ const SellerDashboard = () => {
                       {order.customerNote && (
                         <div style={{ padding: '8px 12px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)', borderRadius: 8, fontSize: '0.85rem', color: '#FCA5A5' }}>
                           💬 <strong>Ghi chú:</strong> {order.customerNote}
+                        </div>
+                      )}
+
+                      {order.sellerNote && (
+                        <div style={{ padding: '8px 12px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)', borderRadius: 8, fontSize: '0.85rem', color: '#FCA5A5', marginTop: 6 }}>
+                          💬 <strong>Phản hồi của bạn:</strong> {order.sellerNote}
                         </div>
                       )}
                     </div>
@@ -915,7 +977,13 @@ const SellerDashboard = () => {
                             </button>
                           )}
                           {order.status !== 'completed' && order.status !== 'cancelled' && (
-                            <button onClick={() => handleStatusChange(order._id, 'cancelled')} style={{ background: 'rgba(239,68,68,0.1)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.2)', padding: '8px 16px', borderRadius: 8, fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' }}>
+                            <button 
+                              onClick={() => {
+                                setCancellingOrderId(order._id);
+                                setSellerCancelNote('');
+                              }} 
+                              style={{ background: 'rgba(239,68,68,0.1)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.2)', padding: '8px 16px', borderRadius: 8, fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer' }}
+                            >
                               Hủy 🚫
                             </button>
                           )}
@@ -1152,17 +1220,52 @@ const SellerDashboard = () => {
                     </div>
                   </div>
 
-                  <button 
-                    onClick={handleSaveCoords}
-                    disabled={isSavingCoords}
-                    style={{
-                      padding: '10px 20px', borderRadius: 10, border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem',
-                      background: 'linear-gradient(135deg, #10B981, #059669)', color: '#fff', boxShadow: '0 4px 12px rgba(16,185,129,0.25)',
-                      opacity: isSavingCoords ? 0.7 : 1, transition: 'all 0.2s'
-                    }}
-                  >
-                    {isSavingCoords ? 'Đang lưu...' : '📌 Lưu vị trí này'}
-                  </button>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        if (navigator.geolocation) {
+                          navigator.geolocation.getCurrentPosition(
+                            (position) => {
+                              const gpsCoords = [position.coords.longitude, position.coords.latitude];
+                              setStoreCoords(gpsCoords);
+                              if (miniMapMarkerRef.current) {
+                                miniMapMarkerRef.current.setLngLat(gpsCoords);
+                              }
+                              if (miniMapRef.current) {
+                                miniMapRef.current.setCenter(gpsCoords);
+                              }
+                              showFlashMessage('Đã cập nhật tọa độ từ GPS của thiết bị!', 'success');
+                            },
+                            (err) => {
+                              alert('Không thể định vị GPS: ' + err.message);
+                            },
+                            { enableHighAccuracy: true, timeout: 8000 }
+                          );
+                        } else {
+                          alert('Trình duyệt không hỗ trợ định vị GPS.');
+                        }
+                      }}
+                      style={{
+                        padding: '10px 16px', borderRadius: 10, border: '1px solid rgba(242,112,36,0.5)',
+                        background: 'rgba(242,112,36,0.1)', color: '#F27024', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      📍 Định vị thiết bị
+                    </button>
+                    <button 
+                      onClick={handleSaveCoords}
+                      disabled={isSavingCoords}
+                      style={{
+                        padding: '10px 20px', borderRadius: 10, border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem',
+                        background: 'linear-gradient(135deg, #10B981, #059669)', color: '#fff', boxShadow: '0 4px 12px rgba(16,185,129,0.25)',
+                        opacity: isSavingCoords ? 0.7 : 1, transition: 'all 0.2s'
+                      }}
+                    >
+                      {isSavingCoords ? 'Đang lưu...' : '📌 Lưu vị trí này'}
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1361,6 +1464,93 @@ const SellerDashboard = () => {
                 }}
               >
                 Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== CANCEL ORDER WITH NOTE MODAL ==================== */}
+      {cancellingOrderId && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'rgba(5,8,22,0.85)', backdropFilter: 'blur(12px)', padding: 20
+        }}>
+          <div style={{
+            width: '100%', maxWidth: 450, background: '#0B1425', border: '1px solid rgba(239,68,68,0.2)',
+            borderRadius: 24, padding: 28, boxShadow: '0 20px 50px rgba(0,0,0,0.5)', display: 'flex', flexDirection: 'column', gap: 20
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: '1.4rem' }}>🚫</span>
+                <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#fff' }}>
+                  Hủy đơn hàng #{cancellingOrderId}
+                </h3>
+              </div>
+              <button 
+                onClick={() => setCancellingOrderId(null)}
+                style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: '1.5rem', cursor: 'pointer' }}
+              >
+                &times;
+              </button>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', marginBottom: 8 }}>
+                Lý do hủy đơn (gửi đến người mua):
+              </label>
+              <textarea 
+                value={sellerCancelNote}
+                onChange={(e) => setSellerCancelNote(e.target.value)}
+                placeholder="Ví dụ: Quán hết món này rồi ạ, mong quý khách thông cảm..."
+                rows={4}
+                style={{
+                  width: '100%',
+                  padding: '12px 14px',
+                  borderRadius: 12,
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  color: '#fff',
+                  fontSize: '0.9rem',
+                  outline: 'none',
+                  resize: 'none',
+                  fontFamily: 'inherit'
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+              <button 
+                onClick={() => setCancellingOrderId(null)}
+                style={{
+                  padding: '10px 20px', borderRadius: 10, border: 'none',
+                  background: 'rgba(255,255,255,0.05)', color: '#CBD5E1', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer'
+                }}
+              >
+                Đóng
+              </button>
+              <button 
+                onClick={async () => {
+                  try {
+                    const res = await updateOrderStatus(cancellingOrderId, 'cancelled', sellerCancelNote);
+                    if (res) {
+                      showFlashMessage('Đã hủy đơn hàng và gửi phản hồi đến người mua!', 'success');
+                      setCancellingOrderId(null);
+                      setSellerCancelNote('');
+                      loadOrdersInfo();
+                    }
+                  } catch (err) {
+                    console.error('Error cancelling order:', err);
+                    showFlashMessage('Lỗi khi hủy đơn hàng.', 'error');
+                  }
+                }}
+                style={{
+                  padding: '10px 20px', borderRadius: 10, border: 'none',
+                  background: 'linear-gradient(135deg, #EF4444, #DC2626)', color: '#fff', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer',
+                  boxShadow: '0 4px 12px rgba(239,68,68,0.2)'
+                }}
+              >
+                Xác nhận Hủy đơn
               </button>
             </div>
           </div>
