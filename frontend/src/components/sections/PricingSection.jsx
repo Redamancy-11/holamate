@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { AuthContext } from '../../contexts/AuthContext';
 
 // Ảnh nền cho từng gói
 const PLAN_PHOTOS = {
@@ -19,7 +20,7 @@ const plans = [
     cta: 'Dùng Miễn Phí',
     ctaStyle: { background: 'rgba(255,215,0,0.15)', border: '1.5px solid #FFD700', color: '#FFD700' },
     features: [
-      { text: '5 lịch trình AI/tháng', included: true },
+      { text: 'Hỗ trợ Chat AI cơ bản', included: true },
       { text: 'Bản đồ cơ bản', included: true },
       { text: '100 địa điểm đã xác minh', included: true },
       { text: 'Giá cộng đồng', included: true },
@@ -38,7 +39,7 @@ const plans = [
     cta: 'Chọn Traveler',
     ctaStyle: { background: 'linear-gradient(135deg,#D4A017,#FF8C00)', border: 'none', color: '#fff', boxShadow: '0 8px 24px rgba(212,160,23,0.4)' },
     features: [
-      { text: 'Lịch trình AI không giới hạn', included: true },
+      { text: 'Hỗ trợ Chat AI không giới hạn', included: true },
       { text: 'Bản đồ tương tác đầy đủ', included: true },
       { text: '500+ địa điểm đã xác minh', included: true },
       { text: 'Giá thời gian thực', included: true },
@@ -59,7 +60,7 @@ const plans = [
       { text: 'Mọi thứ của Traveler', included: true },
       { text: 'AI phản hồi ưu tiên', included: true },
       { text: 'Truy cập API', included: true },
-      { text: 'Xuất lịch trình tuỳ chỉnh', included: true },
+      { text: 'Ưu tiên phản hồi từ AI', included: true },
       { text: 'Truy cập sớm tính năng mới', included: true },
       { text: 'Hỗ trợ riêng', included: true },
     ],
@@ -68,6 +69,7 @@ const plans = [
 
 const PricingSection = () => {
   const [yearly, setYearly] = useState(false);
+  const { user, setShowAuthModal } = useContext(AuthContext);
   const fmt = (n) => n === 0 ? 'Miễn Phí' : n.toLocaleString('vi-VN') + 'đ';
 
   return (
@@ -132,9 +134,15 @@ const PricingSection = () => {
                     </li>
                   ))}
                 </ul>
-                <Link to="/planner" style={{ display: 'block', textAlign: 'center', padding: '13px', borderRadius: 12, fontWeight: 700, fontSize: '.9rem', cursor: 'pointer', textDecoration: 'none', transition: 'all 0.2s ease', ...p.ctaStyle }}>
-                  {p.cta}
-                </Link>
+                {user ? (
+                  <Link to="/planner" style={{ display: 'block', textAlign: 'center', padding: '13px', borderRadius: 12, fontWeight: 700, fontSize: '.9rem', cursor: 'pointer', textDecoration: 'none', transition: 'all 0.2s ease', ...p.ctaStyle }}>
+                    {p.cta}
+                  </Link>
+                ) : (
+                  <button onClick={() => setShowAuthModal(true)} style={{ display: 'block', width: '100%', textAlign: 'center', padding: '13px', borderRadius: 12, fontWeight: 700, fontSize: '.9rem', cursor: 'pointer', border: p.ctaStyle.border || 'none', transition: 'all 0.2s ease', ...p.ctaStyle }}>
+                    {p.cta}
+                  </button>
+                )}
               </div>
             </div>
           ))}

@@ -119,11 +119,11 @@ const Navbar = () => {
               <button onClick={() => setShowAuthModal(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: 50, fontWeight: 500, fontSize: '.88rem', color: textColor, transition: 'color .25s ease' }}
                 onMouseEnter={e => e.currentTarget.style.color = '#F27024'}
                 onMouseLeave={e => e.currentTarget.style.color = textColor}>Sign In</button>
-              <Link to="/planner" style={{ padding: '10px 22px', borderRadius: 50, background: '#F27024', color: '#fff', fontWeight: 600, fontSize: '.88rem', boxShadow: '0 4px 14px rgba(242,112,36,.32)', transition: 'all .25s ease', display: 'flex', alignItems: 'center', gap: 6 }}
+              <button onClick={() => setShowAuthModal(true)} style={{ padding: '10px 22px', borderRadius: 50, background: '#F27024', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '.88rem', boxShadow: '0 4px 14px rgba(242,112,36,.32)', transition: 'all .25s ease', display: 'flex', alignItems: 'center', gap: 6 }}
                 onMouseEnter={e => { e.currentTarget.style.background = '#e05f15'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
                 onMouseLeave={e => { e.currentTarget.style.background = '#F27024'; e.currentTarget.style.transform = 'none'; }}>
-                Get Started Free <span>→</span>
-              </Link>
+                Bắt đầu ngay <span>→</span>
+              </button>
             </>
           )}
         </div>
@@ -151,7 +151,7 @@ const Navbar = () => {
             ) : (
               <button onClick={() => { setMenuOpen(false); setShowAuthModal(true); }} style={{ flex: 1, textAlign: 'center', padding: '12px', borderRadius: 50, border: '1.5px solid #F27024', background: 'transparent', color: '#F27024', fontWeight: 600 }}>Sign In</button>
             )}
-            <Link to="/planner" style={{ flex: 1, textAlign: 'center', padding: '12px', borderRadius: 50, background: '#F27024', color: '#fff', fontWeight: 600 }}>Get Started</Link>
+            <button onClick={() => { setMenuOpen(false); setShowAuthModal(true); }} style={{ flex: 1, textAlign: 'center', padding: '12px', borderRadius: 50, border: 'none', background: '#F27024', color: '#fff', fontWeight: 600 }}>Bắt đầu ngay</button>
           </div>
         </div>
       )}

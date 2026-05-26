@@ -25,9 +25,9 @@ const features = [
     color: '#F27024',
     photo: HOLA_PHOTOS[0],
     badge: 'AI-Powered',
-    title: 'Lên Lịch Trình AI Hola',
-    desc: 'Lên kế hoạch ăn chơi, học nhóm, dã ngoại quanh Hòa Lạc chỉ trong vài giây. AI gợi ý địa điểm sát sườn theo sở thích sinh viên.',
-    features: ['Tối ưu xe bus & Grab', 'Gợi ý quán cafe học bài', 'Lịch trình ngoại khu thú vị'],
+    title: 'Trợ Lý Ẩm Thực AI',
+    desc: 'Hỏi đáp gợi ý quán ăn ngon bổ rẻ, xem review đánh giá món ăn trung thực và giải đáp thắc mắc về đời sống Hòa Lạc cùng Trợ lý AI.',
+    features: ['Gợi ý món ăn thông minh', 'Đánh giá review chân thực', 'Hỗ trợ trực tuyến 24/7'],
   },
   {
     icon: '💰',
@@ -100,7 +100,7 @@ const FeaturesSection = () => (
 
       <div className="reveal" style={{ textAlign: 'center', marginTop: 56 }}>
         <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: 20, fontSize: '.95rem' }}>Tham gia cùng 1,000+ sinh viên FPT khám phá Hòa Lạc thông minh hơn</p>
-        <a href="/planner" className="btn btn-primary btn-lg" style={{ background: 'linear-gradient(135deg,#F27024,#FF5722)', border: 'none' }}>Khám Phá Tất Cả Tính Năng →</a>
+        <a href="/map" className="btn btn-primary btn-lg" style={{ background: 'linear-gradient(135deg,#F27024,#FF5722)', border: 'none' }}>Khám Phá Bản Đồ Ngay →</a>
       </div>
     </div>
   </section>

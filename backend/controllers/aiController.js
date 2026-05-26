@@ -74,13 +74,9 @@ const buildContext = async (query) => {
 // ── Detect intent ──────────────────────────────────────────────────────────
 const detectIntent = (message) => {
   const m = message.toLowerCase();
-  if (/lịch trình|itinerary|plan|tour|đi đâu|gợi ý|kế hoạch|nên đi|itinerary|schedule|plan/.test(m)) return 'itinerary';
-  if (/giá|price|bao nhiêu|cost|expensive|cheap|rẻ|đắt|tiền|minh bạch|giá cả|transparent/.test(m)) return 'price';
-  if (/ăn|food|phở|bún|bánh|cơm|cháo|eat|restaurant|quán/.test(m)) return 'food';
-  if (/cà phê|cafe|coffee|trà|tea|drink/.test(m)) return 'cafe';
-  if (/tham quan|attraction|đền|chùa|bảo tàng|hồ|lake|sightseeing/.test(m)) return 'attraction';
-  if (/thời tiết|weather|mưa|rain|nóng|hot|lạnh|cold/.test(m)) return 'weather';
-  if (/bar|bia|beer|nightlife|đêm|night/.test(m)) return 'nightlife';
+  if (/gợi ý|ăn gì|chỗ chơi|đi đâu|quán ngon|cafe/.test(m)) return 'suggestion';
+  if (/giá|bao nhiêu|tiền|đắt|rẻ|chi phí|menu/.test(m)) return 'price';
+  if (/xe bus|di chuyển|đường đi|bus|107|74/.test(m)) return 'transport';
   return 'general';
 };
 
@@ -98,13 +94,13 @@ const buildLocationContext = (location) => {
 };
 
 const buildIntentInstruction = (intent) => {
-  if (intent === 'itinerary') {
-    return `Khi người dùng hỏi về lịch trình, hãy tạo một kế hoạch tham quan Hà Nội rõ ràng, ngắn gọn, gồm thời gian, địa điểm, chi phí ước tính và tips du lịch cụ thể. Trả lời như một hướng dẫn viên thân thiện, ưu tiên lịch trình 2h-3h nếu câu hỏi không nói rõ thời lượng.`;
-  }
   if (intent === 'price') {
-    return `Khi người dùng hỏi về giá cả hoặc minh bạch giá, hãy trả lời thật chi tiết và trung thực bằng tiếng Việt. Sử dụng thông tin vendor hiện có để nêu giá trung bình, giá rẻ nhất, gợi ý nơi nên ăn hoặc mua, và tips tiết kiệm. Không lan man, chỉ trả lời đúng vấn đề giá cả.`;
+    return `Khi người dùng hỏi về giá cả hoặc minh bạch giá, hãy trả lời thật chi tiết và trung thực bằng tiếng Việt. Nêu giá cụ thể của các quán ăn quanh khu FPT Hòa Lạc và Tân Xã.`;
   }
-  return `Hãy trả lời như HanoMate AI, trợ lý du lịch Hà Nội thân thiện và nhiệt tình. Nếu người dùng hỏi về địa điểm ăn uống, lịch trình hoặc giá cả, hãy cung cấp thông tin chi tiết và thực tế dựa trên dữ liệu.`;
+  if (intent === 'transport') {
+    return `Khi người dùng hỏi về di chuyển hoặc xe bus (như bus 107, 74), hãy cung cấp lộ trình di chuyển chính xác từ nội thành lên campus FPT Hòa Lạc và ngược lại.`;
+  }
+  return `Hãy trả lời như HolaMate AI, trợ lý đời sống sinh viên FPT Hòa Lạc thân thiện và nhiệt tình. Gợi ý các món ăn ngon, quán cafe học bài, và địa điểm dã ngoại gần trường.`;
 };
 
 const buildPricePrompt = (query, matches) => {
@@ -344,11 +340,10 @@ const streamChat = async (req, res) => {
 // ── Helper ─────────────────────────────────────────────────────────────────
 const getSuggestions = (intent) => {
   const map = {
-    itinerary: ['Lịch trình 2h Hoàn Kiếm', 'Tour ẩm thực buổi sáng', 'Lịch trình cả ngày Ba Đình'],
-    food: ['Phở ngon nhất Hà Nội?', 'Bún chả ở đâu?', 'Ăn sáng gì ở phố cổ?'],
-    cafe: ['Cà phê trứng ở đâu?', 'Rooftop cafe Hà Nội', 'Cafe view hồ Hoàn Kiếm'],
-    price: ['Giá phở bao nhiêu?', 'Ngân sách 200k ăn được gì?', 'Chỗ ăn rẻ ngon gần phố cổ'],
-    general: ['Lập lịch trình 2h', 'Ăn gì buổi sáng?', 'Top 5 địa điểm must-visit'],
+    suggestion: ['Ăn gì hôm nay quanh KTX?', 'Top 5 quán nướng lẩu Tân Xã', 'Quán cafe yên tĩnh học nhóm'],
+    price: ['Giá lẩu nướng 1988 BBQ?', 'Cơm tấm Dom A bao nhiêu?', 'Ăn vặt Tân Xã giá học sinh'],
+    transport: ['Lịch xe bus 107', 'Cách đi xe bus 74 lên Hola', 'Đi Grab từ trường ra Tân Xã'],
+    general: ['Gợi ý món ăn ngon', 'Các Dom KTX ở Hola', 'Đại học FPT có gì chơi?'],
   };
   return map[intent] || map.general;
 };

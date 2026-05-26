@@ -30,7 +30,7 @@ const HeroSection = () => (
             <span style={{ background: 'linear-gradient(135deg,#FF9800,#FF5722)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Như Người Bản Địa</span>
           </h1>
           <p style={{ color: 'rgba(255,255,255,.80)', fontSize: '1.1rem', maxWidth: 480, marginBottom: 36, lineHeight: 1.75 }}>
-            Lịch trình học tập & vui chơi, giá cả sinh viên minh bạch và các quán ngon ngoại khu quanh Hola — tất cả được hỗ trợ bởi AI. Hành trình tuyệt vời của bạn bắt đầu từ đây.
+            Tìm kiếm quán ngon, xem giá cả sinh viên minh bạch, khám phá bản đồ địa điểm và hỏi đáp trực tuyến 24/7 — tất cả được hỗ trợ bởi AI. Hành trình tuyệt vời của bạn bắt đầu từ đây.
           </p>
           <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginBottom: 48 }}>
             <Link to="/planner" className="btn btn-primary btn-lg" style={{ fontSize: '1rem', background: 'linear-gradient(135deg,#F27024,#FF5722)', boxShadow: '0 8px 24px rgba(242,112,36,0.45)', border: 'none' }}>
@@ -55,12 +55,12 @@ const HeroSection = () => (
                 <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg,#F27024,#FF5722)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.1rem', fontWeight: 900, color: '#fff' }}>O</div>
                 <div>
                   <div style={{ color: '#fff', fontWeight: 700, fontSize: '.9rem' }}>HolaMate AI</div>
-                  <div style={{ color: 'rgba(255,255,255,.5)', fontSize: '.75rem' }}>● Online — Sẵn sàng lên lịch!</div>
+                  <div style={{ color: 'rgba(255,255,255,.5)', fontSize: '.75rem' }}>● Online — Sẵn sàng trợ giúp!</div>
                 </div>
               </div>
               {[
                 { role: 'user', text: 'Tìm quán nướng ngon rẻ quanh Tân Xã 🍢' },
-                { role: 'ai', text: '✨ Gợi ý nướng lẩu cho sinh viên Hola:\n\n🕐 18:00 — 1988 BBQ Tân Xã (1.5km)\n🕐 19:30 — Trà chanh ngắm hoàng hôn Hồ Tân Xã\n🕐 20:30 — Bay Coffee & Tea (view Koi)' },
+                { role: 'ai', text: '✨ Gợi ý quán ngon cho bạn:\n\n🍜 1988 BBQ Tân Xã — Buffet nướng lẩu chỉ từ 129k cực đông khách.\n☕ Bay Coffee & Tea — View hồ Tân Xã siêu đẹp, đồ uống rất rẻ chỉ từ 25k.' },
                 { role: 'ai', text: '💰 Tổng chi phí dự kiến: ~150.000đ/người — đã xác minh!' },
               ].map((m, i) => (
                 <div key={i} style={{ display: 'flex', justifyContent: m.role === 'user' ? 'flex-end' : 'flex-start', marginBottom: 12 }}>
@@ -90,7 +90,7 @@ const HeroSection = () => (
                 <span style={{ fontSize: '1.3rem' }}>✨</span>
                 <div>
                   <div style={{ fontWeight: 700, fontSize: '.82rem', color: '#fff' }}>Hỗ Trợ AI</div>
-                  <div style={{ fontSize: '.72rem', color: 'rgba(255,255,255,.8)' }}>Lịch trình tức thì</div>
+                  <div style={{ fontSize: '.72rem', color: 'rgba(255,255,255,.8)' }}>Trực tuyến 24/7</div>
                 </div>
               </div>
             </div>

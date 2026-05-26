@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const footerLinks = {
   'Sản Phẩm': [
-    { label: 'AI Planner', to: '/planner', desc: 'Lên lịch trình du lịch với AI' },
+    { label: 'Trợ Lý AI 💬', to: '/planner', desc: 'Gợi ý món ăn & đời sống' },
     { label: 'Bản Đồ Tương Tác', to: '/map', desc: 'Xem địa điểm trên bản đồ GPS' },
     { label: 'Tính Năng', href: '/#features', desc: 'Khám phá tất cả tính năng' },
     { label: 'Đánh Giá', href: '/#reviews', desc: 'Nhận xét từ du khách' },
@@ -98,8 +98,8 @@ A: Bạn có thể vào tab Bản Đồ, chọn địa điểm và nhấn "Báo 
 Q: Dữ liệu giá có chính xác không?
 A: Các báo cáo giá đều được đối chiếu chéo thông qua thuật toán đồng thuận để lọc bỏ báo cáo sai lệch.
 
-Q: Làm sao để AI lên lịch trình tốt nhất?
-A: Hãy cung cấp vị trí xuất phát của bạn (ví dụ: KTX Dom A) và thời gian bạn rảnh, AI sẽ tự động lên kế hoạch tối ưu.
+Q: Làm sao để AI gợi ý tốt nhất?
+A: Hãy cung cấp vị trí và sở thích ăn uống hiện tại của bạn, AI sẽ tự động đề xuất những quán ăn ngon, bổ, rẻ phù hợp.
 
 📧 Liên hệ hỗ trợ: support@holamate.vn`,
   },
@@ -107,9 +107,9 @@ A: Hãy cung cấp vị trí xuất phát của bạn (ví dụ: KTX Dom A) và 
     title: '📖 Hướng Dẫn Sử Dụng',
     content: `🚀 Khám phá HolaMate trong 3 bước:
 
-1️⃣ Mở AI Planner
-   → Click "Bắt Đầu Miễn Phí" trên trang chủ
-   → Chat trực tiếp với trợ lý AI HolaMate
+1️⃣ Mở Trợ Lý AI
+   → Click "Bắt đầu ngay" để mở khung Chat AI
+   → Trò chuyện trực tiếp với trợ lý AI HolaMate
 
 2️⃣ Sử dụng Bản Đồ Tương Tác
    → Vào tab "Bản Đồ" và cho phép truy cập vị trí GPS
@@ -239,7 +239,7 @@ const FooterSection = () => {
                   <span style={{ fontWeight: 800, fontSize: '1.3rem', color: '#FF9800', letterSpacing: '.02em', fontFamily: 'sans-serif' }}>HolaMate</span>
                 </div>
                 <p style={{ color: 'rgba(255,255,255,.48)', fontSize: '.86rem', lineHeight: 1.8, maxWidth: 260, marginBottom: 24 }}>
-                  Trợ lý đời sống AI chuyên biệt cho FPT Hoà Lạc. Lên lịch trình học tập, vui chơi và khảo sát giá sinh viên minh bạch.
+                  Trợ lý ẩm thực & đời sống AI chuyên biệt cho FPT Hoà Lạc. Gợi ý món ngon, xem review chân thực và khảo sát giá sinh viên minh bạch.
                 </p>
                 <div style={{ display: 'flex', gap: 10 }}>
                   {socials.map(s => (
