@@ -7,7 +7,8 @@ const {
   getMyOrders,
   getSellerOrders,
   updateOrderStatus,
-  deleteOrder
+  deleteOrder,
+  bulkHideOrders
 } = require('../controllers/orderController');
 const { protect, optionalProtect } = require('../middleware/auth');
 
@@ -19,6 +20,9 @@ router.get('/my', protect, getMyOrders);
 
 // Seller gets orders for their vendor (must be logged in as seller)
 router.get('/seller', protect, getSellerOrders);
+
+// Bulk hide completed/cancelled orders for a seller
+router.post('/bulk-hide', protect, bulkHideOrders);
 
 // Get all orders with optional filters (vendorId, sellerId) — for admin/debug
 router.get('/', getOrders);

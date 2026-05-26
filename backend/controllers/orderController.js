@@ -117,7 +117,7 @@ const getOrderById = async (req, res) => {
 // Get all orders (supports filtering by vendorId or sellerId)
 const getOrders = async (req, res) => {
   try {
-    const { vendorId, sellerId } = req.query;
+    const { vendorId, sellerId, includeHidden } = req.query;
     let query = 'SELECT * FROM orders';
     const params = [];
     const conditions = [];
@@ -129,6 +129,9 @@ const getOrders = async (req, res) => {
     if (sellerId) {
       conditions.push(`seller_id = $${params.length + 1}`);
       params.push(sellerId);
+    }
+    if (includeHidden !== 'true') {
+      conditions.push('seller_hidden = FALSE');
     }
 
     if (conditions.length > 0) {
@@ -175,8 +178,13 @@ const getSellerOrders = async (req, res) => {
       return res.json([]);
     }
 
-    // Query by vendor_id OR seller_id to catch all orders
-    const query = 'SELECT * FROM orders WHERE (vendor_id = $1 OR seller_id = $2) AND seller_hidden = FALSE ORDER BY created_at DESC;';
+    const { includeHidden } = req.query;
+    let query = 'SELECT * FROM orders WHERE (vendor_id = $1 OR seller_id = $2)';
+    if (includeHidden !== 'true') {
+      query += ' AND seller_hidden = FALSE';
+    }
+    query += ' ORDER BY created_at DESC;';
+
     const result = await pool.query(query, [vendorId, req.user.id]);
     res.json(result.rows.map(formatOrder));
   } catch (error) {
@@ -290,6 +298,56 @@ const deleteOrder = async (req, res) => {
   }
 };
 
+// Bulk hide completed/cancelled orders for a seller
+const bulkHideOrders = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Bạn cần đăng nhập để dọn dẹp lịch sử' });
+    }
+    if (req.user.role !== 'seller') {
+      return res.status(403).json({ error: 'Chỉ tài khoản người bán mới có quyền ẩn lịch sử đơn hàng' });
+    }
+
+    const vendorId = req.user.vendor_id;
+    if (!vendorId) {
+      return res.status(400).json({ error: 'Tài khoản chưa được liên kết với cửa hàng nào' });
+    }
+
+    const { range } = req.body;
+    let intervalStr;
+    switch (range) {
+      case '3h':
+        intervalStr = '3 hours';
+        break;
+      case 'day':
+        intervalStr = '24 hours';
+        break;
+      case 'week':
+        intervalStr = '7 days';
+        break;
+      case 'month':
+        intervalStr = '30 days';
+        break;
+      default:
+        return res.status(400).json({ error: 'Khoảng thời gian không hợp lệ. Phải là 3h, day, week, hoặc month' });
+    }
+
+    const query = `
+      UPDATE orders 
+      SET seller_hidden = TRUE, updated_at = now() 
+      WHERE (vendor_id = $1 OR seller_id = $2)
+        AND status IN ('completed', 'cancelled')
+        AND created_at >= now() - $3::INTERVAL;
+    `;
+
+    const result = await pool.query(query, [vendorId, req.user.id, intervalStr]);
+    res.json({ success: true, count: result.rowCount, message: `Đã dọn dẹp ${result.rowCount} đơn hàng hoàn thành/đã hủy.` });
+  } catch (error) {
+    console.error('Error in bulkHideOrders:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   createOrder,
   getOrderById,
@@ -297,5 +355,6 @@ module.exports = {
   getMyOrders,
   getSellerOrders,
   updateOrderStatus,
-  deleteOrder
+  deleteOrder,
+  bulkHideOrders
 };

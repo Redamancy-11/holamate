@@ -136,14 +136,19 @@ export const getMyOrders = async () => {
 };
 
 // Seller & Admin Dashboard API functions
-export const getOrdersByVendor = async (vendorId) => {
-  const { data } = await api.get(`/orders?vendorId=${vendorId}`);
+export const getOrdersByVendor = async (vendorId, includeHidden = false) => {
+  const { data } = await api.get(`/orders?vendorId=${vendorId}&includeHidden=${includeHidden}`);
   return data;
 };
 
 // Seller: get orders for my store (requires login as seller)
-export const getSellerOrders = async () => {
-  const { data } = await api.get('/orders/seller');
+export const getSellerOrders = async (includeHidden = false) => {
+  const { data } = await api.get(`/orders/seller?includeHidden=${includeHidden}`);
+  return data;
+};
+
+export const bulkHideOrders = async (range) => {
+  const { data } = await api.post('/orders/bulk-hide', { range });
   return data;
 };
 

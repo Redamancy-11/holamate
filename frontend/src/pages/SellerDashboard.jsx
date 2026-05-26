@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
-import { getVendorById, updateVendor, getOrdersByVendor, getSellerOrders, updateOrderStatus, scanVendorMenu, deleteOrder } from '../services/api';
+import { getVendorById, updateVendor, getOrdersByVendor, getSellerOrders, updateOrderStatus, scanVendorMenu, deleteOrder, bulkHideOrders } from '../services/api';
 import vietmapgl from '@vietmap/vietmap-gl-js/dist/vietmap-gl';
 import '@vietmap/vietmap-gl-js/dist/vietmap-gl.css';
 
@@ -9,7 +9,12 @@ const SellerDashboard = () => {
   const { sellerUser: user, loading: authLoading, setShowAuthModal, logoutSeller: logout, notificationClickedOrder, setNotificationClickedOrder } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState('orders'); // 'orders', 'store', or 'guide'
+  const [activeTab, setActiveTab] = useState('orders'); // 'orders', 'store', 'guide', or 'stats'
+  const [allOrdersForStats, setAllOrdersForStats] = useState([]);
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [showClearMenu, setShowClearMenu] = useState(false);
+  const [statsSearchQuery, setStatsSearchQuery] = useState('');
+  const [statsFilterStatus, setStatsFilterStatus] = useState('all');
   const [vendor, setVendor] = useState(null);
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -297,13 +302,82 @@ const SellerDashboard = () => {
   const handleDeleteOrder = async (orderId) => {
     if (!window.confirm('Bạn có chắc muốn xóa đơn hàng này khỏi lịch sử?')) return;
     try {
+      // Optimistic update in UI
+      setOrders(prev => prev.filter(o => o._id !== orderId));
+      setAllOrdersForStats(prev => prev.filter(o => o._id !== orderId));
       await deleteOrder(orderId);
       showFlashMessage('Đã ẩn đơn hàng khỏi lịch sử', 'success');
       loadOrdersInfo();
+      if (activeTab === 'stats') {
+        loadStatsData();
+      }
     } catch (err) {
       showFlashMessage('Không thể xóa đơn hàng: ' + (err.response?.data?.error || err.message), 'error');
+      loadOrdersInfo();
+      if (activeTab === 'stats') {
+        loadStatsData();
+      }
     }
   };
+
+  const loadStatsData = async () => {
+    if (!user?.vendor_id) return;
+    try {
+      setStatsLoading(true);
+      let res;
+      try {
+        res = await getSellerOrders(true);
+      } catch (e) {
+        res = await getOrdersByVendor(user.vendor_id, true);
+      }
+      if (Array.isArray(res)) {
+        const sorted = [...res].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setAllOrdersForStats(sorted);
+      }
+    } catch (err) {
+      console.error('Error fetching stats:', err);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'stats') {
+      loadStatsData();
+    }
+  }, [activeTab, user]);
+
+  const handleBulkHide = async (range) => {
+    let rangeLabel = '';
+    switch (range) {
+      case '3h': rangeLabel = '3 giờ qua'; break;
+      case 'day': rangeLabel = 'ngày hôm nay'; break;
+      case 'week': rangeLabel = 'tuần này'; break;
+      case 'month': rangeLabel = 'tháng này'; break;
+      default: rangeLabel = range;
+    }
+
+    if (!window.confirm(`Bạn có chắc chắn muốn dọn dẹp các đơn hàng (đã hoàn thành hoặc đã hủy) trong ${rangeLabel}?`)) return;
+
+    try {
+      const res = await bulkHideOrders(range);
+      showFlashMessage(res.message || `Đã dọn dẹp thành công các đơn hàng.`, 'success');
+      setShowClearMenu(false);
+      loadOrdersInfo();
+      if (activeTab === 'stats') {
+        loadStatsData();
+      }
+    } catch (err) {
+      showFlashMessage('Không thể dọn dẹp: ' + (err.response?.data?.error || err.message), 'error');
+    }
+  };
+
+  useEffect(() => {
+    if (!showClearMenu) return;
+    const handleOutsideClick = () => setShowClearMenu(false);
+    window.addEventListener('click', handleOutsideClick);
+    return () => window.removeEventListener('click', handleOutsideClick);
+  }, [showClearMenu]);
 
   const showFlashMessage = (text, type = 'info') => {
     setMessage({ text, type });
@@ -827,6 +901,17 @@ const SellerDashboard = () => {
             >
               Cách hoạt động & Vị trí 🗺️
             </button>
+            <button 
+              onClick={() => setActiveTab('stats')}
+              style={{
+                padding: '12px 24px', borderRadius: 12, border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.95rem',
+                background: activeTab === 'stats' ? 'linear-gradient(135deg, #F27024, #E05F15)' : 'rgba(255,255,255,0.05)',
+                color: activeTab === 'stats' ? '#fff' : 'rgba(255,255,255,0.7)',
+                transition: 'all 0.25s', boxShadow: activeTab === 'stats' ? '0 4px 14px rgba(242,112,36,0.3)' : 'none'
+              }}
+            >
+              Thống kê 📊
+            </button>
           </div>
         </div>
 
@@ -846,9 +931,60 @@ const SellerDashboard = () => {
         {/* ==================== TAB 1: MANAGE ORDERS ==================== */}
         {activeTab === 'orders' && (
           <div>
-            <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: 20, color: '#fff', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span>📝</span> Tổng hợp đơn đặt hàng
-            </h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 700, margin: 0, color: '#fff', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span>📝</span> Tổng hợp đơn đặt hàng
+              </h2>
+              
+              {/* Clear history dropdown */}
+              <div style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
+                <button
+                  onClick={() => setShowClearMenu(!showClearMenu)}
+                  style={{
+                    padding: '8px 16px', borderRadius: 10, border: '1px solid rgba(239, 68, 68, 0.3)',
+                    background: 'rgba(239, 68, 68, 0.08)', color: '#EF4444', fontWeight: 600,
+                    fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.08)'}
+                >
+                  🧹 Dọn dẹp lịch sử ▾
+                </button>
+                {showClearMenu && (
+                  <div style={{
+                    position: 'absolute', right: 0, top: 40, width: 220,
+                    background: '#0F172A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12,
+                    boxShadow: '0 10px 25px rgba(0,0,0,0.5)', zIndex: 200, padding: '6px 0',
+                    animation: 'fadeInUp 0.15s ease-out'
+                  }}>
+                    <div style={{ padding: '8px 12px', fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                      Ẩn đơn đã hoàn thành/hủy trong:
+                    </div>
+                    {[
+                      { key: '3h', label: '3 giờ qua' },
+                      { key: 'day', label: 'Trong ngày hôm nay' },
+                      { key: 'week', label: 'Trong tuần này' },
+                      { key: 'month', label: 'Trong tháng này' }
+                    ].map(opt => (
+                      <button
+                        key={opt.key}
+                        onClick={() => handleBulkHide(opt.key)}
+                        style={{
+                          width: '100%', padding: '10px 16px', background: 'none', border: 'none',
+                          color: 'rgba(255,255,255,0.8)', fontSize: '0.82rem', textAlign: 'left',
+                          cursor: 'pointer', transition: 'background 0.2s'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'none'}
+                      >
+                        ⏱️ {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
 
             {orders.length === 0 ? (
               <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.12)', borderRadius: 20, padding: '60px 20px', textAlign: 'center', color: 'rgba(255,255,255,0.4)' }}>
@@ -1533,6 +1669,288 @@ const SellerDashboard = () => {
           </div>
         </div>
       )}
+
+        {/* ==================== TAB 4: STATISTICS ==================== */}
+        {activeTab === 'stats' && (
+          <div>
+            <h2 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: 24, color: '#fff', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span>📊</span> Thống kê hoạt động kinh doanh
+            </h2>
+
+            {statsLoading ? (
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16, padding: '60px 0' }}>
+                <div style={{ width: 48, height: 48, borderRadius: '50%', border: '4px solid rgba(242,112,36,0.1)', borderTopColor: '#F27024', animation: 'spin 1s linear infinite' }} />
+                <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.95rem' }}>Đang tổng hợp dữ liệu lịch sử...</p>
+              </div>
+            ) : (
+              <div>
+                {/* Metrics Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20, marginBottom: 32 }}>
+                  
+                  {/* Metric: Total Orders */}
+                  <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{ fontSize: '2.5rem', width: 60, height: 60, borderRadius: 14, background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      📦
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>Tổng đơn hàng</div>
+                      <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#fff', marginTop: 4 }}>{allOrdersForStats.length}</div>
+                    </div>
+                  </div>
+
+                  {/* Metric: Completed */}
+                  <div style={{ background: 'rgba(16,185,129,0.03)', border: '1px solid rgba(16,185,129,0.15)', borderRadius: 20, padding: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{ fontSize: '2.5rem', width: 60, height: 60, borderRadius: 14, background: 'rgba(16,185,129,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      ✅
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.85rem', color: 'rgba(16,185,129,0.6)', fontWeight: 500 }}>Đơn hoàn thành</div>
+                      <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#10B981', marginTop: 4 }}>
+                        {allOrdersForStats.filter(o => o.status === 'completed').length}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Metric: Cancelled */}
+                  <div style={{ background: 'rgba(239,68,68,0.03)', border: '1px solid rgba(239,68,68,0.15)', borderRadius: 20, padding: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{ fontSize: '2.5rem', width: 60, height: 60, borderRadius: 14, background: 'rgba(239,68,68,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      ❌
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.85rem', color: 'rgba(239,68,68,0.6)', fontWeight: 500 }}>Đơn đã hủy</div>
+                      <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#EF4444', marginTop: 4 }}>
+                        {allOrdersForStats.filter(o => o.status === 'cancelled').length}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Metric: Revenue */}
+                  <div style={{ background: 'rgba(242,112,36,0.03)', border: '1px solid rgba(242,112,36,0.15)', borderRadius: 20, padding: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
+                    <div style={{ fontSize: '2.5rem', width: 60, height: 60, borderRadius: 14, background: 'rgba(242,112,36,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      💰
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.85rem', color: '#F27024', fontWeight: 500 }}>Doanh thu</div>
+                      <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#FFB800', marginTop: 6 }}>
+                        {((allOrdersForStats.filter(o => o.status === 'completed').reduce((sum, o) => sum + (o.totalAmount || 0), 0)) || 0).toLocaleString('vi-VN')}đ
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* Grid charts */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: 24, marginBottom: 36 }}>
+                  
+                  {/* Top Dishes */}
+                  <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24, padding: 28 }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 20, color: '#fff', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: 12 }}>
+                      🔥 Thực đơn bán chạy nhất (Món ăn)
+                    </h3>
+                    
+                    {(() => {
+                      const dishCounts = {};
+                      allOrdersForStats.forEach(order => {
+                        if (order.status === 'completed') {
+                          order.items.forEach(item => {
+                            dishCounts[item.name] = (dishCounts[item.name] || 0) + item.quantity;
+                          });
+                        }
+                      });
+                      const list = Object.entries(dishCounts)
+                        .map(([name, qty]) => ({ name, qty }))
+                        .sort((a, b) => b.qty - a.qty);
+
+                      if (list.length === 0) {
+                        return <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.88rem', textAlign: 'center', padding: '40px 0' }}>Chưa ghi nhận món ăn nào đã bán thành công.</p>;
+                      }
+
+                      const maxQty = list[0].qty;
+
+                      return (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxHeight: 300, overflowY: 'auto' }}>
+                          {list.map((dish, i) => (
+                            <div key={dish.name}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: 6 }}>
+                                <span style={{ fontWeight: 600, color: '#fff' }}>{i + 1}. {dish.name}</span>
+                                <span style={{ color: '#FFB800', fontWeight: 700 }}>{dish.qty} phần</span>
+                              </div>
+                              <div style={{ width: '100%', height: 8, background: 'rgba(255,255,255,0.05)', borderRadius: 4, overflow: 'hidden' }}>
+                                <div style={{ width: `${(dish.qty / maxQty) * 100}%`, height: '100%', background: 'linear-gradient(90deg, #F27024, #FFB800)', borderRadius: 4 }} />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Revenue by Date */}
+                  <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24, padding: 28 }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 20, color: '#fff', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: 12 }}>
+                      📅 Doanh thu chi tiết theo ngày
+                    </h3>
+                    
+                    {(() => {
+                      const revByDate = {};
+                      allOrdersForStats.forEach(order => {
+                        if (order.status === 'completed') {
+                          const dateStr = new Date(order.createdAt).toLocaleDateString('vi-VN');
+                          revByDate[dateStr] = (revByDate[dateStr] || 0) + (order.totalAmount || 0);
+                        }
+                      });
+                      const list = Object.entries(revByDate)
+                        .map(([date, revenue]) => ({ date, revenue }))
+                        .sort((a, b) => {
+                          const partsA = a.date.split('/');
+                          const partsB = b.date.split('/');
+                          return new Date(partsB[2], partsB[1] - 1, partsB[0]) - new Date(partsA[2], partsA[1] - 1, partsA[0]);
+                        });
+
+                      if (list.length === 0) {
+                        return <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.88rem', textAlign: 'center', padding: '40px 0' }}>Chưa ghi nhận doanh thu phát sinh.</p>;
+                      }
+
+                      return (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxHeight: 300, overflowY: 'auto', paddingRight: 4 }}>
+                          {list.map((item) => (
+                            <div key={item.date} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', background: 'rgba(255,255,255,0.02)', borderRadius: 12, border: '1px solid rgba(255,255,255,0.04)' }}>
+                              <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>{item.date}</span>
+                              <span style={{ fontSize: '0.92rem', color: '#10B981', fontWeight: 800 }}>{(item.revenue || 0).toLocaleString('vi-VN')}đ</span>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
+
+                </div>
+
+                {/* Historic Interactive Order Log */}
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24, padding: 28 }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 16, marginBottom: 20, borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: 16 }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: '#fff' }}>
+                      📋 Nhật ký đơn hàng toàn bộ
+                    </h3>
+
+                    {/* Filter controls */}
+                    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                      <input
+                        type="text"
+                        placeholder="Tìm khách hàng, món..."
+                        value={statsSearchQuery}
+                        onChange={(e) => setStatsSearchQuery(e.target.value)}
+                        style={{
+                          background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                          borderRadius: 8, padding: '6px 12px', fontSize: '0.8rem', color: '#fff', outline: 'none'
+                        }}
+                      />
+                      <select
+                        value={statsFilterStatus}
+                        onChange={(e) => setStatsFilterStatus(e.target.value)}
+                        style={{
+                          background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                          borderRadius: 8, padding: '6px 12px', fontSize: '0.8rem', color: '#fff', outline: 'none', cursor: 'pointer'
+                        }}
+                      >
+                        <option value="all" style={{ background: '#0F172A' }}>Tất cả trạng thái</option>
+                        <option value="pending" style={{ background: '#0F172A' }}>Chờ duyệt</option>
+                        <option value="preparing" style={{ background: '#0F172A' }}>Đang nấu</option>
+                        <option value="delivering" style={{ background: '#0F172A' }}>Đang giao</option>
+                        <option value="completed" style={{ background: '#0F172A' }}>Hoàn thành</option>
+                        <option value="cancelled" style={{ background: '#0F172A' }}>Đã hủy</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {(() => {
+                    const filtered = allOrdersForStats.filter(order => {
+                      // Match status
+                      if (statsFilterStatus !== 'all' && order.status !== statsFilterStatus) {
+                        return false;
+                      }
+                      // Match search
+                      if (statsSearchQuery) {
+                        const searchLower = statsSearchQuery.toLowerCase();
+                        const customerMatch = (order.customerName || '').toLowerCase().includes(searchLower);
+                        const phoneMatch = (order.customerPhone || '').toLowerCase().includes(searchLower);
+                        const itemsMatch = order.items.some(i => i.name.toLowerCase().includes(searchLower));
+                        return customerMatch || phoneMatch || itemsMatch;
+                      }
+                      return true;
+                    });
+
+                    if (filtered.length === 0) {
+                      return <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.85rem', textAlign: 'center', padding: '40px 0' }}>Không tìm thấy đơn hàng nào phù hợp.</p>;
+                    }
+
+                    const statusColors = {
+                      pending: '#F59E0B', preparing: '#3B82F6',
+                      delivering: '#8B5CF6', completed: '#10B981', cancelled: '#EF4444'
+                    };
+                    const statusLabels = {
+                      pending: 'Chờ duyệt', preparing: 'Đang nấu',
+                      delivering: 'Đang giao', completed: 'Hoàn thành', cancelled: 'Đã hủy'
+                    };
+
+                    return (
+                      <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem', textAlign: 'left', minWidth: 600 }}>
+                          <thead>
+                            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)' }}>
+                              <th style={{ padding: '12px 8px' }}>Mã đơn</th>
+                              <th style={{ padding: '12px 8px' }}>Thời gian</th>
+                              <th style={{ padding: '12px 8px' }}>Khách hàng</th>
+                              <th style={{ padding: '12px 8px' }}>Chi tiết món</th>
+                              <th style={{ padding: '12px 8px' }}>Thành tiền</th>
+                              <th style={{ padding: '12px 8px' }}>Trạng thái</th>
+                              <th style={{ padding: '12px 8px' }}>Lịch sử</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {filtered.map(order => (
+                              <tr key={order._id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.85)', background: order.seller_hidden ? 'rgba(239,68,68,0.02)' : 'none' }}>
+                                <td style={{ padding: '12px 8px', fontWeight: 600 }}>#{order._id.substring(order._id.length - 6)}</td>
+                                <td style={{ padding: '12px 8px' }}>
+                                  {new Date(order.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} - {new Date(order.createdAt).toLocaleDateString('vi-VN')}
+                                </td>
+                                <td style={{ padding: '12px 8px' }}>
+                                  <div style={{ fontWeight: 600, color: '#fff' }}>{order.customerName}</div>
+                                  <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem' }}>{order.customerPhone}</div>
+                                </td>
+                                <td style={{ padding: '12px 8px' }}>
+                                  {order.items.map(i => `${i.name} x${i.quantity}`).join(', ')}
+                                </td>
+                                <td style={{ padding: '12px 8px', fontWeight: 700, color: '#FFB800' }}>{(order.totalAmount || 0).toLocaleString('vi-VN')}đ</td>
+                                <td style={{ padding: '12px 8px' }}>
+                                  <span style={{
+                                    color: statusColors[order.status],
+                                    background: `${statusColors[order.status]}15`,
+                                    padding: '2px 8px', borderRadius: 6, fontWeight: 700, fontSize: '0.7rem'
+                                  }}>
+                                    {statusLabels[order.status]}
+                                  </span>
+                                </td>
+                                <td style={{ padding: '12px 8px' }}>
+                                  {order.seller_hidden ? (
+                                    <span style={{ color: 'rgba(239,68,68,0.6)', fontStyle: 'italic', fontSize: '0.75rem' }}>Đã ẩn queue</span>
+                                  ) : (
+                                    <span style={{ color: 'rgba(16,185,129,0.6)', fontStyle: 'italic', fontSize: '0.75rem' }}>Hiện queue</span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    );
+                  })()}
+                </div>
+
+              </div>
+            )}
+          </div>
+        )}
 
       {/* ==================== CANCEL ORDER WITH NOTE MODAL ==================== */}
       {cancellingOrderId && (
