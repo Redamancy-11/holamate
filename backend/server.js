@@ -42,6 +42,7 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/location', require('./routes/locationRoutes'));
 app.use('/api/orders', require('./routes/orderRoutes'));
 app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/admin', require('./routes/adminDashboardRoutes'));
 
 // Health check
 app.get('/api', (req, res) => {

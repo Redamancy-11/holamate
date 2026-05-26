@@ -194,4 +194,92 @@ export const deleteOrder = async (id, role = null) => {
   return data;
 };
 
+// ===================== ADMIN DASHBOARD API =====================
+const adminHeaders = () => {
+  const stored = localStorage.getItem('hanomate_admin_user');
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      if (parsed?.token) return { Authorization: `Bearer ${parsed.token}` };
+    } catch {}
+  }
+  return {};
+};
+
+export const adminLogin = async (email, password) => {
+  const { data } = await api.post('/admin/login', { email, password });
+  return data;
+};
+
+export const getAdminStats = async () => {
+  const { data } = await api.get('/admin/dashboard/stats', { headers: adminHeaders() });
+  return data;
+};
+
+export const getAdminUsers = async (search = '') => {
+  const { data } = await api.get(`/admin/dashboard/users?search=${encodeURIComponent(search)}`, { headers: adminHeaders() });
+  return data;
+};
+
+export const updateAdminUser = async (userId, updates) => {
+  const { data } = await api.put(`/admin/dashboard/users/${userId}`, updates, { headers: adminHeaders() });
+  return data;
+};
+
+export const deleteAdminUser = async (userId) => {
+  const { data } = await api.delete(`/admin/dashboard/users/${userId}`, { headers: adminHeaders() });
+  return data;
+};
+
+export const getAdminSellers = async (search = '') => {
+  const { data } = await api.get(`/admin/dashboard/sellers?search=${encodeURIComponent(search)}`, { headers: adminHeaders() });
+  return data;
+};
+
+export const updateAdminSeller = async (sellerId, updates) => {
+  const { data } = await api.put(`/admin/dashboard/sellers/${sellerId}`, updates, { headers: adminHeaders() });
+  return data;
+};
+
+export const deleteAdminSeller = async (sellerId) => {
+  const { data } = await api.delete(`/admin/dashboard/sellers/${sellerId}`, { headers: adminHeaders() });
+  return data;
+};
+
+export const getAdminVendors = async (search = '', category = '') => {
+  const { data } = await api.get(`/admin/dashboard/vendors?search=${encodeURIComponent(search)}&category=${encodeURIComponent(category)}`, { headers: adminHeaders() });
+  return data;
+};
+
+export const updateAdminVendor = async (vendorId, updates) => {
+  const { data } = await api.put(`/admin/dashboard/vendors/${vendorId}`, updates, { headers: adminHeaders() });
+  return data;
+};
+
+export const deleteAdminVendor = async (vendorId) => {
+  const { data } = await api.delete(`/admin/dashboard/vendors/${vendorId}`, { headers: adminHeaders() });
+  return data;
+};
+
+export const getAdminOrders = async (status = 'all', search = '', page = 1) => {
+  const { data } = await api.get(`/admin/dashboard/orders?status=${status}&search=${encodeURIComponent(search)}&page=${page}`, { headers: adminHeaders() });
+  return data;
+};
+
+export const updateAdminOrder = async (orderId, updates) => {
+  const { data } = await api.put(`/admin/dashboard/orders/${orderId}`, updates, { headers: adminHeaders() });
+  return data;
+};
+
+export const getAdminFinance = async () => {
+  const { data } = await api.get('/admin/dashboard/finance', { headers: adminHeaders() });
+  return data;
+};
+
+export const updateAdminCommission = async (vendorId, commission_rate) => {
+  const { data } = await api.put(`/admin/dashboard/finance/commission/${vendorId}`, { commission_rate }, { headers: adminHeaders() });
+  return data;
+};
+
 export default api;
+
