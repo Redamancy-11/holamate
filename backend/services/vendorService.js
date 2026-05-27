@@ -3,7 +3,7 @@ const path = require('path');
 const { HANOI_VENDORS } = require('../data/hanoiKnowledge');
 const mongoose = require('mongoose');
 const Vendor = require('../models/Vendor');
-const { pool, getIsPgConnected } = require('../config/pg');
+const { pool } = require('../config/pg');
 
 const getLocalVendorsList = () => {
   let vendors = [...HANOI_VENDORS];
@@ -96,7 +96,7 @@ const searchDbVendors = async (query) => {
 
   if (!normalizedQuery) {
     // Try Postgres first if available
-    if (pool && getIsPgConnected()) {
+    if (pool) {
       const res = await pool.query('SELECT * FROM vendors ORDER BY rating DESC LIMIT 1000');
       return res.rows.map((r) => normalizeVendor({
         _id: r.id,
@@ -125,7 +125,7 @@ const searchDbVendors = async (query) => {
 
   const regex = buildRegex(normalizedQuery);
   // Try Postgres full-text-ish search using ILIKE
-  if (pool && getIsPgConnected()) {
+  if (pool) {
     const q = `%${normalizedQuery.replace(/%/g, '\\%')}%`;
     const res = await pool.query(
       `SELECT * FROM vendors 
@@ -198,7 +198,7 @@ const getAllVendors = async (search = '') => {
 
 const getVendorById = async (id) => {
   try {
-    if (pool && getIsPgConnected()) {
+    if (pool) {
       const res = await pool.query('SELECT * FROM vendors WHERE id = $1 LIMIT 1', [id]);
       if (res.rows.length) {
         const r = res.rows[0];

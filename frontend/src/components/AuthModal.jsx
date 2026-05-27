@@ -14,7 +14,18 @@ const AuthModal = () => {
   const [verificationCode, setVerificationCode] = useState('');
   const [devCodeHint, setDevCodeHint] = useState('');
 
-  const BACKEND_AUTH_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/auth` : '/api/auth';
+  const getBackendAuthUrl = () => {
+    const url = import.meta.env.VITE_API_URL;
+    if (url && url !== 'undefined') {
+      return `${url}/auth`;
+    }
+    if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+      return 'http://localhost:5000/api/auth';
+    }
+    return '/api/auth';
+  };
+
+  const BACKEND_AUTH_URL = getBackendAuthUrl();
 
   const handleSocialRedirect = (provider) => {
     window.location.href = `${BACKEND_AUTH_URL}/${provider}`;
@@ -197,15 +208,12 @@ const AuthModal = () => {
             </div>
 
             {/* Social Buttons */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <button onClick={() => handleSocialRedirect('google')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '12px', borderRadius: 12, background: '#fff', border: 'none', color: '#333', fontWeight: 600, cursor: 'pointer' }}>
                 <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" width="20" height="20" /> Google
               </button>
               <button onClick={() => handleSocialRedirect('facebook')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '12px', borderRadius: 12, background: '#1877F2', border: 'none', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>
                 <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" width="20" height="20" /> Facebook
-              </button>
-              <button onClick={() => handleSocialRedirect('instagram')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '12px', borderRadius: 12, background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)', border: 'none', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>
-                <img src="https://upload.wikimedia.org/wikipedia/commons/e/e7/Instagram_logo_2016.svg" alt="Instagram" width="20" height="20" /> Instagram
               </button>
             </div>
           </>

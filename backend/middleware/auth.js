@@ -17,44 +17,20 @@ const protect = async (req, res, next) => {
     
     let user = null;
 
-    try {
-      if (!pool) {
-        throw new Error('Database pool not initialized');
+    if (!pool) {
+      return res.status(500).json({ error: 'Kết nối database chưa được thiết lập' });
+    }
+
+    const resUser = await pool.query('SELECT * FROM users WHERE id = $1', [decoded.id]);
+    if (resUser.rows.length > 0) {
+      user = resUser.rows[0];
+      user.role = user.role || 'buyer';
+    } else {
+      const resSeller = await pool.query('SELECT * FROM sellers WHERE id = $1', [decoded.id]);
+      if (resSeller.rows.length > 0) {
+        user = resSeller.rows[0];
+        user.role = 'seller';
       }
-
-      // Race with a 1.5-second timeout
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Database timeout')), 1500)
-      );
-
-      const queryPromise = (async () => {
-        const resUser = await pool.query('SELECT * FROM users WHERE id = $1', [decoded.id]);
-        if (resUser.rows.length > 0) {
-          const u = resUser.rows[0];
-          u.role = u.role || 'buyer';
-          return u;
-        } else {
-          const resSeller = await pool.query('SELECT * FROM sellers WHERE id = $1', [decoded.id]);
-          if (resSeller.rows.length > 0) {
-            const s = resSeller.rows[0];
-            s.role = 'seller';
-            return s;
-          }
-        }
-        return null;
-      })();
-
-      user = await Promise.race([queryPromise, timeoutPromise]);
-    } catch (dbErr) {
-      console.warn('Auth protect middleware DB query failed, using token payload fallback:', dbErr.message);
-      // Construct fallback user using decoded values
-      user = {
-        id: decoded.id,
-        role: decoded.role || (decoded.is_admin ? 'admin' : 'buyer'),
-        is_admin: decoded.is_admin || decoded.role === 'admin' || decoded.id === 'mock_admin_id_999',
-        name: decoded.is_admin || decoded.id === 'mock_admin_id_999' ? 'HanoMate Super Admin (Fallback)' : 'Người dùng (Fallback)',
-        email: decoded.is_admin || decoded.id === 'mock_admin_id_999' ? 'admin@hanomate.vn' : 'user@fallback.vn'
-      };
     }
 
     if (!user) {
@@ -83,42 +59,18 @@ const optionalProtect = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'hanomate_secret_key_2026');
     let user = null;
 
-    try {
-      if (!pool) {
-        throw new Error('Database pool not initialized');
-      }
-
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Database timeout')), 1500)
-      );
-
-      const queryPromise = (async () => {
-        const resUser = await pool.query('SELECT * FROM users WHERE id = $1', [decoded.id]);
-        if (resUser.rows.length > 0) {
-          const u = resUser.rows[0];
-          u.role = u.role || 'buyer';
-          return u;
-        } else {
-          const resSeller = await pool.query('SELECT * FROM sellers WHERE id = $1', [decoded.id]);
-          if (resSeller.rows.length > 0) {
-            const s = resSeller.rows[0];
-            s.role = 'seller';
-            return s;
-          }
+    if (pool) {
+      const resUser = await pool.query('SELECT * FROM users WHERE id = $1', [decoded.id]);
+      if (resUser.rows.length > 0) {
+        user = resUser.rows[0];
+        user.role = user.role || 'buyer';
+      } else {
+        const resSeller = await pool.query('SELECT * FROM sellers WHERE id = $1', [decoded.id]);
+        if (resSeller.rows.length > 0) {
+          user = resSeller.rows[0];
+          user.role = 'seller';
         }
-        return null;
-      })();
-
-      user = await Promise.race([queryPromise, timeoutPromise]);
-    } catch (dbErr) {
-      console.warn('Auth optionalProtect middleware DB query failed, using token payload fallback:', dbErr.message);
-      user = {
-        id: decoded.id,
-        role: decoded.role || (decoded.is_admin ? 'admin' : 'buyer'),
-        is_admin: decoded.is_admin || decoded.role === 'admin' || decoded.id === 'mock_admin_id_999',
-        name: decoded.is_admin || decoded.id === 'mock_admin_id_999' ? 'HanoMate Super Admin (Fallback)' : 'Người dùng (Fallback)',
-        email: decoded.is_admin || decoded.id === 'mock_admin_id_999' ? 'admin@hanomate.vn' : 'user@fallback.vn'
-      };
+      }
     }
 
     req.user = user;

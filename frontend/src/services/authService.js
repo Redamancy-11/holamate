@@ -1,6 +1,17 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}/auth` : '/api/auth';
+const getAuthApiUrl = () => {
+  const url = import.meta.env.VITE_API_URL;
+  if (url && url !== 'undefined') {
+    return `${url}/auth`;
+  }
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return 'http://localhost:5000/api/auth';
+  }
+  return '/api/auth';
+};
+
+const API_URL = getAuthApiUrl();
 
 const authService = {
   // Đăng ký

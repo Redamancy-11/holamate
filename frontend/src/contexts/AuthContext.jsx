@@ -11,14 +11,8 @@ export const AuthProvider = ({ children }) => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [notificationClickedOrder, setNotificationClickedOrder] = useState(null);
 
-  const [notifications, setNotifications] = useState(() => {
-    try {
-      const stored = localStorage.getItem('hanomate_notifications');
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [state, setState] = useState({ userId: 'guest', items: [] });
+  const notifications = state.items;
 
   const lastOrdersRef = useRef({ buyer: [], seller: [] });
 
@@ -35,10 +29,28 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  // Save notifications to localStorage
+  // Sync activeUserId and load notifications synchronously
   useEffect(() => {
-    localStorage.setItem('hanomate_notifications', JSON.stringify(notifications));
-  }, [notifications]);
+    const activeId = user?.id || sellerUser?.id || 'guest';
+    try {
+      const stored = localStorage.getItem(`hanomate_notifications_${activeId}`);
+      setState({
+        userId: activeId,
+        items: stored ? JSON.parse(stored) : []
+      });
+    } catch {
+      setState({ userId: activeId, items: [] });
+    }
+  }, [user?.id, sellerUser?.id]);
+
+  // Save notifications to localStorage when state changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(`hanomate_notifications_${state.userId}`, JSON.stringify(state.items));
+    } catch (err) {
+      console.warn('Failed to save notifications:', err);
+    }
+  }, [state]);
 
   const addNotification = (title, message, type, orderId, orderData = null) => {
     const newNotif = {
@@ -51,15 +63,24 @@ export const AuthProvider = ({ children }) => {
       read: false,
       createdAt: new Date().toISOString()
     };
-    setNotifications(prev => [newNotif, ...prev].slice(0, 50));
+    setState(prev => ({
+      ...prev,
+      items: [newNotif, ...prev.items].slice(0, 50)
+    }));
   };
 
   const markAsRead = (notifId) => {
-    setNotifications(prev => prev.map(n => n.id === notifId ? { ...n, read: true } : n));
+    setState(prev => ({
+      ...prev,
+      items: prev.items.map(n => n.id === notifId ? { ...n, read: true } : n)
+    }));
   };
 
   const clearNotifications = () => {
-    setNotifications([]);
+    setState(prev => ({
+      ...prev,
+      items: []
+    }));
   };
 
   // Polling for Buyer Order Status Updates
