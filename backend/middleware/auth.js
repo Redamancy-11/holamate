@@ -40,6 +40,7 @@ const protect = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
+    console.error('Protect middleware token validation error:', error);
     return res.status(401).json({ error: 'Token không hợp lệ hoặc đã hết hạn' });
   }
 };

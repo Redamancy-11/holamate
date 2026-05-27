@@ -176,37 +176,43 @@ const login = async (req, res) => {
       // Clear code
       delete global.admin2faCodes[email];
 
-      // Sync database representation in background
+      // Sync database representation synchronously to get the true ID
+      let adminDbUser = null;
       if (pool) {
-        (async () => {
-          try {
-            const checkUserExist = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-            if (checkUserExist.rows.length === 0) {
-              const salt = await bcrypt.genSalt(10);
-              const hashedPassword = await bcrypt.hash(password, salt);
-              const avatar = `https://ui-avatars.com/api/?name=Admin+Nam+Lun&background=FF5722&color=fff`;
-              await pool.query(
-                'INSERT INTO users (name, email, password, avatar, is_admin, provider, role) VALUES ($1, $2, $3, $4, TRUE, $5, $6)',
-                ['Admin Nam Lùn', email, hashedPassword, avatar, 'local', 'buyer']
-              );
-            } else {
-              await pool.query('UPDATE users SET is_admin = TRUE WHERE email = $1', [email]);
-            }
-          } catch (dbErr) {
-            console.warn('Database connection failed while syncing admin account:', dbErr.message);
+        try {
+          const checkUserExist = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+          if (checkUserExist.rows.length === 0) {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+            const avatar = `https://ui-avatars.com/api/?name=Admin+Nam+Lun&background=FF5722&color=fff`;
+            const insertRes = await pool.query(
+              'INSERT INTO users (name, email, password, avatar, is_admin, provider, role) VALUES ($1, $2, $3, $4, TRUE, $5, $6) RETURNING *',
+              ['Admin Nam Lùn', email, hashedPassword, avatar, 'local', 'buyer']
+            );
+            adminDbUser = insertRes.rows[0];
+          } else {
+            const updateRes = await pool.query(
+              'UPDATE users SET is_admin = TRUE WHERE email = $1 RETURNING *',
+              [email]
+            );
+            adminDbUser = updateRes.rows[0];
           }
-        })();
+        } catch (dbErr) {
+          console.warn('Database connection failed while syncing admin account:', dbErr.message);
+        }
       }
 
+      const activeAdminId = adminDbUser ? adminDbUser.id : 'admin_namlun';
+
       return res.json({
-        _id: 'admin_namlun',
-        id: 'admin_namlun',
-        name: 'Admin Nam Lùn',
+        _id: activeAdminId,
+        id: activeAdminId,
+        name: adminDbUser ? adminDbUser.name : 'Admin Nam Lùn',
         email: email,
-        avatar: `https://ui-avatars.com/api/?name=Admin+Nam+Lun&background=FF5722&color=fff`,
+        avatar: adminDbUser ? adminDbUser.avatar : `https://ui-avatars.com/api/?name=Admin+Nam+Lun&background=FF5722&color=fff`,
         role: 'admin',
         is_admin: true,
-        token: generateToken('admin_namlun'),
+        token: generateToken(activeAdminId),
       });
     }
 

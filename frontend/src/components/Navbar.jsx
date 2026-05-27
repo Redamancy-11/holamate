@@ -26,14 +26,17 @@ const Navbar = () => {
   
   const navigate = useNavigate();
 
-  // Dynamic context based on route
+  // Dynamic context based on route with session fallback
   const isSellerPage = location.pathname.startsWith('/seller');
-  const currentUser = isSellerPage ? sellerUser : user;
-  const currentLogout = isSellerPage ? logoutSeller : logout;
+  const currentUser = isSellerPage ? (sellerUser || user) : (user || sellerUser);
+  const currentLogout = isSellerPage 
+    ? (sellerUser ? logoutSeller : logout) 
+    : (user ? logout : logoutSeller);
 
-  // Filter notifications by target audience (buyer vs seller)
+  // Filter notifications by target audience based on active profile type
+  const isCurrentlySeller = currentUser === sellerUser;
   const visibleNotifications = notifications.filter(n => 
-    isSellerPage ? n.type === 'seller' : n.type === 'buyer'
+    isCurrentlySeller ? n.type === 'seller' : n.type === 'buyer'
   );
   const unreadCount = visibleNotifications.filter(n => !n.read).length;
 
@@ -67,13 +70,10 @@ const Navbar = () => {
     { label: 'Bản Đồ 🗺️', href: '/map', isRoute: true }
   ];
 
-  if (isSellerPage) {
-    navLinks.push({ label: 'Đặt Đồ 🍔', href: '/order', isRoute: true });
-  } else {
-    // If they are a seller (logged in), show Kênh Người Bán
-    if (sellerUser || (user && user.role === 'seller')) {
+  if (currentUser) {
+    if (sellerUser) {
       navLinks.push({ label: 'Kênh Người Bán 🏪', href: '/seller', isRoute: true });
-    } else {
+    } else if (user) {
       navLinks.push({ label: 'Đặt Đồ 🍔', href: '/order', isRoute: true });
     }
   }

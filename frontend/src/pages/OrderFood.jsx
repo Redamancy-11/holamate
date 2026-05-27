@@ -22,7 +22,8 @@ const normalizeVietnamese = (str) => {
 };
 
 const OrderFood = () => {
-  const { user, loading: authLoading, setShowAuthModal, notificationClickedOrder, setNotificationClickedOrder } = useContext(AuthContext);
+  const { user, sellerUser, loading: authLoading, setShowAuthModal, notificationClickedOrder, setNotificationClickedOrder } = useContext(AuthContext);
+  const activeUser = user || sellerUser;
   const [vendors, setVendors] = useState([]);
   const [selectedVendor, setSelectedVendor] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -42,11 +43,11 @@ const OrderFood = () => {
 
   // Prefill customer name when user changes
   useEffect(() => {
-    if (user) {
-      setCustomerName(user.name || '');
-      setCustomerPhone(user.phone || '');
+    if (activeUser) {
+      setCustomerName(activeUser.name || '');
+      setCustomerPhone(activeUser.phone || '');
     }
-  }, [user]);
+  }, [activeUser]);
 
   // Placed order tracking state (for customer)
   const [activeOrder, setActiveOrder] = useState(null);
@@ -197,7 +198,7 @@ const OrderFood = () => {
 
   // Fetch buyer order history
   useEffect(() => {
-    if (!user) return;
+    if (!activeUser) return;
     const fetchHistory = async () => {
       try {
         setHistoryLoading(true);
@@ -210,7 +211,7 @@ const OrderFood = () => {
       }
     };
     fetchHistory();
-  }, [user, activeOrder]);
+  }, [activeUser, activeOrder]);
 
   // Listen for notification clicks to auto-select/track an order
   useEffect(() => {
@@ -485,29 +486,7 @@ const OrderFood = () => {
     );
   }
 
-  if (!user) {
-    return (
-      <div style={{
-        minHeight: '100vh', background: '#0b0704', color: '#fff',
-        backgroundImage: 'radial-gradient(circle at 50% -20%, rgba(242,112,36,0.12) 0%, transparent 60%)',
-        paddingTop: 100, paddingBottom: 60, display: 'flex', alignItems: 'center', justifyContent: 'center'
-      }}>
-        <div style={{ maxWidth: 450, width: '100%', margin: '0 20px', padding: 32, borderRadius: 24, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(242,112,36,0.2)', textAlign: 'center', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', fontFamily: 'Inter, sans-serif' }}>
-          <div style={{ fontSize: '3.5rem', marginBottom: 20 }}>🔒</div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', marginBottom: 12 }}>Yêu Cầu Đăng Nhập</h2>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '.9rem', lineHeight: 1.6, marginBottom: 24 }}>
-            Chào bạn! Để đặt đồ ăn giao tận phòng KTX Hòa Lạc, bạn cần đăng nhập tài khoản HanoMate của mình trước nhé.
-          </p>
-          <button 
-            onClick={() => setShowAuthModal(true)} 
-            style={{ width: '100%', padding: '14px 20px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg,#F27024,#FF5722)', color: '#fff', fontWeight: 800, fontSize: '.95rem', cursor: 'pointer', boxShadow: '0 8px 16px rgba(242,112,36,0.25)', transition: 'transform 0.2s', fontFamily: 'Inter, sans-serif' }}
-          >
-            Đăng nhập / Đăng ký ngay
-          </button>
-        </div>
-      </div>
-    );
-  }
+
 
   return (
     <div style={{
@@ -970,86 +949,109 @@ const OrderFood = () => {
 
               {/* Total and Checkout form */}
               {cart.length > 0 && (
-                <form onSubmit={handlePlaceOrder}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '.95rem', marginBottom: 20 }}>
-                    <span>Tổng cộng:</span>
-                    <span style={{ color: '#FF9800' }}>{formatPrice(getCartTotal())}</span>
-                  </div>
-
-                  <h4 style={{ fontSize: '.82rem', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', letterSpacing: 0.5, marginBottom: 12 }}>Thông tin giao hàng</h4>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
-                    <input
-                      type="text"
-                      placeholder="Họ và tên của bạn"
-                      required
-                      value={customerName}
-                      onChange={e => setCustomerName(e.target.value)}
-                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 14px', color: '#fff', fontSize: '.85rem' }}
-                    />
-                    <input
-                      type="tel"
-                      placeholder="Số điện thoại"
-                      required
-                      value={customerPhone}
-                      onChange={e => setCustomerPhone(e.target.value)}
-                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 14px', color: '#fff', fontSize: '.85rem' }}
-                    />
-
-                    <select
-                      value={deliveryAddress}
-                      onChange={e => setDeliveryAddress(e.target.value)}
-                      style={{ background: 'rgba(5,10,25,0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 10px', color: '#fff', fontSize: '.85rem', cursor: 'pointer' }}
+                !activeUser ? (
+                  <div style={{ marginTop: 20, textAlign: 'center', padding: '24px 20px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '.95rem', marginBottom: 20 }}>
+                      <span>Tổng cộng:</span>
+                      <span style={{ color: '#FF9800' }}>{formatPrice(getCartTotal())}</span>
+                    </div>
+                    <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '.84rem', marginBottom: 16 }}>Bạn cần đăng nhập để đặt đồ ăn giao tận phòng.</p>
+                    <button
+                      type="button"
+                      onClick={() => setShowAuthModal(true)}
+                      style={{
+                        width: '100%', padding: '12px 0', borderRadius: 50,
+                        background: 'linear-gradient(135deg,#F27024,#FF5722)',
+                        border: 'none', color: '#fff', fontWeight: 700, fontSize: '.86rem',
+                        cursor: 'pointer', boxShadow: '0 4px 12px rgba(242,112,36,0.2)',
+                        fontFamily: 'Inter, sans-serif'
+                      }}
                     >
-                      <option value="Ký túc xá Dom A">Ký túc xá Dom A (FPTU)</option>
-                      <option value="Ký túc xá Dom B">Ký túc xá Dom B (FPTU)</option>
-                      <option value="Ký túc xá Dom C">Ký túc xá Dom C (FPTU)</option>
-                      <option value="Ký túc xá Dom D">Ký túc xá Dom D (FPTU)</option>
-                      <option value="Ký túc xá Dom E">Ký túc xá Dom E (FPTU)</option>
-                      <option value="Ký túc xá Dom F">Ký túc xá Dom F (FPTU)</option>
-                      <option value="Tòa nhà Alpha">Tòa giảng đường Alpha</option>
-                      <option value="Tòa nhà Beta">Tòa giảng đường Beta</option>
-                      <option value="Khác">Khu vực khác (Nhập chi tiết)</option>
-                    </select>
+                      Đăng nhập / Đăng ký ngay
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handlePlaceOrder}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '.95rem', marginBottom: 20 }}>
+                      <span>Tổng cộng:</span>
+                      <span style={{ color: '#FF9800' }}>{formatPrice(getCartTotal())}</span>
+                    </div>
 
-                    {deliveryAddress === 'Khác' && (
+                    <h4 style={{ fontSize: '.82rem', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', letterSpacing: 0.5, marginBottom: 12 }}>Thông tin giao hàng</h4>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
                       <input
                         type="text"
-                        placeholder="Nhập địa chỉ giao hàng chi tiết"
+                        placeholder="Họ và tên của bạn"
                         required
-                        value={customAddress}
-                        onChange={e => setCustomAddress(e.target.value)}
+                        value={customerName}
+                        onChange={e => setCustomerName(e.target.value)}
                         style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 14px', color: '#fff', fontSize: '.85rem' }}
                       />
-                    )}
+                      <input
+                        type="tel"
+                        placeholder="Số điện thoại"
+                        required
+                        value={customerPhone}
+                        onChange={e => setCustomerPhone(e.target.value)}
+                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 14px', color: '#fff', fontSize: '.85rem' }}
+                      />
 
-                    <textarea
-                      placeholder="Ghi chú cho quán (Ví dụ: không hành, nhiều cay, phòng 201 Dom A...)"
-                      value={customerNote}
-                      onChange={e => setCustomerNote(e.target.value)}
-                      rows={2}
-                      style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 14px', color: '#fff', fontSize: '.85rem', fontFamily: 'inherit', resize: 'vertical' }}
-                    />
-                  </div>
+                      <select
+                        value={deliveryAddress}
+                        onChange={e => setDeliveryAddress(e.target.value)}
+                        style={{ background: 'rgba(5,10,25,0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 10px', color: '#fff', fontSize: '.85rem', cursor: 'pointer' }}
+                      >
+                        <option value="Ký túc xá Dom A">Ký túc xá Dom A (FPTU)</option>
+                        <option value="Ký túc xá Dom B">Ký túc xá Dom B (FPTU)</option>
+                        <option value="Ký túc xá Dom C">Ký túc xá Dom C (FPTU)</option>
+                        <option value="Ký túc xá Dom D">Ký túc xá Dom D (FPTU)</option>
+                        <option value="Ký túc xá Dom E">Ký túc xá Dom E (FPTU)</option>
+                        <option value="Ký túc xá Dom F">Ký túc xá Dom F (FPTU)</option>
+                        <option value="Tòa nhà Alpha">Tòa giảng đường Alpha</option>
+                        <option value="Tòa nhà Beta">Tòa giảng đường Beta</option>
+                        <option value="Khác">Khu vực khác (Nhập chi tiết)</option>
+                      </select>
 
-                  <button
-                    type="submit"
-                    disabled={trackingLoading}
-                    style={{
-                      width: '100%', padding: '14px 0', borderRadius: 50,
-                      background: 'linear-gradient(135deg,#F27024,#FF5722)',
-                      border: 'none', color: '#fff', fontWeight: 700, fontSize: '.9rem',
-                      cursor: 'pointer', boxShadow: '0 8px 24px rgba(242,112,36,0.3)',
-                      transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', justifyContent: 'center'
-                    }}
-                  >
-                    {trackingLoading ? 'Đang gửi đơn hàng...' : 'Đặt Hàng Ngay 🚀'}
-                  </button>
-                </form>
+                      {deliveryAddress === 'Khác' && (
+                        <input
+                          type="text"
+                          placeholder="Nhập địa chỉ giao hàng chi tiết"
+                          required
+                          value={customAddress}
+                          onChange={e => setCustomAddress(e.target.value)}
+                          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 14px', color: '#fff', fontSize: '.85rem' }}
+                        />
+                      )}
+
+                      <textarea
+                        placeholder="Ghi chú cho quán (Ví dụ: không hành, nhiều cay, phòng 201 Dom A...)"
+                        value={customerNote}
+                        onChange={e => setCustomerNote(e.target.value)}
+                        rows={2}
+                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 14px', color: '#fff', fontSize: '.85rem', fontFamily: 'inherit', resize: 'vertical' }}
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={trackingLoading}
+                      style={{
+                        width: '100%', padding: '14px 0', borderRadius: 50,
+                        background: 'linear-gradient(135deg,#F27024,#FF5722)',
+                        border: 'none', color: '#fff', fontWeight: 700, fontSize: '.9rem',
+                        cursor: 'pointer', boxShadow: '0 8px 24px rgba(242,112,36,0.3)',
+                        transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                      }}
+                    >
+                      {trackingLoading ? 'Đang gửi đơn hàng...' : 'Đặt Hàng Ngay 🚀'}
+                    </button>
+                  </form>
+                )
               )}
 
               {/* Buyer Order History */}
-              {user && (
+              {activeUser && (
                 <div style={{ marginTop: 20, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: '16px 20px' }}>
                   <button
                     onClick={() => setShowHistory(!showHistory)}

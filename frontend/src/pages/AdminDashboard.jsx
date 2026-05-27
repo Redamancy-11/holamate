@@ -53,6 +53,11 @@ const AdminDashboard = () => {
   const [partnerSellerPassword, setPartnerSellerPassword] = useState('');
   const [partnerSellerPhone, setPartnerSellerPhone] = useState('');
 
+  // Commission Modal states
+  const [editingVendorId, setEditingVendorId] = useState(null);
+  const [editingVendorName, setEditingVendorName] = useState('');
+  const [commissionInputRate, setCommissionInputRate] = useState('');
+
   // Filter and loading states
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -183,20 +188,23 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleUpdateCommission = async (vendorId) => {
-    if (!vendorId) {
-      alert('Không tìm thấy ID cửa hàng hợp lệ!');
-      return;
-    }
-    const rateStr = window.prompt('Nhập phần trăm hoa hồng mới cho cửa hàng (0 - 100):');
-    if (rateStr === null) return;
-    const rate = parseFloat(rateStr);
+  const handleOpenCommissionModal = (vendorId, vendorName, currentRate) => {
+    setEditingVendorId(vendorId);
+    setEditingVendorName(vendorName);
+    setCommissionInputRate(currentRate !== undefined && currentRate !== null ? currentRate.toString() : '10');
+  };
+
+  const handleCommissionSubmit = async (e) => {
+    e.preventDefault();
+    if (!editingVendorId) return;
+    const rate = parseFloat(commissionInputRate);
     if (isNaN(rate) || rate < 0 || rate > 100) {
-      alert('Tỉ lệ không hợp lệ!');
+      alert('Tỉ lệ chiết khấu phải từ 0% đến 100%');
       return;
     }
     try {
-      await updateAdminCommission(vendorId, rate);
+      await updateAdminCommission(editingVendorId, rate);
+      setEditingVendorId(null);
       fetchTabData();
       showSuccess('Cập nhật tỉ lệ chiết khấu thành công');
     } catch (err) {
@@ -540,7 +548,7 @@ const AdminDashboard = () => {
                           </td>
                           <td style={{ padding: '14px 16px', display: 'flex', gap: 10 }}>
                             <button onClick={() => handleUpdateVendorStatus(s.vendor_id, s.vendor_status)} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}>{s.vendor_status === 'suspended' ? 'Mở khóa' : 'Khóa shop'}</button>
-                            <button onClick={() => handleUpdateCommission(s.vendor_id)} style={{ padding: '6px 12px', background: 'rgba(242,112,36,0.1)', color: '#F27024', border: '1px solid rgba(242,112,36,0.2)', borderRadius: 8, fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}>% Hoa hồng</button>
+                            <button onClick={() => handleOpenCommissionModal(s.vendor_id, s.vendor_name || 'Đối tác', s.commission_rate)} style={{ padding: '6px 12px', background: 'rgba(242,112,36,0.1)', color: '#F27024', border: '1px solid rgba(242,112,36,0.2)', borderRadius: 8, fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}>% Hoa hồng</button>
                             <button onClick={() => handleDeleteSellerClick(s.id)} style={{ padding: '6px 12px', background: 'rgba(239,68,68,0.1)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}>Xóa</button>
                           </td>
                         </tr>
@@ -584,7 +592,7 @@ const AdminDashboard = () => {
                           <td style={{ padding: '14px 16px' }}>{v.order_count || 0}</td>
                           <td style={{ padding: '14px 16px', fontWeight: 700, color: '#10B981' }}>{formatPrice(v.revenue)}</td>
                           <td style={{ padding: '14px 16px', display: 'flex', gap: 10, alignItems: 'center' }}>
-                            <button onClick={() => handleUpdateCommission(v.id)} style={{ padding: '6px 12px', background: 'rgba(242,112,36,0.1)', color: '#F27024', border: '1px solid rgba(242,112,36,0.2)', borderRadius: 8, fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}>
+                            <button onClick={() => handleOpenCommissionModal(v.id, v.name, v.commission_rate)} style={{ padding: '6px 12px', background: 'rgba(242,112,36,0.1)', color: '#F27024', border: '1px solid rgba(242,112,36,0.2)', borderRadius: 8, fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}>
                               Chiết khấu ({v.commission_rate !== undefined && v.commission_rate !== null ? v.commission_rate : 10}%)
                             </button>
                             {v.owner_id ? (
@@ -857,6 +865,44 @@ const AdminDashboard = () => {
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
               <button type="button" onClick={() => setPartnerModalVendor(null)} style={{ padding: '12px 20px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, cursor: 'pointer', fontWeight: 600 }}>Hủy bỏ</button>
               <button type="submit" style={{ padding: '12px 24px', background: 'linear-gradient(135deg, #F27024, #FF5722)', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700 }}>Phê duyệt & Tạo đối tác</button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* MODAL 3: Update Vendor Commission Rate */}
+      {editingVendorId && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
+          <form onSubmit={handleCommissionSubmit} style={{ background: '#0F172A', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: 32, maxWidth: 450, width: '100%', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: 16 }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', margin: 0 }}>⚙️ Cập nhật Chiết khấu</h2>
+              <button type="button" onClick={() => setEditingVendorId(null)} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer', outline: 'none' }}>&times;</button>
+            </div>
+
+            <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', marginBottom: 20, lineHeight: 1.6 }}>
+              Thiết lập phần trăm chiết khấu mới cho cửa hàng <strong>{editingVendorName}</strong>. Mức chiết khấu này sẽ được áp dụng cho toàn bộ các đơn hàng hoàn thành tiếp theo.
+            </p>
+
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ display: 'block', fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Tỉ lệ chiết khấu (%) :</label>
+              <div style={{ position: 'relative' }}>
+                <input 
+                  type="number" 
+                  min="0" 
+                  max="100" 
+                  step="0.1"
+                  value={commissionInputRate} 
+                  onChange={(e) => setCommissionInputRate(e.target.value)} 
+                  required 
+                  style={{ width: '100%', padding: '12px 35px 12px 14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, color: '#fff', outline: 'none', fontSize: '1.1rem', fontWeight: 700 }} 
+                />
+                <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.4)', fontWeight: 700 }}>%</span>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+              <button type="button" onClick={() => setEditingVendorId(null)} style={{ padding: '12px 20px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, cursor: 'pointer', fontWeight: 600 }}>Hủy bỏ</button>
+              <button type="submit" style={{ padding: '12px 24px', background: 'linear-gradient(135deg, #F27024, #FF5722)', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700 }}>Lưu thay đổi</button>
             </div>
           </form>
         </div>
