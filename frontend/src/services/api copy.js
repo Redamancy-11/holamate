@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = `${import.meta.env.VITE_API_URL}/api`;
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -12,7 +12,7 @@ api.interceptors.request.use((config) => {
   const isAdminRequest = config.url.includes('/admin');
   const roleHint = config.headers?.['X-Role-Hint'];
   const isSellerRequest = config.url.includes('/seller') || config.url.includes('/bulk-hide') || roleHint === 'seller';
-
+  
   let storageKey = 'hanomate_user';
   if (isAdminRequest) {
     storageKey = 'hanomate_admin_user';
@@ -114,7 +114,7 @@ export const streamChat = async (message, history = [], onChunk, onDone, onError
             const parsed = JSON.parse(data);
             if (parsed.chunk) onChunk?.(parsed.chunk);
             if (parsed.error) onError?.(parsed.error);
-          } catch (_) { }
+          } catch (_) {}
         }
       }
     }
@@ -208,7 +208,7 @@ const adminHeaders = () => {
     try {
       const parsed = JSON.parse(stored);
       if (parsed?.token) return { Authorization: `Bearer ${parsed.token}` };
-    } catch { }
+    } catch {}
   }
   return {};
 };
