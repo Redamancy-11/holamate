@@ -13,11 +13,15 @@ const {
   getAllVendorsAdmin,
   updateVendorAdmin,
   deleteVendorAdmin,
+  setVendorAsPartner,
   getAllOrdersAdmin,
   updateOrderAdmin,
   getFinanceOverview,
   updateCommissionRate,
-  adminLogin
+  adminLogin,
+  getAdminsList,
+  createAdminAccount,
+  removeAdminStatus
 } = require('../controllers/adminDashboardController');
 
 // Admin login (no protect needed)
@@ -29,6 +33,11 @@ router.use(requireAdmin);
 
 // Dashboard overview
 router.get('/dashboard/stats', getDashboardStats);
+
+// Admins Management
+router.get('/dashboard/admins', getAdminsList);
+router.post('/dashboard/admins', createAdminAccount);
+router.delete('/dashboard/admins/:adminId', removeAdminStatus);
 
 // User management
 router.get('/dashboard/users', getAllUsers);
@@ -44,6 +53,7 @@ router.delete('/dashboard/sellers/:sellerId', deleteSeller);
 router.get('/dashboard/vendors', getAllVendorsAdmin);
 router.put('/dashboard/vendors/:vendorId', updateVendorAdmin);
 router.delete('/dashboard/vendors/:vendorId', deleteVendorAdmin);
+router.put('/dashboard/vendors/partner/:vendorId', setVendorAsPartner);
 
 // Order management
 router.get('/dashboard/orders', getAllOrdersAdmin);

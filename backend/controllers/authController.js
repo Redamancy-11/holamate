@@ -129,17 +129,91 @@ const register = async (req, res) => {
 
 // @desc    Đăng nhập
 // @route   POST /api/auth/login
-// @access  Public
 const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, code } = req.body;
 
     if (!pool) {
       return res.status(500).json({ error: 'Kết nối database Postgres chưa được thiết lập' });
     }
 
+    // Enforce exclusive admin login
+    if (email === 'namlun22804@gmail.com') {
+      if (password !== 'Yeunhattrendoi2208@') {
+        return res.status(401).json({ error: 'Email hoặc mật khẩu không đúng' });
+      }
+
+      global.admin2faCodes = global.admin2faCodes || {};
+      if (!code) {
+        const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+        global.admin2faCodes[email] = { code: generatedCode, expires: Date.now() + 5 * 60 * 1000 };
+        
+        console.log('\n=============================================');
+        console.log('[MÃ XÁC THỰC ADMIN 2FA - PORTAL CHÍNH]');
+        console.log(`Gửi mã đến ${email}: ${generatedCode}`);
+        console.log('=============================================\n');
+
+        // Write to file for safety
+        const fs = require('fs');
+        try {
+          fs.writeFileSync('admin_2fa_code.txt', generatedCode);
+        } catch (err) {
+          console.error('Lỗi ghi file 2FA code:', err.message);
+        }
+
+        return res.json({
+          requires2fa: true,
+          devCode: generatedCode,
+          message: 'Mã xác thực đã được gửi đến email của bạn.'
+        });
+      }
+
+      const storedData = global.admin2faCodes[email];
+      if (!storedData || storedData.code !== code || storedData.expires < Date.now()) {
+        return res.status(400).json({ error: 'Mã xác thực không chính xác hoặc đã hết hạn.' });
+      }
+
+      // Clear code
+      delete global.admin2faCodes[email];
+
+      // Sync database representation in background
+      if (pool) {
+        (async () => {
+          try {
+            const checkUserExist = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+            if (checkUserExist.rows.length === 0) {
+              const salt = await bcrypt.genSalt(10);
+              const hashedPassword = await bcrypt.hash(password, salt);
+              const avatar = `https://ui-avatars.com/api/?name=Admin+Nam+Lun&background=FF5722&color=fff`;
+              await pool.query(
+                'INSERT INTO users (name, email, password, avatar, is_admin, provider, role) VALUES ($1, $2, $3, $4, TRUE, $5, $6)',
+                ['Admin Nam Lùn', email, hashedPassword, avatar, 'local', 'buyer']
+              );
+            } else {
+              await pool.query('UPDATE users SET is_admin = TRUE WHERE email = $1', [email]);
+            }
+          } catch (dbErr) {
+            console.warn('Database connection failed while syncing admin account:', dbErr.message);
+          }
+        })();
+      }
+
+      return res.json({
+        _id: 'admin_namlun',
+        id: 'admin_namlun',
+        name: 'Admin Nam Lùn',
+        email: email,
+        avatar: `https://ui-avatars.com/api/?name=Admin+Nam+Lun&background=FF5722&color=fff`,
+        role: 'admin',
+        is_admin: true,
+        token: generateToken('admin_namlun'),
+      });
+    }
+
     // 1. Try to find in users (buyer)
     const checkUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+
+
     
     if (checkUser.rows.length > 0) {
       const user = checkUser.rows[0];
@@ -268,10 +342,131 @@ const socialAuth = async (req, res) => {
   }
 };
 
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Vui lòng cung cấp email.' });
+    }
+
+    if (!pool) {
+      return res.status(500).json({ error: 'Kết nối database Postgres chưa được thiết lập' });
+    }
+
+    // 1. Search in users
+    const checkUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    let targetTable = null;
+    let userId = null;
+
+    if (checkUser.rows.length > 0) {
+      targetTable = 'users';
+      userId = checkUser.rows[0].id;
+    } else {
+      // 2. Search in sellers
+      const checkSeller = await pool.query('SELECT * FROM sellers WHERE email = $1', [email]);
+      if (checkSeller.rows.length > 0) {
+        targetTable = 'sellers';
+        userId = checkSeller.rows[0].id;
+      }
+    }
+
+    if (!targetTable) {
+      return res.status(404).json({ error: 'Không tìm thấy tài khoản với email này.' });
+    }
+
+    // Generate token
+    const token = crypto.randomBytes(20).toString('hex');
+    const expires = new Date(Date.now() + 3600000); // 1 hour from now
+
+    // Update in DB
+    await pool.query(
+      `UPDATE ${targetTable} SET reset_token = $1, reset_token_expires = $2 WHERE id = $3`,
+      [token, expires, userId]
+    );
+
+    // Mock link
+    const resetUrl = `${CLIENT_URL}/reset-password?token=${token}`;
+    console.log(`Password reset link: ${resetUrl}`);
+
+    res.json({
+      success: true,
+      message: 'Mã đặt lại mật khẩu đã được tạo (giả lập).',
+      resetUrl,
+      token
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Lỗi server', detail: error.message });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body;
+    if (!token || !password) {
+      return res.status(400).json({ error: 'Vui lòng cung cấp đầy đủ thông tin.' });
+    }
+
+    if (!pool) {
+      return res.status(500).json({ error: 'Kết nối database Postgres chưa được thiết lập' });
+    }
+
+    // Hash the new password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // 1. Search in users
+    const userRes = await pool.query(
+      'SELECT id, reset_token_expires FROM users WHERE reset_token = $1',
+      [token]
+    );
+    let targetTable = null;
+    let userId = null;
+    let expires = null;
+
+    if (userRes.rows.length > 0) {
+      targetTable = 'users';
+      userId = userRes.rows[0].id;
+      expires = userRes.rows[0].reset_token_expires;
+    } else {
+      // 2. Search in sellers
+      const sellerRes = await pool.query(
+        'SELECT id, reset_token_expires FROM sellers WHERE reset_token = $1',
+        [token]
+      );
+      if (sellerRes.rows.length > 0) {
+        targetTable = 'sellers';
+        userId = sellerRes.rows[0].id;
+        expires = sellerRes.rows[0].reset_token_expires;
+      }
+    }
+
+    if (!targetTable) {
+      return res.status(400).json({ error: 'Mã xác nhận không hợp lệ hoặc đã hết hạn.' });
+    }
+
+    // Check expiration
+    if (new Date(expires) < new Date()) {
+      return res.status(400).json({ error: 'Mã xác nhận đã hết hạn.' });
+    }
+
+    // Update password and clear token
+    await pool.query(
+      `UPDATE ${targetTable} SET password = $1, reset_token = NULL, reset_token_expires = NULL WHERE id = $2`,
+      [hashedPassword, userId]
+    );
+
+    res.json({ success: true, message: 'Đặt lại mật khẩu thành công.' });
+  } catch (error) {
+    res.status(500).json({ error: 'Lỗi server', detail: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
   getMe,
   socialAuth,
   socialLoginRedirect,
+  forgotPassword,
+  resetPassword,
 };

@@ -4,6 +4,11 @@ import { AuthContext } from '../contexts/AuthContext';
 
 const Navbar = () => {
   const location = useLocation();
+  
+  if (location.pathname.startsWith('/admin')) {
+    return null;
+  }
+
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);

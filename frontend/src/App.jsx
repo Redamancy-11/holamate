@@ -6,8 +6,11 @@ import Planner from './pages/Planner';
 import MapExplore from './pages/MapExplore';
 import OrderFood from './pages/OrderFood';
 import SellerDashboard from './pages/SellerDashboard';
+import AdminDashboard from './pages/AdminDashboard';
 import SocialAuthCallback from './pages/SocialAuthCallback';
+import ResetPassword from './pages/ResetPassword';
 import AuthModal from './components/AuthModal';
+import PageReviewBox from './components/PageReviewBox';
 import { AuthProvider } from './contexts/AuthContext';
 import './assets/styles.css';
 
@@ -23,8 +26,11 @@ function App() {
           <Route path="/map" element={<MapExplore />} />
           <Route path="/order" element={<OrderFood />} />
           <Route path="/seller" element={<SellerDashboard />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/auth/callback" element={<SocialAuthCallback />} />
         </Routes>
+        <PageReviewBox />
       </Router>
     </AuthProvider>
   );

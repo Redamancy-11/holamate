@@ -9,16 +9,23 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
+  const isAdminRequest = config.url.includes('/admin');
   const roleHint = config.headers?.['X-Role-Hint'];
-  const isSellerRequest = config.url.includes('/seller') || config.url.includes('/admin')
-    || config.url.includes('/bulk-hide') || roleHint === 'seller';
-  const storageKey = isSellerRequest ? 'hanomate_seller_user' : 'hanomate_user';
+  const isSellerRequest = config.url.includes('/seller') || config.url.includes('/bulk-hide') || roleHint === 'seller';
+  
+  let storageKey = 'hanomate_user';
+  if (isAdminRequest) {
+    storageKey = 'hanomate_admin_user';
+  } else if (isSellerRequest) {
+    storageKey = 'hanomate_seller_user';
+  }
+
   let stored = localStorage.getItem(storageKey);
   // Fallback: if primary key has no token, try the other one
   if (!stored && isSellerRequest) {
     stored = localStorage.getItem('hanomate_user');
   }
-  if (!stored && !isSellerRequest) {
+  if (!stored && !isSellerRequest && !isAdminRequest) {
     stored = localStorage.getItem('hanomate_seller_user');
   }
   if (stored) {
@@ -205,12 +212,10 @@ const adminHeaders = () => {
   }
   return {};
 };
-
-export const adminLogin = async (email, password) => {
-  const { data } = await api.post('/admin/login', { email, password });
+export const adminLogin = async (email, password, code = undefined) => {
+  const { data } = await api.post('/admin/login', { email, password, code });
   return data;
 };
-
 export const getAdminStats = async () => {
   const { data } = await api.get('/admin/dashboard/stats', { headers: adminHeaders() });
   return data;
@@ -252,12 +257,12 @@ export const getAdminVendors = async (search = '', category = '') => {
 };
 
 export const updateAdminVendor = async (vendorId, updates) => {
-  const { data } = await api.put(`/admin/dashboard/vendors/${vendorId}`, updates, { headers: adminHeaders() });
+  const { data } = await api.put(`/admin/dashboard/vendors/${encodeURIComponent(vendorId)}`, updates, { headers: adminHeaders() });
   return data;
 };
 
 export const deleteAdminVendor = async (vendorId) => {
-  const { data } = await api.delete(`/admin/dashboard/vendors/${vendorId}`, { headers: adminHeaders() });
+  const { data } = await api.delete(`/admin/dashboard/vendors/${encodeURIComponent(vendorId)}`, { headers: adminHeaders() });
   return data;
 };
 
@@ -267,7 +272,7 @@ export const getAdminOrders = async (status = 'all', search = '', page = 1) => {
 };
 
 export const updateAdminOrder = async (orderId, updates) => {
-  const { data } = await api.put(`/admin/dashboard/orders/${orderId}`, updates, { headers: adminHeaders() });
+  const { data } = await api.put(`/admin/dashboard/orders/${encodeURIComponent(orderId)}`, updates, { headers: adminHeaders() });
   return data;
 };
 
@@ -277,7 +282,37 @@ export const getAdminFinance = async () => {
 };
 
 export const updateAdminCommission = async (vendorId, commission_rate) => {
-  const { data } = await api.put(`/admin/dashboard/finance/commission/${vendorId}`, { commission_rate }, { headers: adminHeaders() });
+  const { data } = await api.put(`/admin/dashboard/finance/commission/${encodeURIComponent(vendorId)}`, { commission_rate }, { headers: adminHeaders() });
+  return data;
+};
+
+export const getAdminAdmins = async () => {
+  const { data } = await api.get('/admin/dashboard/admins', { headers: adminHeaders() });
+  return data;
+};
+
+export const createAdminAdmin = async (name, email, password) => {
+  const { data } = await api.post('/admin/dashboard/admins', { name, email, password }, { headers: adminHeaders() });
+  return data;
+};
+
+export const deleteAdminAdmin = async (adminId) => {
+  const { data } = await api.delete(`/admin/dashboard/admins/${encodeURIComponent(adminId)}`, { headers: adminHeaders() });
+  return data;
+};
+
+export const setAdminVendorPartner = async (vendorId, sellerDetails) => {
+  const { data } = await api.put(`/admin/dashboard/vendors/partner/${encodeURIComponent(vendorId)}`, sellerDetails, { headers: adminHeaders() });
+  return data;
+};
+
+export const submitPageReview = async (reviewData) => {
+  const { data } = await api.post('/reviews', reviewData);
+  return data;
+};
+
+export const getRandomPageReviews = async () => {
+  const { data } = await api.get('/reviews/random');
   return data;
 };
 

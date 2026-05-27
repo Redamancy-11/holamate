@@ -187,8 +187,13 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (userData) => {
     const data = await authService.login(userData);
+    if (data.requires2fa) {
+      return data;
+    }
     if (data.role === 'seller') {
       setSellerUser(data);
+    } else if (data.role === 'admin' || data.is_admin) {
+      // Don't set normal user/seller for admin
     } else {
       setUser(data);
     }

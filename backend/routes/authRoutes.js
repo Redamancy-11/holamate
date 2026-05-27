@@ -3,7 +3,7 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { passport } = require('../config/passport');
 const { pool } = require('../config/pg');
-const { register, login, getMe, socialAuth, socialLoginRedirect } = require('../controllers/authController');
+const { register, login, getMe, socialAuth, socialLoginRedirect, forgotPassword, resetPassword } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
@@ -11,6 +11,8 @@ const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
 router.post('/register', register);
 router.post('/login', login);
 router.post('/social', socialAuth);
+router.post('/forgot-password', forgotPassword);
+router.post('/reset-password', resetPassword);
 
 const googleEnabled = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
 const facebookEnabled = Boolean(process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET);

@@ -52,6 +52,18 @@ const authService = {
   getCurrentSellerUser: () => {
     return JSON.parse(localStorage.getItem('hanomate_seller_user'));
   },
+
+  // Quên mật khẩu
+  forgotPassword: async (email) => {
+    const response = await axios.post(`${API_URL}/forgot-password`, { email });
+    return response.data;
+  },
+
+  // Đặt lại mật khẩu
+  resetPassword: async (token, password) => {
+    const response = await axios.post(`${API_URL}/reset-password`, { token, password });
+    return response.data;
+  },
 };
 
 export default authService;

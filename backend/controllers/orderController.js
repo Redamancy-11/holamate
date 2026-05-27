@@ -67,9 +67,21 @@ const createOrder = async (req, res) => {
       }
     }
 
+    // Fetch commission_rate from Postgres vendors table (fallback to 10.0)
+    let commissionRate = 10.0;
+    try {
+      const vRes = await pool.query('SELECT commission_rate FROM vendors WHERE id = $1', [vendorId]);
+      if (vRes.rows.length > 0 && vRes.rows[0].commission_rate !== null) {
+        commissionRate = parseFloat(vRes.rows[0].commission_rate);
+      }
+    } catch (e) {
+      console.warn('Error fetching commission rate for order:', e.message);
+    }
+    const commissionAmount = Math.round(totalAmount * (commissionRate / 100));
+
     const query = `
-      INSERT INTO orders (id, vendor_id, vendor_name, customer_name, customer_phone, delivery_address, items, total_amount, status, customer_note, customer_id, seller_id, delivery_longitude, delivery_latitude)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+      INSERT INTO orders (id, vendor_id, vendor_name, customer_name, customer_phone, delivery_address, items, total_amount, status, customer_note, customer_id, seller_id, delivery_longitude, delivery_latitude, commission_amount)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
       RETURNING *;
     `;
     const params = [
@@ -86,7 +98,8 @@ const createOrder = async (req, res) => {
       customerId,
       sellerId,
       deliveryLongitude !== undefined ? parseFloat(deliveryLongitude) : null,
-      deliveryLatitude !== undefined ? parseFloat(deliveryLatitude) : null
+      deliveryLatitude !== undefined ? parseFloat(deliveryLatitude) : null,
+      commissionAmount
     ];
 
     const result = await pool.query(query, params);
