@@ -5,7 +5,7 @@ import authService from '../services/authService';
 const AuthModal = () => {
   const { showAuthModal, setShowAuthModal, login, register } = useContext(AuthContext);
   const [view, setView] = useState('login'); // 'login' | 'register' | 'forgot'
-  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'buyer' });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'buyer', store_name: '', student_id: '', phone: '' });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [resetUrl, setResetUrl] = useState('');
@@ -186,7 +186,20 @@ const AuthModal = () => {
                 style={{ padding: '12px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', outline: 'none', fontSize: '0.95rem', cursor: 'pointer' }}>
                 <option value="buyer" style={{ background: '#0B192C', color: '#fff' }}>Người mua (Khách hàng)</option>
                 <option value="seller" style={{ background: '#0B192C', color: '#fff' }}>Người bán (Chủ cửa hàng)</option>
+                <option value="student_store" style={{ background: '#0B192C', color: '#fff' }}>🎓 Cửa hàng sinh viên</option>
               </select>
+            </div>
+          )}
+
+          {view === 'register' && formData.role === 'student_store' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: '12px', background: 'rgba(242,112,36,0.06)', border: '1px solid rgba(242,112,36,0.2)', borderRadius: 14 }}>
+              <p style={{ fontSize: '0.78rem', color: '#FF9800', margin: 0, fontWeight: 600 }}>🎓 Thông tin cửa hàng sinh viên</p>
+              <input type="text" name="store_name" placeholder="Tên cửa hàng (VD: Trà sữa Hola của Linh)" value={formData.store_name} onChange={handleChange}
+                style={{ padding: '10px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', outline: 'none', fontSize: '0.9rem' }} />
+              <input type="text" name="student_id" placeholder="Mã sinh viên (VD: SE173xxx)" value={formData.student_id} onChange={handleChange}
+                style={{ padding: '10px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', outline: 'none', fontSize: '0.9rem' }} />
+              <input type="tel" name="phone" placeholder="Số điện thoại liên hệ" value={formData.phone} onChange={handleChange}
+                style={{ padding: '10px 14px', borderRadius: 10, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', outline: 'none', fontSize: '0.9rem' }} />
             </div>
           )}
 

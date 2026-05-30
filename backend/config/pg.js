@@ -95,6 +95,48 @@ const connectPg = async () => {
         created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
       );
     `);
+
+    // Create student_stores table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS student_stores (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        store_name VARCHAR(255) NOT NULL,
+        description TEXT,
+        category VARCHAR(100) DEFAULT 'Đồ ăn & Đồ uống',
+        student_id VARCHAR(50),
+        phone VARCHAR(20),
+        avatar TEXT,
+        banner_image TEXT,
+        address TEXT DEFAULT 'KTX FPT Hoà Lạc',
+        longitude DOUBLE PRECISION DEFAULT 105.52522,
+        latitude DOUBLE PRECISION DEFAULT 21.01354,
+        is_active BOOLEAN DEFAULT TRUE,
+        is_verified BOOLEAN DEFAULT FALSE,
+        rating REAL DEFAULT 5.0,
+        total_orders INTEGER DEFAULT 0,
+        total_revenue BIGINT DEFAULT 0,
+        operating_hours TEXT DEFAULT '08:00 - 22:00',
+        vendor_id TEXT,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Create student_store_menu table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS student_store_menu (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        store_id UUID REFERENCES student_stores(id) ON DELETE CASCADE,
+        name VARCHAR(255) NOT NULL,
+        description TEXT,
+        price INTEGER NOT NULL,
+        category VARCHAR(100) DEFAULT 'Món chính',
+        image TEXT,
+        is_available BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
     
     client.release();
     isPgConnected = true;

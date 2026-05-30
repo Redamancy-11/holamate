@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 
 const stats = [
   { value: '1,000+', label: 'Sinh Viên & Cán Bộ' },
-  { value: '100+', label: 'Địa Điểm Đẹp' },
   { value: '4.8★', label: 'Đánh Giá' },
   { value: '100%', label: 'Hoàn Toàn Miễn Phí' },
 ];
@@ -99,9 +98,9 @@ const HeroSection = () => (
       </div>
 
       {/* Stats bar */}
-      <div style={{ marginTop: 72, display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 2, background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.10)', borderRadius: 20, overflow: 'hidden', backdropFilter: 'blur(10px)' }} className="reveal">
+      <div className="hero-stats reveal">
         {stats.map((s, i) => (
-          <div key={i} style={{ padding: '24px', textAlign: 'center', borderRight: i < stats.length - 1 ? '1px solid rgba(255,255,255,.05)' : 'none' }}>
+          <div key={i} className="hero-stats-item">
             <div style={{ fontSize: 'clamp(1.5rem,3vw,2.2rem)', fontWeight: 900, color: '#FF9800', fontFamily: "'Plus Jakarta Sans',sans-serif", letterSpacing: '-0.03em' }}>{s.value}</div>
             <div style={{ fontSize: '.8rem', color: 'rgba(255,255,255,.6)', marginTop: 4, fontWeight: 500 }}>{s.label}</div>
           </div>

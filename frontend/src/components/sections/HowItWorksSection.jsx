@@ -5,9 +5,9 @@ import { Link } from 'react-router-dom';
 const TAN_XA_BG = '/images/tan_xa.png';
 
 const steps = [
-  { icon: '📍', title: 'Chia Sẻ Vị Trí', desc: 'Bật định vị GPS để tự động tìm các quán ăn, tiệm cafe ngon gần bạn nhất tại Hola.', color: '#F27024' },
-  { icon: '🤖', title: 'AI Gợi Ý Món Ngon', desc: 'Trò chuyện nhờ AI Hola gợi ý món ăn, trà sữa học nhóm hợp túi tiền và sở thích của bạn.', color: '#FF9800' },
-  { icon: '💰', title: 'Review Minh Bạch', desc: 'Nhận đánh giá ưu/nhược điểm trung thực kèm bảng giá thực tế tổng hợp từ TikTok & cộng đồng.', color: '#10B981' },
+  { icon: '📍', title: 'Chia Sẻ Vị Trí', desc: 'Bật định vị GPS để tự động tìm các quán ăn, tiệm cafe ngon gần bạn nhất Hola.', color: '#F27024' },
+  { icon: '🤖', title: 'AI Gợi Ý Món Ngon', desc: 'Hỏi đáp AI Hola để nhận gợi ý món ăn, thức uống và review quán ngon phù hợp với túi tiền tại Hoà Lạc.', color: '#FF9800' },
+  { icon: '💰', title: 'Review Minh Bạch', desc: 'Nhận đánh giá ưu/nhược điểm trung thực kèm bảng giá thực tế từ TikTok & cộng đồng.', color: '#10B981' },
   { icon: '🛒', title: 'Đặt Món Giao Ngay', desc: 'Trỏ vào bản đồ xem menu, lên đơn order và shop sẽ giao đồ ăn tận tay bạn.', color: '#A78BFA' },
 ];
 

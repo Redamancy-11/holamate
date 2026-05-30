@@ -16,12 +16,8 @@ const CtaSection = () => (
         🧡 Trải Nghiệm Hoà Lạc
       </span>
       <h2 className="reveal" style={{ fontSize: 'clamp(2rem,5vw,3rem)', fontWeight: 900, color: '#fff', marginBottom: 20, lineHeight: 1.2 }}>
-        Cuộc Sống Hola Hoàn Hảo Của Bạn<br />
         <span style={{ background: 'linear-gradient(135deg,#FFD700,#FF8C00)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Bắt Đầu Ngay Hôm Nay</span>
       </h2>
-      <p className="reveal" style={{ color: 'rgba(255,255,255,.72)', fontSize: '1.05rem', maxWidth: 520, margin: '0 auto 36px', lineHeight: 1.75 }}>
-        Tham gia 1,000+ sinh viên & cán bộ đang khám phá Hoà Lạc thông minh hơn với HolaMate. Miễn phí hoàn toàn để bắt đầu.
-      </p>
       <div className="reveal" style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
         <Link to="/planner" style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,

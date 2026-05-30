@@ -41,13 +41,14 @@ const socialLoginRedirect = async (req, res) => {
 // @access  Public
 const register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, student_id, store_name, phone } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ error: 'Vui lòng điền đầy đủ thông tin' });
     }
 
-    const userRole = role === 'seller' ? 'seller' : 'buyer';
+    const validRoles = ['buyer', 'seller', 'student_store'];
+    const userRole = validRoles.includes(role) ? role : 'buyer';
 
     // Check pool connection
     if (!pool) {
@@ -102,6 +103,43 @@ const register = async (req, res) => {
         role: 'seller',
         vendor_id: seller.vendor_id || '',
         token: generateToken(seller.id),
+      });
+    } else if (userRole === 'student_store') {
+      // 1. Insert into users table with student_store role
+      const insertRes = await pool.query(
+        'INSERT INTO users (name, email, password, provider, avatar, role) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
+        [name, email, hashedPassword, 'local', defaultAvatar, 'student_store']
+      );
+      const user = insertRes.rows[0];
+
+      // 2. Create a vendor on the map
+      const vendorId = 'sv_' + crypto.randomBytes(4).toString('hex');
+      const finalStoreName = store_name || `Cửa hàng SV ${name}`;
+
+      await pool.query(
+        'INSERT INTO vendors (id, name, category, address, menu, rating, owner_id, longitude, latitude, source) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)',
+        [vendorId, finalStoreName, 'Cửa hàng sinh viên', 'KTX FPT Hoà Lạc', JSON.stringify([]), 5.0, user.id, 105.52522, 21.01354, 'student']
+      );
+
+      // 3. Create student_stores entry
+      await pool.query(
+        `INSERT INTO student_stores (user_id, store_name, category, student_id, phone, avatar, vendor_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [user.id, finalStoreName, 'Cửa hàng sinh viên', student_id || null, phone || null, defaultAvatar, vendorId]
+      );
+
+      // 4. Update user with vendor_id
+      await pool.query('UPDATE users SET vendor_id = $1 WHERE id = $2', [vendorId, user.id]);
+
+      return res.status(201).json({
+        _id: user.id,
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        role: 'student_store',
+        vendor_id: vendorId,
+        token: generateToken(user.id),
       });
     } else {
       // Insert into users table (buyer)

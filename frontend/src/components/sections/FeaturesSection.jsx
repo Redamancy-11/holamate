@@ -34,7 +34,7 @@ const features = [
     color: '#FF9800',
     photo: HOLA_PHOTOS[1],
     badge: 'Crowdsourced',
-    title: 'Giá Cả Sinh Viên Thực Tế',
+    title: 'Giá Cả Thực Tế',
     desc: 'Xác minh giá cả tại các quán ăn quanh khu Tân Xã và campus FPT. Thuật toán lọc báo cáo ảo giúp bạn không lo bị chặt chém.',
     features: ['Giá được xác thực', 'Cập nhật thời gian thực', 'Định mức chi phí ăn uống'],
   },
@@ -54,7 +54,7 @@ const features = [
     badge: 'Exclusive',
     title: 'Cộng Đồng Hola-ers',
     desc: 'Nơi chia sẻ các quán ăn ngon bổ rẻ, các cung đường chạy bộ đẹp, các tips sống sót tại Hòa Lạc từ các anh chị khóa trước.',
-    features: ['Đóng góp từ sinh viên', 'Tips sinh hoạt tiết kiệm', 'Review chân thực 100%'],
+    features: ['Đóng góp từ sinh viên', 'Review chân thực 100%'],
   },
 ];
 

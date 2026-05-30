@@ -6,6 +6,7 @@ import Planner from './pages/Planner';
 import MapExplore from './pages/MapExplore';
 import OrderFood from './pages/OrderFood';
 import SellerDashboard from './pages/SellerDashboard';
+import StudentStoreDashboard from './pages/StudentStoreDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import SocialAuthCallback from './pages/SocialAuthCallback';
 import ResetPassword from './pages/ResetPassword';
@@ -26,6 +27,7 @@ function App() {
           <Route path="/map" element={<MapExplore />} />
           <Route path="/order" element={<OrderFood />} />
           <Route path="/seller" element={<SellerDashboard />} />
+          <Route path="/student-store" element={<StudentStoreDashboard />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/auth/callback" element={<SocialAuthCallback />} />

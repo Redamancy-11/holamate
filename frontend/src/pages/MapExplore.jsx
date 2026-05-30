@@ -273,7 +273,8 @@ const MapExplore = () => {
   // Định vị bằng Geolocation API miễn phí của trình duyệt
   const locateUser = () => {
     if (!navigator.geolocation) {
-      setLocError('Trình duyệt của bạn không hỗ trợ định vị GPS.');
+      // Fallback to IP-based detection if browser doesn't support geolocation
+      fallbackToIpDetection('Trình duyệt của bạn không hỗ trợ định vị GPS.');
       return;
     }
     setLocating(true);
@@ -283,25 +284,52 @@ const MapExplore = () => {
       async (pos) => {
         handleGeolocationSuccess(pos);
       },
-      (err) => {
+      async (err) => {
         console.warn('Định vị GPS thất bại:', err);
-        setLocating(false);
+        // Try IP-based fallback instead of just showing error
         if (err.code === 1) {
-          setLocError('Quyền truy cập vị trí bị chặn. Vui lòng bật quyền Vị trí (Location) trong cài đặt trình duyệt của bạn.');
+          // Permission denied - try IP fallback
+          await fallbackToIpDetection('GPS bị chặn quyền truy cập. Đang dùng định vị theo IP...');
         } else if (err.code === 2) {
-          setLocError('Không thể xác định vị trí GPS (vui lòng bật GPS trên thiết bị của bạn).');
+          await fallbackToIpDetection('Không thể xác định vị trí GPS. Đang dùng định vị theo IP...');
         } else if (err.code === 3) {
-          setLocError('Quá thời gian quét tín hiệu định vị GPS.');
+          await fallbackToIpDetection('Quá thời gian quét GPS. Đang dùng định vị theo IP...');
         } else {
-          setLocError('Gặp lỗi khi định vị thiết bị.');
+          await fallbackToIpDetection('Gặp lỗi khi định vị thiết bị. Đang dùng định vị theo IP...');
         }
       },
       {
-        enableHighAccuracy: false,
-        timeout: 10000,
-        maximumAge: 60000
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 30000
       }
     );
+  };
+
+  // Fallback: Use IP-based geolocation when GPS fails
+  const fallbackToIpDetection = async (warningMsg) => {
+    setLocError('');
+    try {
+      const ipData = await detectIpLocation();
+      if (ipData?.success && ipData.coords) {
+        const coords = ipData.coords;
+        setUserLocation(coords);
+        setLocating(false);
+        localStorage.setItem('hanomate_chat_location', JSON.stringify({ latitude: coords[1], longitude: coords[0] }));
+
+        if (mapRef.current) {
+          mapRef.current.flyTo({ center: coords, zoom: 15, pitch: 40, duration: 2000 });
+          addUserMarker(coords);
+        }
+        setUserAddress(ipData.address || `Vị trí: ${coords[1].toFixed(5)}°N, ${coords[0].toFixed(5)}°E`);
+        return;
+      }
+      throw new Error('IP detection failed');
+    } catch (e) {
+      console.warn('IP detection cũng thất bại:', e);
+      setLocating(false);
+      setLocError(warningMsg || 'Không thể xác định vị trí. Vui lòng chọn vị trí trên bản đồ.');
+    }
   };
 
   // Đăng ký sự kiện click trên bản đồ để chọn vị trí thủ công
@@ -372,18 +400,37 @@ const MapExplore = () => {
         (pos) => {
           setInitCoords([pos.coords.longitude, pos.coords.latitude]);
         },
-        (err) => {
+        async (err) => {
           console.warn('Định vị GPS thất bại hoặc bị từ chối:', err);
+          // Try IP-based fallback
+          try {
+            const ipData = await detectIpLocation();
+            if (ipData?.success && ipData.coords) {
+              setInitCoords(ipData.coords);
+              return;
+            }
+          } catch (e) {
+            console.warn('IP detection fallback cũng thất bại:', e);
+          }
           setInitCoords(HOLA_CENTER);
         },
         {
-          enableHighAccuracy: false,
+          enableHighAccuracy: true,
           timeout: 10000,
-          maximumAge: 60000
+          maximumAge: 30000
         }
       );
     } else {
-      setInitCoords(HOLA_CENTER);
+      // No geolocation API - try IP fallback
+      detectIpLocation()
+        .then(ipData => {
+          if (ipData?.success && ipData.coords) {
+            setInitCoords(ipData.coords);
+          } else {
+            setInitCoords(HOLA_CENTER);
+          }
+        })
+        .catch(() => setInitCoords(HOLA_CENTER));
     }
   }, []);
 
@@ -446,9 +493,9 @@ const MapExplore = () => {
     markersRef.current = [];
     filteredLandmarks.forEach(place => {
       const el = document.createElement('div');
-      el.innerHTML = `<span style="font-size:1.4rem;display:flex;align-items:center;justify-content:center;width:40px;height:40px;background:rgba(8,12,28,0.9);border:2px solid rgba(242,112,36,0.75);border-radius:50%;cursor:pointer;box-shadow:0 4px 12px rgba(242,112,36,0.3);transition:transform .2s,box-shadow .2s;">${place.emoji}</span>`;
-      el.addEventListener('mouseenter', () => { el.firstChild.style.transform = 'scale(1.25)'; el.firstChild.style.boxShadow = '0 6px 20px rgba(242,112,36,0.65)'; });
-      el.addEventListener('mouseleave', () => { el.firstChild.style.transform = 'scale(1)'; el.firstChild.style.boxShadow = '0 4px 12px rgba(242,112,36,0.3)'; });
+      el.innerHTML = `<span style="font-size:0.9rem;display:flex;align-items:center;justify-content:center;width:28px;height:28px;background:rgba(8,12,28,0.9);border:1.5px solid rgba(242,112,36,0.75);border-radius:50%;cursor:pointer;box-shadow:0 2px 8px rgba(242,112,36,0.25);transition:transform .2s,box-shadow .2s;">${place.emoji}</span>`;
+      el.addEventListener('mouseenter', () => { el.firstChild.style.transform = 'scale(1.3)'; el.firstChild.style.boxShadow = '0 4px 14px rgba(242,112,36,0.55)'; });
+      el.addEventListener('mouseleave', () => { el.firstChild.style.transform = 'scale(1)'; el.firstChild.style.boxShadow = '0 2px 8px rgba(242,112,36,0.25)'; });
 
       const popup = new vietmapgl.Popup({ offset: 28, closeButton: true, maxWidth: '280px' }).setHTML(`
         <div style="font-family:Inter,sans-serif;padding:4px;">

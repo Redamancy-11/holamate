@@ -256,13 +256,50 @@ body::before {
 .mapboxgl-popup-content { border-radius:12px!important; box-shadow:0 8px 32px rgba(0,0,0,0.25)!important; padding:12px!important }
 
 /* ============================================================
+   HERO STATS STYLE
+   ============================================================ */
+.hero-stats {
+  margin-top: 72px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 20px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.hero-stats-item {
+  padding: 24px;
+  text-align: center;
+  border-right: 1px solid rgba(255,255,255,.05);
+}
+
+.hero-stats-item:last-child {
+  border-right: none;
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 @media(max-width:768px) {
   .section { padding:64px 0 }
   .section-header { margin-bottom:36px }
+  .section-header h2 { font-size: 1.45rem!important }
+  .section-header p { font-size: 0.85rem; line-height: 1.6 }
   .hide-mobile { display:none!important }
   .btn-lg { padding:14px 26px; font-size:.95rem }
+  
+  .hero-stats {
+    grid-template-columns: 1fr;
+  }
+  .hero-stats-item {
+    border-right: none;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+  }
+  .hero-stats-item:last-child {
+    border-bottom: none;
+  }
 }
 @media(min-width:769px) { .show-mobile { display:none!important } }
 

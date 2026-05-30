@@ -10,10 +10,7 @@ const footerLinks = {
   ],
   'Công Ty': [
     { label: 'Về Chúng Tôi', modal: 'about', desc: 'Câu chuyện HolaMate' },
-    { label: 'Blog Đời Sống', modal: 'blog', desc: 'Tips & kinh nghiệm Hoà Lạc' },
-    { label: 'Tuyển Dụng', modal: 'careers', desc: 'Gia nhập đội ngũ chúng tôi' },
     { label: 'Liên Hệ', modal: 'contact', desc: 'Hỗ trợ & phản hồi' },
-    { label: 'Press Kit', modal: 'press', desc: 'Tài liệu báo chí' },
   ],
   'Hỗ Trợ': [
     { label: 'Trung Tâm Trợ Giúp', modal: 'help', desc: 'Câu hỏi thường gặp' },
@@ -239,18 +236,8 @@ const FooterSection = () => {
                   <span style={{ fontWeight: 800, fontSize: '1.3rem', color: '#FF9800', letterSpacing: '.02em', fontFamily: 'sans-serif' }}>HolaMate</span>
                 </div>
                 <p style={{ color: 'rgba(255,255,255,.48)', fontSize: '.86rem', lineHeight: 1.8, maxWidth: 260, marginBottom: 24 }}>
-                  Trợ lý ẩm thực & đời sống AI chuyên biệt cho FPT Hoà Lạc. Gợi ý món ngon, xem review chân thực và khảo sát giá sinh viên minh bạch.
+                  Trợ lý ẩm thực & đời sống AI chuyên biệt cho FPT Hoà Lạc.
                 </p>
-                <div style={{ display: 'flex', gap: 10 }}>
-                  {socials.map(s => (
-                    <a key={s.label} href="#" aria-label={s.label}
-                      style={{ width: 36, height: 36, borderRadius: 9, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,.5)', fontSize: '.8rem', fontWeight: 700, transition: 'all .25s' }}
-                      onMouseEnter={e => { e.currentTarget.style.background = s.color; e.currentTarget.style.color = '#fff'; e.currentTarget.style.borderColor = s.color; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,.06)'; e.currentTarget.style.color = 'rgba(255,255,255,.5)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,.1)'; }}>
-                      {s.icon}
-                    </a>
-                  ))}
-                </div>
               </div>
 
               {/* Link columns */}

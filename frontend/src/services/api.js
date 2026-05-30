@@ -316,5 +316,41 @@ export const getRandomPageReviews = async () => {
   return data;
 };
 
+// ===================== STUDENT STORE API =====================
+export const getStudentStoreMy = async () => {
+  const { data } = await api.get('/student-store/my');
+  return data;
+};
+
+export const updateStudentStoreMy = async (storeData) => {
+  const { data } = await api.put('/student-store/my', storeData);
+  return data;
+};
+
+export const addStudentStoreMenuItem = async (menuItem) => {
+  const { data } = await api.post('/student-store/menu', menuItem);
+  return data;
+};
+
+export const updateStudentStoreMenuItem = async (itemId, menuItem) => {
+  const { data } = await api.put(`/student-store/menu/${itemId}`, menuItem);
+  return data;
+};
+
+export const deleteStudentStoreMenuItem = async (itemId) => {
+  const { data } = await api.delete(`/student-store/menu/${itemId}`);
+  return data;
+};
+
+export const getStudentStoreOrders = async () => {
+  const { data } = await api.get('/student-store/orders');
+  return data;
+};
+
+export const updateStudentStoreOrderStatus = async (orderId, status) => {
+  const { data } = await api.put(`/student-store/orders/${orderId}/status`, { status });
+  return data;
+};
+
 export default api;
 

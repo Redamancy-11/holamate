@@ -3,14 +3,11 @@ import { getRandomPageReviews } from '../../services/api';
 
 const defaultBuyerMock = [
   { user_name: 'Tuấn Anh', rating: 5, comment: 'HolaMate cứu cánh mình mỗi kỳ học quân sự luôn! AI gợi ý các quán bún chả, cơm tấm siêu rẻ quanh Tân Xã mà đi bộ từ KTX cũng gần.', created_at: new Date().toISOString() },
-  { user_name: 'Khánh Linh', rating: 5, comment: 'Thích nhất tính năng gợi ý cafe học nhóm. Nhờ HolaMate mà mình biết đến Bay Coffee ở Tân Xã có view hồ siêu chill.', created_at: new Date().toISOString() },
-  { user_name: 'Minh Đức', rating: 5, comment: 'Thông tin di chuyển xe bus 107 và 74 trên app cập nhật rất chuẩn. Đi lại từ nội thành lên Hòa Lạc cuối tuần không còn là cực hình nữa.', created_at: new Date().toISOString() }
+  { user_name: 'Khánh Linh', rating: 5, comment: 'Thích nhất tính năng gợi ý cafe học nhóm. Nhờ HolaMate mà mình biết đến Bay Coffee ở Tân Xã có view hồ siêu chill.', created_at: new Date().toISOString() }
 ];
 
 const defaultSellerMock = [
-  { user_name: 'Chủ Quán Bún Chả', rating: 5, comment: 'Doanh thu quán bún chả của tôi tăng vọt từ khi lên đối tác HolaMate. Giao diện quản lý đơn rất mượt và trực quan.', created_at: new Date().toISOString() },
-  { user_name: 'Chủ Tiệm Bay Coffee', rating: 5, comment: 'Hệ thống chiết khấu hoa hồng của HolaMate rất hợp lý và công bằng. Đơn hàng nổ liên tục vào giờ cao điểm học nhóm.', created_at: new Date().toISOString() },
-  { user_name: 'Chủ Quán Lẩu 1988', rating: 5, comment: 'Tính năng định vị GPS giúp tài xế tìm đường đến quán tôi cực nhanh, đồ ăn giao cho các bạn sinh viên vẫn giữ được độ nóng hổi.', created_at: new Date().toISOString() }
+  { user_name: 'Chủ Quán Bún Chả', rating: 5, comment: 'Doanh thu quán bún chả của tôi tăng vọt từ khi lên đối tác HolaMate. Giao diện quản lý đơn rất mượt và trực quan.', created_at: new Date().toISOString() }
 ];
 
 const Stars = ({ n }) => (

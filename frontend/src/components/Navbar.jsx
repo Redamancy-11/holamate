@@ -74,7 +74,11 @@ const Navbar = () => {
     if (sellerUser) {
       navLinks.push({ label: 'Kênh Người Bán 🏪', href: '/seller', isRoute: true });
     } else if (user) {
-      navLinks.push({ label: 'Đặt Đồ 🍔', href: '/order', isRoute: true });
+      if (user.role === 'student_store') {
+        navLinks.push({ label: 'Shop Sinh Viên 🎓', href: '/student-store', isRoute: true });
+      } else {
+        navLinks.push({ label: 'Đặt Đồ 🍔', href: '/order', isRoute: true });
+      }
     }
   }
 

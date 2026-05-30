@@ -8,7 +8,7 @@ const ChatBox = ({ defaultLocation = null }) => {
   const [messages, setMessages] = useState([
     {
       role: 'ai',
-      content: 'Xin chào! 🍊 Tôi là HolaMate AI — trợ lý ẩm thực chuyên gợi ý món ăn, đồ uống và cung cấp các đánh giá review minh bạch, trung thực tại FPT Hoà Lạc. Bạn thèm ăn gì hôm nay để mình gợi ý quán ngon giá chuẩn kèm review chi tiết nhé?',
+      content: 'Xin chào! 🍊 Tôi là HolaMate AI — trợ lý ẩm thực chuyên gợi ý món ăn, đồ uống và cung cấp các đánh giá minh bạch tại FPT Hoà Lạc. Bạn thèm ăn gì hôm nay?',
     },
   ]);
   const [input, setInput] = useState('');
@@ -143,9 +143,8 @@ const ChatBox = ({ defaultLocation = null }) => {
   };
 
   const suggestions = [
-    '🍜 Gợi ý lẩu nướng Tân Xã kèm review',
-    '☕ Quán cafe học nhóm yên tĩnh quanh Hola',
-    '🍳 Ăn gì hôm nay dưới 35k tại campus?',
+    '🍜 Gợi ý lẩu nướng Tân Xã',
+    '☕ Quán cafe học nhóm yên tĩnh ở Hola',
     '🍊 Đánh giá Highlands Coffee Hola có gì ngon?',
   ];
 
