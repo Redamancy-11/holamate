@@ -269,7 +269,7 @@ const StudentStoreDashboard = () => {
         longitude: storeCoords[0],
         latitude: storeCoords[1]
       };
-      const res = await updateMyStore(payload);
+      const res = await updateStudentStoreMy(payload);
       if (res.success) {
         showFlashMessage('Cập nhật thông tin cửa hàng thành công!', 'success');
         await loadStoreData();
@@ -418,7 +418,7 @@ const StudentStoreDashboard = () => {
               <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#fff', margin: 0 }}>Cửa Hàng Sinh Viên</h1>
             </div>
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem', margin: '4px 0 0' }}>
-              Chào mừng, <strong style={{ color: '#FF9800' }}>{store?.store_name || user.name}</strong> (Mã SV: {store?.student_id || 'N/A'})
+              Chào mừng, <strong style={{ color: '#FF9800' }}>{store?.store_name || user.name}</strong> {store?.student_id && store.student_id !== 'N/A' && `(Mã SV: ${store.student_id})`}
             </p>
           </div>
           <div style={{ display: 'flex', gap: 10 }}>

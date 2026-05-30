@@ -14,10 +14,12 @@ const VendorDetailCard = ({ vendor }) => {
     }}>
       <h2 style={{ fontSize: '1.5rem', marginBottom: '10px' }}>{vendor.name}</h2>
       <p><strong>Category:</strong> {vendor.category}</p>
-      <p><strong>Address:</strong> {vendor.address || 'N/A'}</p>
-      <p><strong>Price Range:</strong> {vendor.priceRange?.min?.toLocaleString('vi-VN')}đ - {vendor.priceRange?.max?.toLocaleString('vi-VN')}đ</p>
-      <p><strong>Rating:</strong> {vendor.rating || 'N/A'}/5</p>
-      <p><strong>Tips:</strong> {vendor.tips || 'No tips available'}</p>
+      {vendor.address && <p><strong>Address:</strong> {vendor.address}</p>}
+      {vendor.priceRange?.min && vendor.priceRange?.max && (
+        <p><strong>Price Range:</strong> {vendor.priceRange.min.toLocaleString('vi-VN')}đ - {vendor.priceRange.max.toLocaleString('vi-VN')}đ</p>
+      )}
+      {vendor.rating && <p><strong>Rating:</strong> {vendor.rating}/5</p>}
+      {vendor.tips && <p><strong>Tips:</strong> {vendor.tips}</p>}
     </div>
   );
 };

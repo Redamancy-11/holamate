@@ -48,16 +48,22 @@ const VendorSection = () => {
                     <span style={{ padding: '6px 12px', borderRadius: 9999, background: vendor.riskBadge === 'high' ? 'rgba(239,68,68,0.17)' : vendor.riskBadge === 'medium' ? 'rgba(249,115,22,0.16)' : 'rgba(16,185,129,0.16)', color: vendor.riskBadge === 'high' ? '#F87171' : vendor.riskBadge === 'medium' ? '#FB923C' : '#34D399', fontWeight: 700, fontSize: '.75rem', textTransform: 'uppercase' }}>{vendor.riskBadge || 'unknown'}</span>
                   </div>
                   <p style={{ color: 'rgba(255,255,255,0.72)', fontSize: '.9rem', marginBottom: 14, minHeight: 58 }}>{vendor.address || 'Không có địa chỉ'}</p>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                    <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '.85rem' }}>
-                      <div style={{ fontSize: '.76rem', textTransform: 'uppercase', marginBottom: 4 }}>Giá thấp nhất</div>
-                      <div>{vendor.priceRange?.min ? vendor.priceRange.min.toLocaleString('vi-VN') + 'đ' : 'N/A'}</div>
+                  {((vendor.priceRange?.min && vendor.priceRange.min !== 'N/A') || (vendor.priceRange?.max && vendor.priceRange.max !== 'N/A')) && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                      {vendor.priceRange?.min && vendor.priceRange.min !== 'N/A' && (
+                        <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '.85rem' }}>
+                          <div style={{ fontSize: '.76rem', textTransform: 'uppercase', marginBottom: 4 }}>Giá thấp nhất</div>
+                          <div>{vendor.priceRange.min.toLocaleString('vi-VN')}đ</div>
+                        </div>
+                      )}
+                      {vendor.priceRange?.max && vendor.priceRange.max !== 'N/A' && (
+                        <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '.85rem' }}>
+                          <div style={{ fontSize: '.76rem', textTransform: 'uppercase', marginBottom: 4 }}>Giá cao nhất</div>
+                          <div>{vendor.priceRange.max.toLocaleString('vi-VN')}đ</div>
+                        </div>
+                      )}
                     </div>
-                    <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '.85rem' }}>
-                      <div style={{ fontSize: '.76rem', textTransform: 'uppercase', marginBottom: 4 }}>Giá cao nhất</div>
-                      <div>{vendor.priceRange?.max ? vendor.priceRange.max.toLocaleString('vi-VN') + 'đ' : 'N/A'}</div>
-                    </div>
-                  </div>
+                  )}
                 </div>
               ))}
             </div>

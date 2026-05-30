@@ -30,6 +30,21 @@ const connectPg = async () => {
     // Simple test query with client check to ensure connection
     const client = await pool.connect();
     await client.query('SELECT 1');
+
+    // Drop constraints that strictly require seller owner_id/seller_id to point to sellers table
+    // (since student stores are stored in the users table with role 'student_store')
+    try {
+      await client.query('ALTER TABLE vendors DROP CONSTRAINT IF EXISTS vendors_owner_id_sellers_fkey;');
+    } catch (e) { console.warn('Could not drop vendors_owner_id_sellers_fkey:', e.message); }
+    try {
+      await client.query('ALTER TABLE vendors DROP CONSTRAINT IF EXISTS vendors_owner_id_fkey;');
+    } catch (e) { console.warn('Could not drop vendors_owner_id_fkey:', e.message); }
+    try {
+      await client.query('ALTER TABLE orders DROP CONSTRAINT IF EXISTS orders_seller_id_fkey;');
+    } catch (e) { console.warn('Could not drop orders_seller_id_fkey:', e.message); }
+    try {
+      await client.query('ALTER TABLE orders DROP CONSTRAINT IF EXISTS orders_seller_id_sellers_fkey;');
+    } catch (e) { console.warn('Could not drop orders_seller_id_sellers_fkey:', e.message); }
     
     // Add columns dynamically if they do not exist
     await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;');
