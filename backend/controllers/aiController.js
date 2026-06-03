@@ -71,69 +71,125 @@ GIAN HÀNG SINH VIÊN & ĐÁNH GIÁ CỘNG ĐỒNG:
 Luôn trả lời bằng tiếng Việt trừ khi người dùng viết bằng tiếng Anh.`,
 });
 
+// Helper to compute geographic distance (Haversine formula) in kilometers
+const getDistance = (lat1, lon1, lat2, lon2) => {
+  if (lat1 === undefined || lat1 === null || lon1 === undefined || lon1 === null ||
+      lat2 === undefined || lat2 === null || lon2 === undefined || lon2 === null) {
+    return null;
+  }
+  const R = 6371; // Radius of the Earth in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c; // Distance in km
+};
+
 // ── RAG: Build context từ knowledge base + DB + TikTok ──────────────────────
-const buildContext = async (query) => {
+const buildContext = async (query, location = null) => {
+  const userLat = location ? (location.latitude || location.lat) : null;
+  const userLng = location ? (location.longitude || location.lng || location.lon) : null;
+
   const matchedVendors = await getAllVendors(query);
   const tiktokVendors = extractVendorsFromTikTok();
   
-  // Combine vendors from DB and TikTok, prioritize by rating
+  // Combine vendors from DB and TikTok
   const allVendors = [
-    ...matchedVendors.slice(0, 4),
-    ...tiktokVendors.filter(tv => !matchedVendors.find(mv => mv.name?.toLowerCase() === tv.name.toLowerCase())).slice(0, 3)
+    ...matchedVendors,
+    ...tiktokVendors.filter(tv => !matchedVendors.find(mv => mv.name?.toLowerCase() === tv.name.toLowerCase()))
   ];
 
-  const contextVendors = allVendors.length > 0
-    ? allVendors.slice(0, 6)
-    : HANOI_VENDORS.filter(v => v.rating >= 4.7).slice(0, 6).map(v => ({ ...v, source: 'local', priceRange: v.price }));
+  // Calculate distance for all vendors
+  allVendors.forEach(v => {
+    let vLat = v.latitude || (v.coords && v.coords[1]);
+    let vLng = v.longitude || (v.coords && v.coords[0]);
+    if (vLat && vLng) {
+      v.distance = getDistance(userLat, userLng, vLat, vLng);
+    } else {
+      v.distance = null;
+    }
+  });
+
+  // Sort vendors by distance (closest first) if location is available, else sort by rating
+  let sortedVendors = [...allVendors];
+  if (userLat && userLng) {
+    sortedVendors.sort((a, b) => {
+      if (a.distance !== null && b.distance !== null) return a.distance - b.distance;
+      if (a.distance !== null) return -1;
+      if (b.distance !== null) return 1;
+      return (b.rating || 0) - (a.rating || 0);
+    });
+  } else {
+    sortedVendors.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+  }
+
+  const contextVendors = sortedVendors.length > 0
+    ? sortedVendors.slice(0, 10)
+    : HANOI_VENDORS.filter(v => v.rating >= 4.7).slice(0, 10).map(v => ({ ...v, source: 'local', priceRange: v.price }));
 
   const vendorText = contextVendors.map((v) => {
     const priceMin = (v.priceRange?.min || v.price?.min)?.toLocaleString?.('vi-VN') || 'N/A';
     const priceMax = (v.priceRange?.max || v.price?.max)?.toLocaleString?.('vi-VN') || 'N/A';
     const unit = v.priceRange?.unit || v.price?.unit || 'item';
     const source = v.source || 'local';
-    return `- ${v.name} (${v.category}): ${v.address || 'Hà Nội'}, Giá: ${priceMin}–${priceMax}đ/${unit}, Giờ: ${v.hours || 'N/A'}, Rating: ${v.rating || 'N/A'}/5 [${source}]${v.tips ? `, Tips: ${v.tips}` : ''}`;
+    const distStr = v.distance !== null ? `, Khoảng cách: ${v.distance.toFixed(2)} km` : '';
+    const menuStr = Array.isArray(v.menu) && v.menu.length > 0
+      ? v.menu.map(m => `${m.name}: ${m.price?.toLocaleString('vi-VN')}đ`).join(', ')
+      : 'Chưa có thực đơn';
+    return `- ${v.name} (${v.category}): ${v.address || 'Hà Nội'}${distStr}, Giá: ${priceMin}–${priceMax}đ/${unit}, Giờ: ${v.hours || 'N/A'}, Rating: ${v.rating || 'N/A'}/5 [${source}], Thực đơn: [${menuStr}]${v.tips ? `, Tips: ${v.tips}` : ''}`;
   }).join('\n');
 
-  // Query Student Stores matching query or generic ones if query is empty
+  // Query Student Stores
   let matchedStudentStores = [];
   if (pool) {
     try {
+      const res = await pool.query(`
+        SELECT ss.id, ss.store_name, ss.description, ss.category, ss.address, ss.operating_hours, ss.rating, ss.is_active, ss.is_verified, ss.latitude, ss.longitude,
+               COALESCE(
+                 (SELECT json_agg(json_build_object('name', sm.name, 'price', sm.price, 'description', sm.description, 'is_available', sm.is_available))
+                  FROM student_store_menu sm WHERE sm.store_id = ss.id AND sm.is_available = true), '[]'
+               ) as menu
+        FROM student_stores ss
+        WHERE ss.is_active = true
+      `);
+      let allStalls = res.rows;
+
+      // Calculate distance for all stalls
+      allStalls.forEach(ss => {
+        if (ss.latitude && ss.longitude) {
+          ss.distance = getDistance(userLat, userLng, ss.latitude, ss.longitude);
+        } else {
+          ss.distance = null;
+        }
+      });
+
+      // Filter by query if query exists
       if (query && query.trim()) {
-        const q = `%${query.trim().replace(/%/g, '\\%')}%`;
-        const res = await pool.query(`
-          SELECT DISTINCT ss.id, ss.store_name, ss.description, ss.category, ss.address, ss.operating_hours, ss.rating, ss.is_active, ss.is_verified,
-                 COALESCE(
-                   (SELECT json_agg(json_build_object('name', sm.name, 'price', sm.price, 'description', sm.description, 'is_available', sm.is_available))
-                    FROM student_store_menu sm WHERE sm.store_id = ss.id AND sm.is_available = true), '[]'
-                 ) as menu
-          FROM student_stores ss
-          LEFT JOIN student_store_menu sm ON ss.id = sm.store_id
-          WHERE ss.is_active = true AND (
-            ss.store_name ILIKE $1 OR
-            ss.description ILIKE $1 OR
-            ss.category ILIKE $1 OR
-            sm.name ILIKE $1 OR
-            sm.description ILIKE $1
-          )
-          LIMIT 5
-        `, [q]);
-        matchedStudentStores = res.rows;
+        const q = query.trim().toLowerCase();
+        matchedStudentStores = allStalls.filter(ss => {
+          const matchName = ss.store_name.toLowerCase().includes(q);
+          const matchDesc = (ss.description || '').toLowerCase().includes(q);
+          const matchCat = (ss.category || '').toLowerCase().includes(q);
+          const matchMenu = ss.menu.some(m => m.name.toLowerCase().includes(q) || (m.description || '').toLowerCase().includes(q));
+          return matchName || matchDesc || matchCat || matchMenu;
+        });
+      } else {
+        matchedStudentStores = allStalls;
       }
-      
-      // If none matched or query is too generic, get top active student stores
-      if (matchedStudentStores.length === 0) {
-        const res = await pool.query(`
-          SELECT ss.id, ss.store_name, ss.description, ss.category, ss.address, ss.operating_hours, ss.rating, ss.is_active, ss.is_verified,
-                 COALESCE(
-                   (SELECT json_agg(json_build_object('name', sm.name, 'price', sm.price, 'description', sm.description, 'is_available', sm.is_available))
-                    FROM student_store_menu sm WHERE sm.store_id = ss.id AND sm.is_available = true), '[]'
-                 ) as menu
-          FROM student_stores ss
-          WHERE ss.is_active = true
-          ORDER BY ss.rating DESC, ss.total_orders DESC
-          LIMIT 5
-        `);
-        matchedStudentStores = res.rows;
+
+      // Sort stalls by distance or rating
+      if (userLat && userLng) {
+        matchedStudentStores.sort((a, b) => {
+          if (a.distance !== null && b.distance !== null) return a.distance - b.distance;
+          if (a.distance !== null) return -1;
+          if (b.distance !== null) return 1;
+          return (b.rating || 0) - (a.rating || 0);
+        });
+      } else {
+        matchedStudentStores.sort((a, b) => (b.rating || 0) - (a.rating || 0));
       }
     } catch (e) {
       console.warn('Error fetching student stores for AI RAG:', e.message);
@@ -141,15 +197,16 @@ const buildContext = async (query) => {
   }
 
   const studentStoreText = matchedStudentStores.length > 0
-    ? matchedStudentStores.map(ss => {
+    ? matchedStudentStores.slice(0, 8).map(ss => {
         const menuStr = Array.isArray(ss.menu) && ss.menu.length > 0
           ? ss.menu.map(m => `${m.name}: ${m.price.toLocaleString('vi-VN')}đ`).join(', ')
           : 'Chưa có thực đơn';
-        return `- Gian hàng sinh viên: ${ss.store_name} | Mô tả: ${ss.description || 'N/A'} | Loại: ${ss.category} | Giờ mở: ${ss.operating_hours} | Địa chỉ: ${ss.address} | Rating: ${ss.rating}/5 | Xác minh: ${ss.is_verified ? 'Đã xác minh' : 'Chưa xác minh'} | Menu: ${menuStr}`;
+        const distStr = ss.distance !== null ? `, Khoảng cách: ${ss.distance.toFixed(2)} km` : '';
+        return `- Gian hàng sinh viên: ${ss.store_name} | Mô tả: ${ss.description || 'N/A'} | Loại: ${ss.category} | Giờ mở: ${ss.operating_hours} | Địa chỉ: ${ss.address}${distStr} | Rating: ${ss.rating}/5 | Menu: [${menuStr}]`;
       }).join('\n')
     : '- Không tìm thấy gian hàng sinh viên phù hợp.';
 
-  // Query Community Reviews matching query or recent ones
+  // Query Community Reviews
   let matchedReviews = [];
   if (pool) {
     try {
@@ -202,10 +259,10 @@ const buildContext = async (query) => {
   const dbMatches = matchedVendors.filter((v) => v.source === 'db');
   const tiktokMatches = allVendors.filter(v => v.source === 'tiktok');
 
-  return `=== DỮ LIỆU ĐỊA ĐIỂM FPT HOÀ LẠC (RAG) ===
+  return `=== DỮ LIỆU ĐỊA ĐIỂM FPT HOÀ LẠC VÀ KHOẢNG CÁCH GPS (RAG) ===
 ${vendorText}
 
-=== GIAN HÀNG SINH VIÊN TỰ DOÁN (DB) ===
+=== GIAN HÀNG SINH VIÊN TỰ DOÁN VÀ KHOẢNG CÁCH GPS (DB) ===
 ${studentStoreText}
 
 === ĐÁNH GIÁ CỘNG ĐỒNG MINH BẠCH (DB) ===
@@ -333,7 +390,7 @@ const chatWithPlanner = async (req, res) => {
     if (!message?.trim()) return res.status(400).json({ error: 'Vui lòng nhập tin nhắn' });
 
     const intent = detectIntent(message);
-    const context = await buildContext(message);
+    const context = await buildContext(message, location);
     const locationContext = buildLocationContext(location);
 
     if (intent === 'price') {
@@ -372,7 +429,7 @@ const chatWithPlanner = async (req, res) => {
     res.json({ reply: cleanResponseForChat(text), intent, suggestions: getSuggestions(intent) });
   } catch (error) {
     console.error('AI Chat Error, using mock fallback:', error.message);
-    const context = await buildContext(req.body.message);
+    const context = await buildContext(req.body.message, location);
     const fallbackReply = await generateMockResponse(req.body.message, context);
     res.json({ reply: cleanResponseForChat(fallbackReply), intent: detectIntent(req.body.message), suggestions: getSuggestions(detectIntent(req.body.message)) });
   }
@@ -498,7 +555,7 @@ const streamChat = async (req, res) => {
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('Access-Control-Allow-Origin', '*');
 
-    const context = await buildContext(message);
+    const context = await buildContext(message, location);
     const locationContext = buildLocationContext(location);
     const model = getModel();
     
@@ -539,7 +596,7 @@ const streamChat = async (req, res) => {
   } catch (error) {
     console.error('Stream Error, using mock stream:', error.message);
     try {
-      const context = await buildContext(req.body.message);
+      const context = await buildContext(req.body.message, req.body.location);
       const fallbackReply = await generateMockResponse(req.body.message, context);
       const cleanedFallback = cleanResponseForChat(fallbackReply);
       

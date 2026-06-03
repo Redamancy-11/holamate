@@ -98,6 +98,8 @@ const MapExplore = () => {
   const [locError, setLocError] = useState('');
   const [isPickingLocation, setIsPickingLocation] = useState(false);
   const [initCoords, setInitCoords] = useState(null);
+  const [activeMapLayer, setActiveMapLayer] = useState('streets');
+  const tileLayerRef = useRef(null);
 
   // ShopeeFood States
   const [dbVendors, setDbVendors] = useState([]);
@@ -439,6 +441,25 @@ const MapExplore = () => {
     }
   }, []);
 
+  // Map tile layer definitions
+  const MAP_TILES = {
+    streets: { url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', attr: '© OpenStreetMap', maxZoom: 19 },
+    satellite: { url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attr: '© Esri', maxZoom: 18 },
+    terrain: { url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', attr: '© OpenTopoMap', maxZoom: 17 },
+    dark: { url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', attr: '© CartoDB', maxZoom: 19 },
+  };
+
+  // Switch map tile layer
+  const switchMapLayer = useCallback((layerKey) => {
+    if (!mapRef.current || !MAP_TILES[layerKey]) return;
+    setActiveMapLayer(layerKey);
+    const tile = MAP_TILES[layerKey];
+    if (tileLayerRef.current) {
+      tileLayerRef.current.remove();
+    }
+    tileLayerRef.current = L.tileLayer(tile.url, { maxZoom: tile.maxZoom, attribution: tile.attr }).addTo(mapRef.current);
+  }, []);
+
   // Khởi tạo bản đồ khi đã lấy được tọa độ bắt đầu (initCoords)
   useEffect(() => {
     if (!initCoords || !mapContainerRef.current || mapRef.current) return;
@@ -449,10 +470,8 @@ const MapExplore = () => {
       zoomControl: false
     });
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+    const defaultTile = MAP_TILES.streets;
+    tileLayerRef.current = L.tileLayer(defaultTile.url, { maxZoom: defaultTile.maxZoom, attribution: defaultTile.attr }).addTo(map);
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
     mapRef.current = map;
@@ -502,21 +521,19 @@ const MapExplore = () => {
         iconAnchor: [14, 14]
       });
 
-      const popupContent = `
-        <div style="font-family:Inter,sans-serif;padding:4px;color:#111;">
-          <h3 style="margin:0 0 6px;font-size:.95rem;font-weight:700;color:#1a1a2e;">${place.emoji} ${place.name}</h3>
-          <p style="margin:0 0 8px;font-size:.83rem;color:#555;line-height:1.5;">${place.description}</p>
-          <div style="background:#fff8e8;border-radius:8px;padding:8px;font-size:.78rem;color:#7a5000;">💡 <strong>Tip:</strong> ${place.tips}</div>
-        </div>`;
-
       const marker = L.marker([place.coords[1], place.coords[0]], { icon: placeIcon })
-        .bindPopup(popupContent, { offset: L.point(0, -10), maxWidth: 280 })
         .addTo(mapRef.current);
 
-      el.addEventListener('click', () => {
+      // Click opens the right panel with full info + menu, no Leaflet popup flickering
+      marker.on('click', (e) => {
+        L.DomEvent.stopPropagation(e);
         setSelectedPlace(place);
         setIsCheckoutMode(false);
+        if (mapRef.current) {
+          mapRef.current.flyTo([place.coords[1], place.coords[0]], 16, { duration: 0.8 });
+        }
       });
+
       markersRef.current.push(marker);
     });
   }, [activeCategory, filteredLandmarks]);
@@ -526,8 +543,6 @@ const MapExplore = () => {
     setSelectedPlace(place);
     setIsCheckoutMode(false);
     mapRef.current.flyTo([place.coords[1], place.coords[0]], 16, { duration: 1.5 });
-    const idx = filteredLandmarks.findIndex(l => l.id === place.id);
-    if (idx >= 0 && markersRef.current[idx]) markersRef.current[idx].openPopup();
   }, [filteredLandmarks]);
 
   // Map Search: prioritize local database vendors first, fallback to OSM Nominatim API
@@ -609,16 +624,6 @@ const MapExplore = () => {
     if (result.isLocal && result.place) {
       setSelectedPlace(result.place);
       setIsCheckoutMode(false);
-
-      // Try to open existing marker popup if it matches
-      const idx = filteredLandmarks.findIndex(l => l.id === result.place.id);
-      if (idx >= 0 && markersRef.current[idx]) {
-        setTimeout(() => {
-          if (markersRef.current[idx]) {
-            markersRef.current[idx].openPopup();
-          }
-        }, 1000);
-      }
       return;
     }
 
@@ -634,11 +639,8 @@ const MapExplore = () => {
       iconAnchor: [18, 36]
     });
 
-    const marker = L.marker([result.coords[1], result.coords[0]], { icon: searchIcon })
-      .bindPopup(`<div style="font-family:Inter,sans-serif;padding:4px;color:#111;"><h3 style="margin:0 0 4px;font-size:.95rem;color:#1a1a2e;">📍 ${result.name}</h3><p style="margin:0;font-size:.82rem;color:#555;">${result.address}</p></div>`, { offset: L.point(0, -28) })
+    L.marker([result.coords[1], result.coords[0]], { icon: searchIcon })
       .addTo(mapRef.current);
-    
-    marker.openPopup();
   }, [filteredLandmarks]);
 
 
@@ -977,6 +979,42 @@ const MapExplore = () => {
             <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem', marginTop: 6, fontFamily: 'Inter,sans-serif' }}>Vui lòng đồng ý cấp quyền truy cập GPS nếu được hỏi</div>
           </div>
         )}
+      </div>
+
+      {/* Map Layer Switcher */}
+      <div style={{
+        position: 'absolute', top: 16, right: selectedPlace ? 400 : 16, zIndex: 10,
+        display: 'flex', flexDirection: 'column', gap: 4,
+        background: 'rgba(11,7,4,0.92)', backdropFilter: 'blur(12px)',
+        borderRadius: 14, padding: 6, border: '1px solid rgba(242,112,36,0.2)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+        transition: 'right 0.3s ease',
+      }}>
+        {[
+          { key: 'streets', label: '🗺️', title: 'Bản đồ' },
+          { key: 'satellite', label: '🛰️', title: 'Vệ tinh' },
+          { key: 'terrain', label: '⛰️', title: 'Địa hình' },
+          { key: 'dark', label: '🌙', title: 'Tối' },
+        ].map(layer => (
+          <button
+            key={layer.key}
+            onClick={() => switchMapLayer(layer.key)}
+            title={layer.title}
+            style={{
+              width: 40, height: 40, borderRadius: 10, border: 'none',
+              background: activeMapLayer === layer.key
+                ? 'linear-gradient(135deg,#F27024,#FF5722)'
+                : 'rgba(255,255,255,0.06)',
+              color: activeMapLayer === layer.key ? '#fff' : 'rgba(255,255,255,0.6)',
+              fontSize: '1.1rem', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s ease',
+              boxShadow: activeMapLayer === layer.key ? '0 4px 12px rgba(242,112,36,0.3)' : 'none',
+            }}
+          >
+            {layer.label}
+          </button>
+        ))}
       </div>
 
       <Link to="/planner" state={{ location: userLocation }} style={{

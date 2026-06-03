@@ -17,7 +17,7 @@ const ChatBox = ({ defaultLocation = null }) => {
   const [userLocation, setUserLocation] = useState(defaultLocation);
   const [locating, setLocating] = useState(false);
   const [locError, setLocError] = useState('');
-  const bottomRef = useRef(null);
+  const messagesContainerRef = useRef(null);
 
   useEffect(() => {
     const savedMessages = localStorage.getItem(STORAGE_KEY_MESSAGES);
@@ -51,8 +51,11 @@ const ChatBox = ({ defaultLocation = null }) => {
   }, [userLocation]);
 
   useEffect(() => {
-    if (bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
     }
   }, [messages, streamingReply]);
 
@@ -151,7 +154,7 @@ const ChatBox = ({ defaultLocation = null }) => {
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', gap: 18 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 18, width: '100%' }}>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
         {suggestions.map((s, index) => (
           <button
@@ -186,7 +189,10 @@ const ChatBox = ({ defaultLocation = null }) => {
         </div>
       )}
 
-      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16, padding: '18px', borderRadius: 24, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)' }}>
+      <div 
+        ref={messagesContainerRef}
+        style={{ height: '550px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16, padding: '18px', borderRadius: 24, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)' }}
+      >
         {messages.map((msg, index) => (
           <div
             key={index}
@@ -213,8 +219,6 @@ const ChatBox = ({ defaultLocation = null }) => {
             </div>
           </div>
         )}
-
-        <div ref={bottomRef} />
       </div>
 
       <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
