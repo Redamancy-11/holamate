@@ -67,6 +67,17 @@ const addPageReview = async (req, res) => {
   }
 };
 
+// Helper to filter out negative reviews
+const isPositiveReview = (r) => {
+  if (r.rating !== undefined && r.rating < 4) return false;
+  const comment = (r.comment || '').toLowerCase();
+  const negativeKeywords = [
+    'tệ', 'chán', 'lỗi', 'hỏng', 'không tốt', 'đắt', 'chậm', 'kém', 
+    'app lag', 'lag', 'rác', 'lừa đảo', 'phí tiền', 'thất vọng', 'kém chất lượng'
+  ];
+  return !negativeKeywords.some(keyword => comment.includes(keyword));
+};
+
 // Get random reviews for homepage
 const getRandomPageReviews = async (req, res) => {
   try {
@@ -79,23 +90,23 @@ const getRandomPageReviews = async (req, res) => {
       }
 
       const buyerRes = await queryWithTimeout(
-        "SELECT * FROM page_reviews WHERE user_type = 'buyer' ORDER BY RANDOM() LIMIT 6",
+        "SELECT * FROM page_reviews WHERE user_type = 'buyer' AND rating >= 4 ORDER BY RANDOM() LIMIT 20",
         []
       );
-      buyerReviews = buyerRes.rows;
+      buyerReviews = buyerRes.rows.filter(isPositiveReview).slice(0, 6);
 
       const sellerRes = await queryWithTimeout(
-        "SELECT * FROM page_reviews WHERE user_type = 'seller' ORDER BY RANDOM() LIMIT 6",
+        "SELECT * FROM page_reviews WHERE user_type = 'seller' AND rating >= 4 ORDER BY RANDOM() LIMIT 20",
         []
       );
-      sellerReviews = sellerRes.rows;
+      sellerReviews = sellerRes.rows.filter(isPositiveReview).slice(0, 6);
 
-      console.log(`Fetched reviews from Postgres (Buyers: ${buyerReviews.length}, Sellers: ${sellerReviews.length})`);
+      console.log(`Fetched positive reviews from Postgres (Buyers: ${buyerReviews.length}, Sellers: ${sellerReviews.length})`);
     } catch (dbErr) {
-      console.warn('Database query failed or timed out, retrieving reviews from in-memory fallback:', dbErr.message);
+      console.warn('Database query failed or timed out, retrieving positive reviews from in-memory fallback:', dbErr.message);
       // Filter from in-memory database
-      const memoryBuyers = memoryReviews.filter(r => r.user_type === 'buyer');
-      const memorySellers = memoryReviews.filter(r => r.user_type === 'seller');
+      const memoryBuyers = memoryReviews.filter(r => r.user_type === 'buyer').filter(isPositiveReview);
+      const memorySellers = memoryReviews.filter(r => r.user_type === 'seller').filter(isPositiveReview);
       
       // Shuffle helper
       const shuffle = arr => arr.sort(() => 0.5 - Math.random());

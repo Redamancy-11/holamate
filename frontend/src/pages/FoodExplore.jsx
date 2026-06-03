@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getVendors, getStudentStoresPublic, getCommunityReviews } from '../services/api';
+import { AuthContext } from '../contexts/AuthContext';
+import { getVendors, getStudentStoresPublic, getCommunityReviews, getMyOrders } from '../services/api';
 
 const FoodExplore = () => {
   const navigate = useNavigate();
+  const { user, sellerUser } = useContext(AuthContext);
+  const activeUser = user || sellerUser;
+  
   const [activeTab, setActiveTab] = useState('restaurants'); // 'restaurants' or 'stalls'
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -12,6 +16,10 @@ const FoodExplore = () => {
   const [stalls, setStalls] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Orders history states
+  const [orders, setOrders] = useState([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
 
   // Selected Vendor/Stall details modal
   const [selectedItem, setSelectedItem] = useState(null);
@@ -29,17 +37,30 @@ const FoodExplore = () => {
   const [stallMaxPrice, setStallMaxPrice] = useState(100000);
   const [stallStatus, setStallStatus] = useState('all'); // all, available, preorder
 
+  const fetchOrders = async () => {
+    if (!activeUser) return;
+    try {
+      setOrdersLoading(true);
+      const res = await getMyOrders();
+      setOrders(Array.isArray(res) ? res : []);
+    } catch (err) {
+      console.warn('Error fetching orders in FoodExplore:', err.message);
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchData();
-  }, []);
+    fetchOrders();
+  }, [activeUser]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
       const resData = await getVendors();
-      // Filter out student stores from standard restaurant list if needed, or identify them
-      // In HanoMate standard vendors do not have source === 'student'
-      const normRes = (resData || []).filter(v => v.source !== 'student' && v.category !== 'Cửa hàng sinh viên');
+      const vendorsList = Array.isArray(resData) ? resData : (resData?.data || []);
+      const normRes = vendorsList.filter(v => v.source !== 'student' && v.category !== 'Cửa hàng sinh viên');
       setRestaurants(normRes);
 
       const stallData = await getStudentStoresPublic();
@@ -127,22 +148,39 @@ const FoodExplore = () => {
 
   // Filtered Restaurants
   const filteredRestaurants = restaurants.filter(res => {
-    // Search query
-    if (searchQuery && !res.name.toLowerCase().includes(searchQuery.toLowerCase()) && !res.category.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
+    // Search query matches name, category, or any dish name
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const matchName = res.name.toLowerCase().includes(q);
+      const matchCategory = res.category.toLowerCase().includes(q);
+      const matchMenu = (res.menu || []).some(item => item.name.toLowerCase().includes(q));
+      if (!matchName && !matchCategory && !matchMenu) return false;
     }
-    // Food type filter
+    // Food type filter (optimized category match)
     if (resType !== 'all') {
       const cat = res.category.toLowerCase();
-      if (resType === 'cơm' && !cat.includes('cơm')) return false;
-      if (resType === 'bún' && !cat.includes('bún') && !cat.includes('phở') && !cat.includes('mì')) return false;
-      if (resType === 'trà sữa' && !cat.includes('trà sữa') && !cat.includes('milk tea')) return false;
-      if (resType === 'cafe' && !cat.includes('cafe') && !cat.includes('cà phê')) return false;
-      if (resType === 'ăn vặt' && !cat.includes('ăn vặt') && !cat.includes('bánh')) return false;
-      if (resType === 'đồ uống' && !cat.includes('uống') && !cat.includes('cafe') && !cat.includes('trà')) return false;
+      const name = res.name.toLowerCase();
+      const menu = res.menu || [];
+      const hasFoodType = (keyword, engKeyword = '') => {
+        const matchesCat = cat.includes(keyword) || (engKeyword && cat.includes(engKeyword));
+        const matchesName = name.includes(keyword) || (engKeyword && name.includes(engKeyword));
+        const matchesMenu = menu.some(item => {
+          const itemLower = item.name.toLowerCase();
+          return itemLower.includes(keyword) || (engKeyword && itemLower.includes(engKeyword));
+        });
+        return matchesCat || matchesName || matchesMenu;
+      };
+
+      if (resType === 'cơm' && !hasFoodType('cơm', 'rice')) return false;
+      if (resType === 'bún' && !hasFoodType('bún') && !hasFoodType('phở') && !hasFoodType('mì', 'noodle')) return false;
+      if (resType === 'trà sữa' && !hasFoodType('trà sữa', 'milk tea') && !hasFoodType('trân châu')) return false;
+      if (resType === 'cafe' && !hasFoodType('cafe') && !hasFoodType('cà phê', 'coffee')) return false;
+      if (resType === 'ăn vặt' && !hasFoodType('ăn vặt') && !hasFoodType('nem chua') && !hasFoodType('bánh') && !hasFoodType('khoai tây') && !hasFoodType('quẩy') && !hasFoodType('mẹt')) return false;
+      if (resType === 'đồ uống' && !hasFoodType('uống') && !hasFoodType('nước') && !hasFoodType('trà') && !hasFoodType('cafe') && !hasFoodType('cà phê') && !hasFoodType('bia') && !hasFoodType('coca') && !hasFoodType('sữa')) return false;
     }
     // Price range filter
-    const minPrice = res.priceRange?.min || res.priceMin || 20000;
+    const menuPrices = (res.menu || []).map(m => m.price || 0);
+    const minPrice = menuPrices.length ? Math.min(...menuPrices) : (res.priceRange?.min || res.priceMin || 20000);
     if (minPrice > resMaxPrice) return false;
 
     // Opening status
@@ -160,15 +198,28 @@ const FoodExplore = () => {
 
   // Filtered Student Stalls
   const filteredStalls = stalls.filter(stall => {
-    if (searchQuery && !stall.store_name.toLowerCase().includes(searchQuery.toLowerCase()) && !stall.category.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      const matchName = stall.store_name.toLowerCase().includes(q);
+      const matchCategory = (stall.category || '').toLowerCase().includes(q);
+      const matchMenu = (stall.menu || []).some(item => item.name.toLowerCase().includes(q));
+      if (!matchName && !matchCategory && !matchMenu) return false;
     }
     // Product type
     if (stallType !== 'all') {
-      const cat = stall.category.toLowerCase();
-      if (stallType === 'đồ ăn' && !cat.includes('ăn')) return false;
-      if (stallType === 'đồ uống' && !cat.includes('uống') && !cat.includes('nước')) return false;
-      if (stallType === 'trưng bày' && !cat.includes('trưng bày') && !cat.includes('phụ kiện') && !cat.includes('quà')) return false;
+      const cat = (stall.category || '').toLowerCase();
+      const name = (stall.store_name || '').toLowerCase();
+      const menu = stall.menu || [];
+      const hasStallType = (keyword) => {
+        const matchesCat = cat.includes(keyword);
+        const matchesName = name.includes(keyword);
+        const matchesMenu = menu.some(item => item.name.toLowerCase().includes(keyword));
+        return matchesCat || matchesName || matchesMenu;
+      };
+
+      if (stallType === 'đồ ăn' && !hasStallType('ăn') && !hasStallType('bánh') && !hasStallType('cơm') && !hasStallType('mì') && !hasStallType('nem')) return false;
+      if (stallType === 'đồ uống' && !hasStallType('uống') && !hasStallType('nước') && !hasStallType('trà') && !hasStallType('sữa') && !hasStallType('cafe') && !hasStallType('cà phê')) return false;
+      if (stallType === 'trưng bày' && !hasStallType('trưng bày') && !hasStallType('phụ kiện') && !hasStallType('quà') && !hasStallType('sách') && !hasStallType('vở') && !hasStallType('đồ dùng')) return false;
     }
     // Price range
     // Check menu items prices
@@ -405,9 +456,28 @@ const FoodExplore = () => {
                     onChange={e => setResMaxPrice(parseInt(e.target.value))}
                     style={{ width: '100%', accentColor: '#F27024' }}
                   />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'rgba(255,255,255,0.3)', marginTop: '4px' }}>
-                    <span>15.000đ</span>
-                    <span>250.000đ</span>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '8px' }}>
+                    <input
+                      type="number"
+                      min="15000"
+                      max="250000"
+                      value={resMaxPrice}
+                      onChange={e => {
+                        const val = parseInt(e.target.value);
+                        if (!isNaN(val)) setResMaxPrice(val);
+                      }}
+                      style={{
+                        flex: 1,
+                        background: 'rgba(0,0,0,0.3)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: '8px',
+                        padding: '6px 10px',
+                        color: '#fff',
+                        fontSize: '0.85rem',
+                        outline: 'none'
+                      }}
+                    />
+                    <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)' }}>đ</span>
                   </div>
                 </div>
 
@@ -487,9 +557,28 @@ const FoodExplore = () => {
                     onChange={e => setStallMaxPrice(parseInt(e.target.value))}
                     style={{ width: '100%', accentColor: '#10B981' }}
                   />
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'rgba(255,255,255,0.3)', marginTop: '4px' }}>
-                    <span>5.000đ</span>
-                    <span>150.000đ</span>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '8px' }}>
+                    <input
+                      type="number"
+                      min="5000"
+                      max="150000"
+                      value={stallMaxPrice}
+                      onChange={e => {
+                        const val = parseInt(e.target.value);
+                        if (!isNaN(val)) setStallMaxPrice(val);
+                      }}
+                      style={{
+                        flex: 1,
+                        background: 'rgba(0,0,0,0.3)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: '8px',
+                        padding: '6px 10px',
+                        color: '#fff',
+                        fontSize: '0.85rem',
+                        outline: 'none'
+                      }}
+                    />
+                    <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)' }}>đ</span>
                   </div>
                 </div>
 
@@ -516,6 +605,112 @@ const FoodExplore = () => {
                     ))}
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Buyer Order History Section */}
+            {activeUser && (
+              <div style={{ marginTop: '24px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '20px' }}>
+                <span style={{ fontWeight: 800, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+                  <span>📋</span> Lịch Sử Đơn Hàng
+                </span>
+                {ordersLoading ? (
+                  <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>Đang tải...</div>
+                ) : orders.length === 0 ? (
+                  <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>Bạn chưa có đơn hàng nào.</div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '350px', overflowY: 'auto' }}>
+                    {orders.slice(0, 5).map(order => {
+                      const statusColors = {
+                        pending: '#F59E0B', preparing: '#3B82F6',
+                        delivering: '#8B5CF6', completed: '#10B981', cancelled: '#EF4444'
+                      };
+                      const statusLabels = {
+                        pending: 'Chờ duyệt', preparing: 'Đang nấu',
+                        delivering: 'Đang giao', completed: 'Xong', cancelled: 'Đã hủy'
+                      };
+                      return (
+                        <div key={order._id} style={{
+                          background: 'rgba(255,255,255,0.02)',
+                          border: '1px solid rgba(255,255,255,0.05)',
+                          borderRadius: '12px',
+                          padding: '10px 12px',
+                          fontSize: '0.78rem'
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                            <strong style={{ color: '#fff', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', maxWidth: '120px' }}>
+                              {order.vendorName}
+                            </strong>
+                            <span style={{
+                              color: statusColors[order.status] || '#ccc',
+                              fontSize: '0.68rem',
+                              fontWeight: 700
+                            }}>
+                              {statusLabels[order.status] || order.status}
+                            </span>
+                          </div>
+                          <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.72rem', marginBottom: '6px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                            {order.items.map(i => `${i.name} x${i.quantity}`).join(', ')}
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <strong style={{ color: '#F27024' }}>{(order.totalAmount || 0).toLocaleString()}đ</strong>
+                            <div style={{ display: 'flex', gap: '4px' }}>
+                              <button
+                                onClick={() => navigate('/order', { state: { reorder: order } })}
+                                style={{
+                                  background: 'rgba(16,185,129,0.12)',
+                                  border: '1px solid rgba(16,185,129,0.25)',
+                                  color: '#10B981',
+                                  padding: '2px 6px',
+                                  borderRadius: '6px',
+                                  fontSize: '0.68rem',
+                                  fontWeight: 600,
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                Đặt lại
+                              </button>
+                              {(order.status === 'pending' || order.status === 'preparing' || order.status === 'delivering') && (
+                                <button
+                                  onClick={() => navigate('/order', { state: { trackOrder: order } })}
+                                  style={{
+                                    background: 'rgba(242,112,36,0.12)',
+                                    border: '1px solid rgba(242,112,36,0.25)',
+                                    color: '#F27024',
+                                    padding: '2px 6px',
+                                    borderRadius: '6px',
+                                    fontSize: '0.68rem',
+                                    fontWeight: 600,
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  Theo dõi
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    {orders.length > 5 && (
+                      <button
+                        onClick={() => navigate('/order')}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: '#F27024',
+                          fontSize: '0.75rem',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          textAlign: 'center',
+                          marginTop: '4px'
+                        }}
+                      >
+                        Xem tất cả lịch sử →
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>

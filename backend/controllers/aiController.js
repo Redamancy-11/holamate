@@ -13,8 +13,11 @@ const cleanResponseForChat = (text) => {
     .replace(/\*/g, '')
     .replace(/_([^_]+)_/g, '$1')
     .replace(/`/g, '')
-    .replace(/^[-*+]\s+/gm, '') // Remove starting bullet points
-    .replace(/^\d+\.\s+/gm, ''); // Remove starting numbered list indicators
+    .replace(/^\s*[-*+•]\s+/gm, '') // Remove starting bullet points (handles leading spaces and bullet character)
+    .replace(/^\s*\d+[\.\)]\s+/gm, '') // Remove starting numbered list indicators (like 1. or 1) with optional leading spaces)
+    .replace(/^-+/gm, '') // Remove markdown lines
+    .replace(/#+\s+/g, '') // Remove headers hash symbol
+    .trim();
 };
 
 // ── Init Gemini 2.0 Flash ──────────────────────────────────────────────────
@@ -521,7 +524,12 @@ const streamChat = async (req, res) => {
       const text = chunk.text();
       if (text) {
         // Strip asterisks/markdown formatting symbols from live chunks
-        const cleanedText = text.replace(/\*/g, '').replace(/`/g, '');
+        const cleanedText = text
+          .replace(/\*/g, '')
+          .replace(/`/g, '')
+          .replace(/#/g, '')
+          .replace(/^\s*[-*+•]\s+/gm, '')
+          .replace(/^\s*\d+[\.\)]\s+/gm, '');
         res.write(`data: ${JSON.stringify({ chunk: cleanedText })}\n\n`);
       }
     }

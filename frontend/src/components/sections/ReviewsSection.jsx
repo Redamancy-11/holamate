@@ -21,12 +21,24 @@ const ReviewsSection = () => {
   const [sellerReviews, setSellerReviews] = useState([]);
 
   useEffect(() => {
+    const isPositiveReview = (r) => {
+      if (r.rating !== undefined && r.rating < 4) return false;
+      const comment = (r.comment || '').toLowerCase();
+      const negativeKeywords = [
+        'tệ', 'chán', 'lỗi', 'hỏng', 'không tốt', 'đắt', 'chậm', 'kém', 
+        'app lag', 'lag', 'rác', 'lừa đảo', 'phí tiền', 'thất vọng', 'kém chất lượng'
+      ];
+      return !negativeKeywords.some(keyword => comment.includes(keyword));
+    };
+
     const fetchReviews = async () => {
       try {
         const data = await getRandomPageReviews();
         if (data.success) {
-          setBuyerReviews(data.buyerReviews.length > 0 ? data.buyerReviews : defaultBuyerMock);
-          setSellerReviews(data.sellerReviews.length > 0 ? data.sellerReviews : defaultSellerMock);
+          const filteredBuyers = (data.buyerReviews || []).filter(isPositiveReview);
+          const filteredSellers = (data.sellerReviews || []).filter(isPositiveReview);
+          setBuyerReviews(filteredBuyers.length > 0 ? filteredBuyers : defaultBuyerMock);
+          setSellerReviews(filteredSellers.length > 0 ? filteredSellers : defaultSellerMock);
         } else {
           setBuyerReviews(defaultBuyerMock);
           setSellerReviews(defaultSellerMock);

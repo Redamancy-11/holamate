@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef, useContext } from 'react';
 import { AuthContext } from '../contexts/AuthContext';
+import { useLocation } from 'react-router-dom';
 import {
   getVendors,
   createOrder,
@@ -22,6 +23,7 @@ const normalizeVietnamese = (str) => {
 };
 
 const OrderFood = () => {
+  const location = useLocation();
   const { user, sellerUser, loading: authLoading, setShowAuthModal, notificationClickedOrder, setNotificationClickedOrder } = useContext(AuthContext);
   const activeUser = user || sellerUser;
   const [vendors, setVendors] = useState([]);
@@ -207,6 +209,20 @@ const OrderFood = () => {
     };
     fetchVendorsList();
   }, []);
+
+  // Listen for navigation state (e.g. from FoodExplore page)
+  useEffect(() => {
+    if (vendors.length > 0) {
+      if (location.state?.reorder) {
+        handleReorder(location.state.reorder);
+        // Clear state to prevent repeating on refresh
+        window.history.replaceState({}, document.title);
+      } else if (location.state?.trackOrder) {
+        setActiveOrder(location.state.trackOrder);
+        window.history.replaceState({}, document.title);
+      }
+    }
+  }, [vendors, location.state]);
 
   // Fetch buyer order history
   useEffect(() => {
