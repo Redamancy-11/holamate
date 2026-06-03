@@ -8,8 +8,8 @@ import {
   updateOrderStatus,
   deleteOrder
 } from '../services/api';
-import vietmapgl from '@vietmap/vietmap-gl-js/dist/vietmap-gl';
-import '@vietmap/vietmap-gl-js/dist/vietmap-gl.css';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 const normalizeVietnamese = (str) => {
   if (!str) return '';
@@ -98,29 +98,43 @@ const OrderFood = () => {
       ? [activeOrder.deliveryLongitude, activeOrder.deliveryLatitude]
       : userCoords || [105.52522, 21.01354];
 
-    const map = new vietmapgl.Map({
-      container: trackingMapContainerRef.current,
-      style: {
-        version: 8,
-        sources: { osm: { type: 'raster', tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'], tileSize: 256, attribution: '© OpenStreetMap' } },
-        layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
-      },
-      center: customerCoords,
+    const map = L.map(trackingMapContainerRef.current, {
+      center: [customerCoords[1], customerCoords[0]],
       zoom: 14,
+      zoomControl: false
     });
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
     trackingMapRef.current = map;
 
     // Store marker
     const storeEl = document.createElement('div');
     storeEl.innerHTML = `<span style="font-size:1.6rem;display:flex;align-items:center;justify-content:center;width:38px;height:38px;background:rgba(11,20,37,0.95);border:2px solid #F27024;border-radius:50%;box-shadow:0 3px 10px rgba(242,112,36,0.5);">🏪</span>`;
-    new vietmapgl.Marker({ element: storeEl }).setLngLat(vendorCoords).addTo(map);
+    const storeIcon = L.divIcon({
+      html: storeEl,
+      className: 'store-tracking-icon',
+      iconSize: [38, 38],
+      iconAnchor: [19, 19]
+    });
+    L.marker([vendorCoords[1], vendorCoords[0]], { icon: storeIcon }).addTo(map);
 
     // Customer marker
     const custEl = document.createElement('div');
     custEl.innerHTML = `<span style="font-size:1.6rem;display:flex;align-items:center;justify-content:center;width:38px;height:38px;background:rgba(11,20,37,0.95);border:2px solid #10B981;border-radius:50%;box-shadow:0 3px 10px rgba(16,185,129,0.5);">📍</span>`;
-    new vietmapgl.Marker({ element: custEl }).setLngLat(customerCoords).addTo(map);
+    const custIcon = L.divIcon({
+      html: custEl,
+      className: 'cust-tracking-icon',
+      iconSize: [38, 38],
+      iconAnchor: [19, 19]
+    });
+    L.marker([customerCoords[1], customerCoords[0]], { icon: custIcon }).addTo(map);
 
-    map.on('load', async () => {
+    // Fetch and render OSRM route
+    const fetchRoute = async () => {
       try {
         const res = await fetch(`https://router.project-osrm.org/route/v1/driving/${vendorCoords[0]},${vendorCoords[1]};${customerCoords[0]},${customerCoords[1]}?overview=full&geometries=geojson`);
         const data = await res.json();
@@ -132,25 +146,23 @@ const OrderFood = () => {
           const infoEl = document.getElementById('buyer-route-info');
           if (infoEl) infoEl.innerHTML = `🏁 <strong>${distKm} km</strong> &nbsp;|&nbsp; ⏱️ ~<strong>${durMin} phút</strong> giao hàng`;
 
-          const bounds = new vietmapgl.LngLatBounds();
-          bounds.extend(vendorCoords);
-          bounds.extend(customerCoords);
-          map.fitBounds(bounds, { padding: 50 });
+          // L.geoJSON automatically converts [lng, lat] coordinate ordering in GeoJSON
+          const geojsonLayer = L.geoJSON(route.geometry, {
+            style: {
+              color: '#F27024',
+              weight: 5,
+              opacity: 0.85
+            }
+          }).addTo(map);
 
-          map.addSource('route', {
-            type: 'geojson',
-            data: { type: 'Feature', properties: {}, geometry: route.geometry }
-          });
-          map.addLayer({
-            id: 'route', type: 'line', source: 'route',
-            layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: { 'line-color': '#F27024', 'line-width': 5, 'line-opacity': 0.85 }
-          });
+          map.fitBounds(geojsonLayer.getBounds(), { padding: [50, 50] });
         }
       } catch (err) {
         console.warn('Route fetch error:', err);
       }
-    });
+    };
+
+    fetchRoute();
 
     return () => {
       try { map.remove(); } catch (e) { }

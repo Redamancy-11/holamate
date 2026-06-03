@@ -259,6 +259,44 @@ const syncMenuToVendor = async (storeId, vendorId) => {
   }
 };
 
+const getAllStudentStoresPublic = async (req, res) => {
+  try {
+    if (!pool) return res.status(500).json({ error: 'Database chưa kết nối' });
+    const result = await pool.query('SELECT * FROM student_stores ORDER BY created_at DESC');
+    const stores = result.rows;
+    
+    // Fetch menus for each store
+    for (let store of stores) {
+      const menuRes = await pool.query('SELECT * FROM student_store_menu WHERE store_id = $1', [store.id]);
+      store.menu = menuRes.rows;
+    }
+    
+    res.json({ success: true, data: stores });
+  } catch (error) {
+    res.status(500).json({ error: 'Lỗi server', detail: error.message });
+  }
+};
+
+const getStudentStorePublicById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!pool) return res.status(500).json({ error: 'Database chưa kết nối' });
+    const storeRes = await pool.query(
+      'SELECT * FROM student_stores WHERE id = $1 OR vendor_id = $1',
+      [id]
+    );
+    if (storeRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Không tìm thấy cửa hàng sinh viên' });
+    }
+    const store = storeRes.rows[0];
+    const menuRes = await pool.query('SELECT * FROM student_store_menu WHERE store_id = $1', [store.id]);
+    store.menu = menuRes.rows;
+    res.json({ success: true, data: store });
+  } catch (error) {
+    res.status(500).json({ error: 'Lỗi server', detail: error.message });
+  }
+};
+
 module.exports = {
   getMyStore,
   updateMyStore,
@@ -267,4 +305,6 @@ module.exports = {
   deleteMenuItem,
   getStoreOrders,
   updateStoreOrderStatus,
+  getAllStudentStoresPublic,
+  getStudentStorePublicById,
 };

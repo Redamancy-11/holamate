@@ -65,8 +65,9 @@ const Navbar = () => {
 
   // Dynamic Navigation Links
   const navLinks = [
-    { label: 'Tính Năng', href: '/#features' },
-    { label: 'Cách Hoạt Động', href: '/#how-it-works' },
+    { label: 'Khám Phá 🍔', href: '/explore', isRoute: true },
+    { label: 'Review 💬', href: '/reviews', isRoute: true },
+    { label: 'Trợ Lý AI 🤖', href: '/planner', isRoute: true },
     { label: 'Bản Đồ 🗺️', href: '/map', isRoute: true }
   ];
 
@@ -76,8 +77,6 @@ const Navbar = () => {
     } else if (user) {
       if (user.role === 'student_store') {
         navLinks.push({ label: 'Shop Sinh Viên 🎓', href: '/student-store', isRoute: true });
-      } else {
-        navLinks.push({ label: 'Đặt Đồ 🍔', href: '/order', isRoute: true });
       }
     }
   }
@@ -229,10 +228,10 @@ const Navbar = () => {
               </div>
 
               {/* User badge */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: scrolled ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)', padding: '4px 12px 4px 4px', borderRadius: 50 }}>
+              <Link to="/profile" style={{ display: 'flex', alignItems: 'center', gap: 8, background: scrolled ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.1)', padding: '4px 12px 4px 4px', borderRadius: 50, textDecoration: 'none', cursor: 'pointer' }}>
                 <img src={currentUser.avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80"} alt="avatar" style={{ width: 32, height: 32, borderRadius: '50%' }} />
                 <span style={{ fontSize: '0.88rem', fontWeight: 600, color: textColor }}>{currentUser.name}</span>
-              </div>
+              </Link>
               
               <button onClick={currentLogout} style={{ padding: '8px 16px', borderRadius: 50, background: 'rgba(239,68,68,0.1)', color: '#EF4444', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>Đăng xuất</button>
             </div>

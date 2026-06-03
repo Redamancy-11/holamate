@@ -856,6 +856,311 @@ const removeAdminStatus = async (req, res) => {
   }
 };
 
+// ===================== STUDENT VERIFICATION MANAGEMENT =====================
+const getStudentVerificationsAdmin = async (req, res) => {
+  try {
+    if (!pool) {
+      return res.status(500).json({ error: 'Database pool chưa được thiết lập' });
+    }
+
+    const query = `
+      SELECT id, name, email, student_id, student_email, student_verified, student_verification_status, created_at
+      FROM users
+      WHERE student_verification_status != 'none'
+      ORDER BY created_at DESC;
+    `;
+    const result = await pool.query(query);
+    res.json({ success: true, data: result.rows });
+  } catch (error) {
+    console.error('Admin getStudentVerificationsAdmin error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const moderateStudentVerificationAdmin = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { status } = req.body; // 'approved', 'rejected'
+
+    if (!['approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Trạng thái phê duyệt không hợp lệ' });
+    }
+
+    if (!pool) {
+      return res.status(500).json({ error: 'Database pool chưa được thiết lập' });
+    }
+
+    const verified = status === 'approved';
+    const query = `
+      UPDATE users
+      SET student_verified = $1,
+          student_verification_status = $2,
+          updated_at = now()
+      WHERE id = $3
+      RETURNING id, name, email, student_id, student_email, student_verified, student_verification_status;
+    `;
+    const result = await pool.query(query, [verified, status, userId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Không tìm thấy yêu cầu xác thực cho người dùng này' });
+    }
+
+    res.json({
+      success: true,
+      message: status === 'approved' ? 'Đã phê duyệt xác thực sinh viên thành công' : 'Đã từ chối xác thực sinh viên',
+      data: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Admin moderateStudentVerificationAdmin error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ===================== ACCOUNT REPORTS MANAGEMENT =====================
+const getAccountReportsAdmin = async (req, res) => {
+  try {
+    if (!pool) {
+      return res.status(500).json({ error: 'Database pool chưa được thiết lập' });
+    }
+
+    const query = `
+      SELECT 
+        ar.id,
+        ar.reporter_id,
+        u_rep.name as reporter_name,
+        u_rep.email as reporter_email,
+        ar.reported_user_id,
+        u_reported.name as reported_user_name,
+        u_reported.email as reported_user_email,
+        u_reported.role as reported_user_role,
+        ar.reported_seller_id,
+        s_reported.name as reported_seller_name,
+        s_reported.email as reported_seller_email,
+        ar.reason,
+        ar.description,
+        ar.status,
+        ar.created_at
+      FROM account_reports ar
+      JOIN users u_rep ON ar.reporter_id = u_rep.id
+      LEFT JOIN users u_reported ON ar.reported_user_id = u_reported.id
+      LEFT JOIN sellers s_reported ON ar.reported_seller_id = s_reported.id
+      ORDER BY ar.created_at DESC;
+    `;
+    const result = await pool.query(query);
+    res.json({ success: true, data: result.rows });
+  } catch (error) {
+    console.error('Admin getAccountReportsAdmin error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const moderateAccountReportAdmin = async (req, res) => {
+  try {
+    const { reportId } = req.params;
+    const { status } = req.body; // 'resolved', 'dismissed'
+
+    if (!['resolved', 'dismissed'].includes(status)) {
+      return res.status(400).json({ error: 'Trạng thái xử lý báo cáo không hợp lệ' });
+    }
+
+    if (!pool) {
+      return res.status(500).json({ error: 'Database pool chưa được thiết lập' });
+    }
+
+    const query = `
+      UPDATE account_reports
+      SET status = $1, updated_at = now()
+      WHERE id = $2
+      RETURNING *;
+    `;
+    const result = await pool.query(query, [status, reportId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Không tìm thấy báo cáo tài khoản' });
+    }
+
+    res.json({
+      success: true,
+      message: `Đã cập nhật trạng thái báo cáo thành: ${status === 'resolved' ? 'Đã xử lý' : 'Đã bỏ qua'}`,
+      data: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Admin moderateAccountReportAdmin error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const restrictUserAdmin = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { 
+      is_banned, 
+      warning_count, 
+      ban_reason, 
+      lock_until, 
+      can_write_review, 
+      can_vote_review, 
+      can_sell 
+    } = req.body;
+
+    if (!pool) {
+      return res.status(500).json({ error: 'Database pool chưa được thiết lập' });
+    }
+
+    const query = `
+      UPDATE users
+      SET is_banned = COALESCE($1, is_banned),
+          warning_count = COALESCE($2, warning_count),
+          ban_reason = COALESCE($3, ban_reason),
+          lock_until = COALESCE($4, lock_until),
+          can_write_review = COALESCE($5, can_write_review),
+          can_vote_review = COALESCE($6, can_vote_review),
+          can_sell = COALESCE($7, can_sell),
+          updated_at = now()
+      WHERE id = $8
+      RETURNING id, name, email, role, is_banned, warning_count, ban_reason, lock_until, can_write_review, can_vote_review, can_sell;
+    `;
+    const result = await pool.query(query, [
+      is_banned !== undefined ? is_banned : null,
+      warning_count !== undefined ? parseInt(warning_count) : null,
+      ban_reason !== undefined ? ban_reason : null,
+      lock_until !== undefined ? lock_until : null,
+      can_write_review !== undefined ? can_write_review : null,
+      can_vote_review !== undefined ? can_vote_review : null,
+      can_sell !== undefined ? can_sell : null,
+      userId
+    ]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Không tìm thấy người dùng' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Cập nhật hạn chế người dùng thành công',
+      data: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Admin restrictUserAdmin error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const restrictSellerAdmin = async (req, res) => {
+  try {
+    const { sellerId } = req.params;
+    const { is_banned, ban_reason, can_sell } = req.body;
+
+    if (!pool) {
+      return res.status(500).json({ error: 'Database pool chưa được thiết lập' });
+    }
+
+    const query = `
+      UPDATE sellers
+      SET is_banned = COALESCE($1, is_banned),
+          ban_reason = COALESCE($2, ban_reason),
+          can_sell = COALESCE($3, can_sell),
+          updated_at = now()
+      WHERE id = $4
+      RETURNING id, name, email, vendor_id, is_banned, ban_reason, can_sell;
+    `;
+    const result = await pool.query(query, [
+      is_banned !== undefined ? is_banned : null,
+      ban_reason !== undefined ? ban_reason : null,
+      can_sell !== undefined ? can_sell : null,
+      sellerId
+    ]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Không tìm thấy người bán' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Cập nhật hạn chế người bán thành công',
+      data: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Admin restrictSellerAdmin error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// ===================== MEDIA / IMAGE MODERATION =====================
+const getMediaItemsAdmin = async (req, res) => {
+  try {
+    if (!pool) {
+      return res.status(500).json({ error: 'Database pool chưa được thiết lập' });
+    }
+
+    const reviewImages = await pool.query("SELECT id, images, user_id FROM community_reviews WHERE images IS NOT NULL AND status IN ('approved', 'pending')");
+    for (const r of reviewImages.rows) {
+      const urls = Array.isArray(r.images) ? r.images : JSON.parse(r.images || '[]');
+      for (const url of urls) {
+        try {
+          await pool.query(
+            "INSERT INTO media_items (url, source_type, source_id) VALUES ($1, $2, $3) ON CONFLICT (url) DO NOTHING",
+            [url, 'review', r.id.toString()]
+          );
+        } catch (e) {}
+      }
+    }
+
+    const result = await pool.query('SELECT * FROM media_items ORDER BY created_at DESC');
+    res.json({ success: true, data: result.rows });
+  } catch (error) {
+    console.error('Admin getMediaItemsAdmin error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const moderateMediaItemAdmin = async (req, res) => {
+  try {
+    const { mediaId } = req.params;
+    const { status } = req.body; // 'approved', 'rejected'
+
+    if (!['approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Trạng thái kiểm duyệt không hợp lệ' });
+    }
+
+    if (!pool) {
+      return res.status(500).json({ error: 'Database pool chưa được thiết lập' });
+    }
+
+    const updateRes = await pool.query(
+      'UPDATE media_items SET status = $1 WHERE id = $2 RETURNING *',
+      [status, mediaId]
+    );
+
+    if (updateRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Không tìm thấy ảnh cần duyệt' });
+    }
+
+    const media = updateRes.rows[0];
+
+    if (status === 'rejected') {
+      if (media.source_type === 'review') {
+        const reviewId = media.source_id;
+        const reviewQuery = await pool.query('SELECT images FROM community_reviews WHERE id = $1', [reviewId]);
+        if (reviewQuery.rows.length > 0) {
+          let urls = Array.isArray(reviewQuery.rows[0].images) ? reviewQuery.rows[0].images : JSON.parse(reviewQuery.rows[0].images || '[]');
+          urls = urls.filter(u => u !== media.url);
+          await pool.query('UPDATE community_reviews SET images = $1 WHERE id = $2', [JSON.stringify(urls), reviewId]);
+        }
+      }
+    }
+
+    res.json({
+      success: true,
+      message: status === 'approved' ? 'Đã duyệt ảnh thành công' : 'Đã từ chối và gỡ bỏ ảnh vi phạm khỏi nội dung hiển thị',
+      data: media
+    });
+  } catch (error) {
+    console.error('Admin moderateMediaItemAdmin error:', error.message);
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   requireAdmin,
   getDashboardStats,
@@ -876,5 +1181,13 @@ module.exports = {
   adminLogin,
   getAdminsList,
   createAdminAccount,
-  removeAdminStatus
+  removeAdminStatus,
+  getStudentVerificationsAdmin,
+  moderateStudentVerificationAdmin,
+  getAccountReportsAdmin,
+  moderateAccountReportAdmin,
+  restrictUserAdmin,
+  restrictSellerAdmin,
+  getMediaItemsAdmin,
+  moderateMediaItemAdmin
 };

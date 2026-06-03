@@ -1,0 +1,20 @@
+<USER_REQUEST>
+4. Trợ lý AI
+Trang này dùng cho các nhu cầu phức tạp hơn bộ lọc thông thường.
+Vai trò
+Trợ lý AI giúp người dùng tìm món/quán theo ngôn ngữ tự nhiên thay vì phải tự chọn nhiều bộ lọc.
+Ví dụ yêu cầu
+“Mình có 35k, muốn ăn no gần KTX.”
+“Gợi ý quán đi nhóm 4 người, giá sinh viên.”
+“Tìm đồ ăn đêm nhưng tránh quán bị review giao chậm.”
+“Có gian hàng sinh viên nào bán đồ uống hôm nay không?”
+“Mình muốn ăn nhẹ, không cay, gần FPTU.”
+Cách hoạt động
+AI hiểu nhu cầu của người dùng
+AI chuyển nhu cầu thành tiêu chí tìm kiếm
+AI truy xuất dữ liệu từ database
+AI gợi ý quán ăn hoặc gian hàng phù hợp
+AI giải thích ngắn gọn lý do gợi ý
+
+5. Đặt món / Gửi yêu cầu đặt món
+<truncated 6211 bytes>

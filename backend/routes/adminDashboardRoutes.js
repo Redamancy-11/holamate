@@ -21,8 +21,21 @@ const {
   adminLogin,
   getAdminsList,
   createAdminAccount,
-  removeAdminStatus
+  removeAdminStatus,
+  getStudentVerificationsAdmin,
+  moderateStudentVerificationAdmin,
+  getAccountReportsAdmin,
+  moderateAccountReportAdmin,
+  restrictUserAdmin,
+  restrictSellerAdmin,
+  getMediaItemsAdmin,
+  moderateMediaItemAdmin
 } = require('../controllers/adminDashboardController');
+const {
+  adminGetReviews,
+  adminGetReviewReports,
+  adminModerateReview
+} = require('../controllers/communityReviewController');
 
 // Admin login (no protect needed)
 router.post('/login', adminLogin);
@@ -62,5 +75,24 @@ router.put('/dashboard/orders/:orderId', updateOrderAdmin);
 // Finance
 router.get('/dashboard/finance', getFinanceOverview);
 router.put('/dashboard/finance/commission/:vendorId', updateCommissionRate);
+
+// Reviews Moderation
+router.get('/dashboard/community-reviews', adminGetReviews);
+router.get('/dashboard/community-reviews/:id/reports', adminGetReviewReports);
+router.put('/dashboard/community-reviews/:id', adminModerateReview);
+
+// Student Verifications
+router.get('/dashboard/student-verifications', getStudentVerificationsAdmin);
+router.put('/dashboard/student-verifications/:userId', moderateStudentVerificationAdmin);
+
+// Account Reports
+router.get('/dashboard/account-reports', getAccountReportsAdmin);
+router.put('/dashboard/account-reports/:reportId', moderateAccountReportAdmin);
+router.put('/dashboard/users/:userId/restrict', restrictUserAdmin);
+router.put('/dashboard/sellers/:sellerId/restrict', restrictSellerAdmin);
+
+// Media / Images Moderation
+router.get('/dashboard/media', getMediaItemsAdmin);
+router.put('/dashboard/media/:mediaId', moderateMediaItemAdmin);
 
 module.exports = router;

@@ -505,6 +505,166 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { name, phone, avatar, anonymity_setting } = req.body;
+
+    if (!pool) {
+      return res.status(500).json({ error: 'Kết nối database Postgres chưa được thiết lập' });
+    }
+
+    // Determine if user is in users or sellers table
+    let checkUser = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);
+    let targetTable = 'users';
+
+    if (checkUser.rows.length === 0) {
+      const checkSeller = await pool.query('SELECT * FROM sellers WHERE id = $1', [userId]);
+      if (checkSeller.rows.length > 0) {
+        targetTable = 'sellers';
+      } else {
+        return res.status(404).json({ error: 'Không tìm thấy tài khoản người dùng' });
+      }
+    }
+
+    let result;
+    if (targetTable === 'users') {
+      result = await pool.query(
+        `UPDATE users
+         SET name = COALESCE($1, name),
+             phone = COALESCE($2, phone),
+             avatar = COALESCE($3, avatar),
+             anonymity_setting = COALESCE($4, anonymity_setting),
+             updated_at = now()
+         WHERE id = $5
+         RETURNING id, name, email, avatar, provider, role, phone, student_id, student_email, student_verified, student_verification_status, anonymity_setting, is_banned, warning_count, can_write_review, can_vote_review, can_sell`,
+        [name, phone, avatar, anonymity_setting !== undefined ? anonymity_setting : null, userId]
+      );
+    } else {
+      result = await pool.query(
+        `UPDATE sellers
+         SET name = COALESCE($1, name),
+             phone = COALESCE($2, phone),
+             avatar = COALESCE($3, avatar),
+             updated_at = now()
+         WHERE id = $4
+         RETURNING id, name, email, avatar, phone, vendor_id, is_banned, can_sell`,
+        [name, phone, avatar, userId]
+      );
+    }
+
+    res.json({
+      success: true,
+      message: 'Cập nhật hồ sơ thành công',
+      user: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Update profile error:', error.message);
+    res.status(500).json({ error: 'Lỗi server', detail: error.message });
+  }
+};
+
+const requestStudentVerification = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { student_id, student_email } = req.body;
+
+    if (!student_id || !student_email) {
+      return res.status(400).json({ error: 'Vui lòng cung cấp mã sinh viên và email sinh viên' });
+    }
+
+    if (!student_email.endsWith('@fpt.edu.vn') && !student_email.endsWith('@fe.edu.vn')) {
+      return res.status(400).json({ error: 'Email sinh viên phải có đuôi @fpt.edu.vn hoặc @fe.edu.vn' });
+    }
+
+    if (!pool) {
+      return res.status(500).json({ error: 'Kết nối database Postgres chưa được thiết lập' });
+    }
+
+    // Check if user is seller
+    const checkUser = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);
+    if (checkUser.rows.length === 0) {
+      return res.status(400).json({ error: 'Chỉ tài khoản người dùng/sinh viên mới có thể thực hiện xác thực' });
+    }
+
+    const result = await pool.query(
+      `UPDATE users
+       SET student_id = $1,
+           student_email = $2,
+           student_verification_status = 'pending',
+           student_verified = false,
+           updated_at = now()
+       WHERE id = $3
+       RETURNING id, name, email, student_id, student_email, student_verified, student_verification_status`,
+      [student_id, student_email, userId]
+    );
+
+    res.json({
+      success: true,
+      message: 'Yêu cầu xác thực sinh viên đã được gửi. Đang chờ Admin phê duyệt.',
+      user: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Request student verification error:', error.message);
+    res.status(500).json({ error: 'Lỗi server', detail: error.message });
+  }
+};
+
+const reportAccount = async (req, res) => {
+  try {
+    const reporterId = req.user.id;
+    const { reported_user_id, reported_seller_id, reason, description } = req.body;
+
+    if (!reason) {
+      return res.status(400).json({ error: 'Vui lòng cung cấp lý do báo cáo' });
+    }
+
+    if (!reported_user_id && !reported_seller_id) {
+      return res.status(400).json({ error: 'Cần cung cấp thông tin tài khoản bị báo cáo' });
+    }
+
+    if (!pool) {
+      return res.status(500).json({ error: 'Kết nối database Postgres chưa được thiết lập' });
+    }
+
+    // Prevent reporting self
+    if (reporterId === reported_user_id || reporterId === reported_seller_id) {
+      return res.status(400).json({ error: 'Bạn không thể báo cáo tài khoản của chính mình' });
+    }
+
+    // Check if already reported
+    const checkReport = await pool.query(
+      'SELECT id FROM account_reports WHERE reporter_id = $1 AND (reported_user_id = $2 OR reported_seller_id = $3)',
+      [reporterId, reported_user_id || null, reported_seller_id || null]
+    );
+    if (checkReport.rows.length > 0) {
+      return res.status(400).json({ error: 'Bạn đã báo cáo tài khoản này rồi' });
+    }
+
+    const query = `
+      INSERT INTO account_reports (reporter_id, reported_user_id, reported_seller_id, reason, description)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *;
+    `;
+    const result = await pool.query(query, [
+      reporterId,
+      reported_user_id || null,
+      reported_seller_id || null,
+      reason,
+      description || ''
+    ]);
+
+    res.status(201).json({
+      success: true,
+      message: 'Báo cáo tài khoản đã được ghi nhận. Admin sẽ sớm xử lý.',
+      data: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Report account error:', error.message);
+    res.status(500).json({ error: 'Lỗi server', detail: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -513,4 +673,7 @@ module.exports = {
   socialLoginRedirect,
   forgotPassword,
   resetPassword,
+  updateProfile,
+  requestStudentVerification,
+  reportAccount
 };

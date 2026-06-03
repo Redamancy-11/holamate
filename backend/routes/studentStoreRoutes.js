@@ -9,9 +9,15 @@ const {
   deleteMenuItem,
   getStoreOrders,
   updateStoreOrderStatus,
+  getAllStudentStoresPublic,
+  getStudentStorePublicById,
 } = require('../controllers/studentStoreController');
 
-// All routes require authentication
+// Public routes (no authentication needed)
+router.get('/public', getAllStudentStoresPublic);
+router.get('/public/:id', getStudentStorePublicById);
+
+// All routes below require authentication
 router.use(protect);
 
 // Store info

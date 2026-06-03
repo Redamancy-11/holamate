@@ -31,16 +31,67 @@ const HeroSection = () => (
           <p style={{ color: 'rgba(255,255,255,.80)', fontSize: '1.1rem', maxWidth: 480, marginBottom: 36, lineHeight: 1.75 }}>
             Tìm kiếm quán ngon, xem giá cả sinh viên minh bạch, khám phá bản đồ địa điểm và hỏi đáp trực tuyến 24/7 — tất cả được hỗ trợ bởi AI. Hành trình tuyệt vời của bạn bắt đầu từ đây.
           </p>
-          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginBottom: 48 }}>
-            <Link to="/planner" className="btn btn-primary btn-lg" style={{ fontSize: '1rem', background: 'linear-gradient(135deg,#F27024,#FF5722)', boxShadow: '0 8px 24px rgba(242,112,36,0.45)', border: 'none' }}>
-              🚀 Bắt Đầu Miễn Phí
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: '16px',
+            marginBottom: '40px',
+            marginTop: '28px'
+          }}>
+            <Link to="/explore" style={{
+              background: 'linear-gradient(135deg, rgba(242, 112, 36, 0.15) 0%, rgba(242, 112, 36, 0.05) 100%)',
+              border: '1px solid rgba(242, 112, 36, 0.4)',
+              borderRadius: '16px', padding: '16px', color: '#fff', textDecoration: 'none',
+              transition: 'all 0.3s ease', display: 'flex', flexDirection: 'column', gap: '8px',
+              backdropFilter: 'blur(8px)'
+            }} onMouseEnter={e => { e.currentTarget.style.borderColor = '#F27024'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
+               onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(242, 112, 36, 0.4)'; e.currentTarget.style.transform = 'none'; }}>
+              <span style={{ fontSize: '1.8rem' }}>🍔</span>
+              <span style={{ fontWeight: 800, fontSize: '0.95rem', color: '#F27024' }}>Khám Phá Ẩm Thực</span>
+              <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)' }}>Tìm món ngon & gian hàng sinh viên</span>
             </Link>
-            <a href="#how-it-works" className="btn btn-ghost btn-lg" style={{ fontSize: '1rem', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)' }}>
-              Xem Demo ▶
-            </a>
+
+            <Link to="/reviews" style={{
+              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%)',
+              border: '1px solid rgba(16, 185, 129, 0.4)',
+              borderRadius: '16px', padding: '16px', color: '#fff', textDecoration: 'none',
+              transition: 'all 0.3s ease', display: 'flex', flexDirection: 'column', gap: '8px',
+              backdropFilter: 'blur(8px)'
+            }} onMouseEnter={e => { e.currentTarget.style.borderColor = '#10B981'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
+               onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.4)'; e.currentTarget.style.transform = 'none'; }}>
+              <span style={{ fontSize: '1.8rem' }}>💬</span>
+              <span style={{ fontWeight: 800, fontSize: '0.95rem', color: '#10B981' }}>Review Cộng Đồng</span>
+              <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)' }}>Chia sẻ trải nghiệm minh bạch</span>
+            </Link>
+
+            <Link to="/planner" style={{
+              background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(124, 58, 237, 0.05) 100%)',
+              border: '1px solid rgba(124, 58, 237, 0.4)',
+              borderRadius: '16px', padding: '16px', color: '#fff', textDecoration: 'none',
+              transition: 'all 0.3s ease', display: 'flex', flexDirection: 'column', gap: '8px',
+              backdropFilter: 'blur(8px)'
+            }} onMouseEnter={e => { e.currentTarget.style.borderColor = '#7C3AED'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
+               onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(124, 58, 237, 0.4)'; e.currentTarget.style.transform = 'none'; }}>
+              <span style={{ fontSize: '1.8rem' }}>🤖</span>
+              <span style={{ fontWeight: 800, fontSize: '0.95rem', color: '#7C3AED' }}>Trợ Lý AI Gợi Ý</span>
+              <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)' }}>Hỏi đáp món ăn phù hợp 24/7</span>
+            </Link>
+
+            <Link to="/seller" style={{
+              background: 'linear-gradient(135deg, rgba(255, 152, 0, 0.15) 0%, rgba(255, 152, 0, 0.05) 100%)',
+              border: '1px solid rgba(255, 152, 0, 0.4)',
+              borderRadius: '16px', padding: '16px', color: '#fff', textDecoration: 'none',
+              transition: 'all 0.3s ease', display: 'flex', flexDirection: 'column', gap: '8px',
+              backdropFilter: 'blur(8px)'
+            }} onMouseEnter={e => { e.currentTarget.style.borderColor = '#FF9800'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
+               onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255, 152, 0, 0.4)'; e.currentTarget.style.transform = 'none'; }}>
+              <span style={{ fontSize: '1.8rem' }}>🏪</span>
+              <span style={{ fontWeight: 800, fontSize: '0.95rem', color: '#FF9800' }}>Dành Cho Người Bán</span>
+              <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)' }}>Quản lý cửa hàng & doanh thu</span>
+            </Link>
           </div>
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-            {['✓ Dành riêng cho Hola-ers', '✓ Hoàn toàn miễn phí', '✓ Hỗ trợ AI 24/7'].map(t => (
+            {['✓ Review minh bạch', '✓ Giá cả rõ ràng', '✓ Khám phá không giới hạn', '✓ Trợ lý thông minh'].map(t => (
               <span key={t} style={{ color: 'rgba(255,255,255,.65)', fontSize: '.82rem' }}>{t}</span>
             ))}
           </div>

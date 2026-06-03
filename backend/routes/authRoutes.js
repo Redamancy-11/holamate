@@ -3,7 +3,18 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { passport } = require('../config/passport');
 const { pool } = require('../config/pg');
-const { register, login, getMe, socialAuth, socialLoginRedirect, forgotPassword, resetPassword } = require('../controllers/authController');
+const {
+  register,
+  login,
+  getMe,
+  socialAuth,
+  socialLoginRedirect,
+  forgotPassword,
+  resetPassword,
+  updateProfile,
+  requestStudentVerification,
+  reportAccount
+} = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
@@ -172,5 +183,8 @@ if (instagramEnabled) {
 }
 
 router.get('/me', protect, getMe);
+router.put('/profile', protect, updateProfile);
+router.post('/student-verify', protect, requestStudentVerification);
+router.post('/report-account', protect, reportAccount);
 
 module.exports = router;

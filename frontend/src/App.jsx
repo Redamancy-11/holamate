@@ -10,6 +10,9 @@ import StudentStoreDashboard from './pages/StudentStoreDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import SocialAuthCallback from './pages/SocialAuthCallback';
 import ResetPassword from './pages/ResetPassword';
+import FoodExplore from './pages/FoodExplore';
+import CommunityReviews from './pages/CommunityReviews';
+import UserProfile from './pages/UserProfile';
 import AuthModal from './components/AuthModal';
 import PageReviewBox from './components/PageReviewBox';
 import { AuthProvider } from './contexts/AuthContext';
@@ -26,6 +29,9 @@ function App() {
           <Route path="/planner" element={<Planner />} />
           <Route path="/map" element={<MapExplore />} />
           <Route path="/order" element={<OrderFood />} />
+          <Route path="/explore" element={<FoodExplore />} />
+          <Route path="/reviews" element={<CommunityReviews />} />
+          <Route path="/profile" element={<UserProfile />} />
           <Route path="/seller" element={<SellerDashboard />} />
           <Route path="/student-store" element={<StudentStoreDashboard />} />
           <Route path="/admin" element={<AdminDashboard />} />

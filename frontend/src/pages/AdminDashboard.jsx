@@ -17,7 +17,18 @@ import {
   updateAdminOrder,
   getAdminFinance,
   updateAdminCommission,
-  setAdminVendorPartner
+  setAdminVendorPartner,
+  adminGetCommunityReviews,
+  adminModerateReview,
+  adminGetReviewReports,
+  getAdminStudentVerifications,
+  moderateAdminStudentVerification,
+  getAdminAccountReports,
+  moderateAdminAccountReport,
+  restrictAdminUser,
+  restrictAdminSeller,
+  getAdminMediaItems,
+  moderateAdminMediaItem
 } from '../services/api';
 
 const AdminDashboard = () => {
@@ -57,6 +68,23 @@ const AdminDashboard = () => {
   const [editingVendorId, setEditingVendorId] = useState(null);
   const [editingVendorName, setEditingVendorName] = useState('');
   const [commissionInputRate, setCommissionInputRate] = useState('');
+
+  // Review moderation states
+  const [reviewsList, setReviewsList] = useState([]);
+  const [reviewStatusFilter, setReviewStatusFilter] = useState('all'); // all, pending, reported, approved, hidden
+  const [selectedReviewReports, setSelectedReviewReports] = useState(null);
+  const [loadingReports, setLoadingReports] = useState(false);
+  const [reportsList, setReportsList] = useState([]);
+
+  // Extended Admin features states
+  const [studentVerifications, setStudentVerifications] = useState([]);
+  const [accountReports, setAccountReports] = useState([]);
+  const [mediaItems, setMediaItems] = useState([]);
+  const [restrictionModalUser, setRestrictionModalUser] = useState(null);
+  const [restrictionModalSeller, setRestrictionModalSeller] = useState(null);
+  const [restrictType, setRestrictType] = useState('warn');
+  const [restrictDurationDays, setRestrictDurationDays] = useState(7);
+  const [restrictReason, setRestrictReason] = useState('');
 
   // Filter and loading states
   const [loading, setLoading] = useState(false);
@@ -107,6 +135,18 @@ const AdminDashboard = () => {
       } else if (activeTab === 'finance') {
         const res = await getAdminFinance();
         setFinanceData(res);
+      } else if (activeTab === 'reviews') {
+        const res = await adminGetCommunityReviews();
+        setReviewsList(res.data || []);
+      } else if (activeTab === 'student-verifications') {
+        const res = await getAdminStudentVerifications();
+        setStudentVerifications(res.data || []);
+      } else if (activeTab === 'account-reports') {
+        const res = await getAdminAccountReports();
+        setAccountReports(res.data || []);
+      } else if (activeTab === 'media-moderation') {
+        const res = await getAdminMediaItems();
+        setMediaItems(res.data || []);
       }
     } catch (err) {
       setErrorMsg(err.response?.data?.error || 'Không thể lấy dữ liệu tab: ' + err.message);
@@ -251,6 +291,31 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleModerateReview = async (reviewId, nextStatus) => {
+    try {
+      await adminModerateReview(reviewId, nextStatus);
+      showSuccess(`Đã cập nhật trạng thái review thành ${nextStatus}`);
+      // Refresh list
+      const res = await adminGetCommunityReviews();
+      setReviewsList(res.data || []);
+    } catch (err) {
+      showError(err.response?.data?.error || err.message);
+    }
+  };
+
+  const handleViewReviewReports = async (review) => {
+    setSelectedReviewReports(review);
+    setLoadingReports(true);
+    try {
+      const res = await adminGetReviewReports(review.id);
+      setReportsList(res.data || []);
+    } catch (err) {
+      showError(err.response?.data?.error || err.message);
+    } finally {
+      setLoadingReports(false);
+    }
+  };
+
   const showSuccess = (msg) => {
     setSuccessMsg(msg);
     setTimeout(() => setSuccessMsg(''), 4000);
@@ -259,6 +324,72 @@ const AdminDashboard = () => {
   const showError = (msg) => {
     setErrorMsg(msg);
     setTimeout(() => setErrorMsg(''), 5000);
+  };
+
+  const handleModerateStudentVerification = async (userId, status) => {
+    try {
+      await moderateAdminStudentVerification(userId, status);
+      showSuccess(`Đã duyệt trạng thái xác thực: ${status}`);
+      fetchTabData();
+    } catch (err) {
+      showError(err.response?.data?.error || err.message);
+    }
+  };
+
+  const handleModerateAccountReport = async (reportId, status) => {
+    try {
+      await moderateAdminAccountReport(reportId, status);
+      showSuccess(`Đã cập nhật trạng thái báo cáo thành: ${status}`);
+      fetchTabData();
+    } catch (err) {
+      showError(err.response?.data?.error || err.message);
+    }
+  };
+
+  const handleRestrictUserSubmit = async (e) => {
+    e.preventDefault();
+    if (!restrictionModalUser) return;
+    try {
+      await restrictAdminUser(restrictionModalUser.id, {
+        restriction_type: restrictType,
+        restriction_duration_days: parseInt(restrictDurationDays, 10),
+        restriction_reason: restrictReason
+      });
+      setRestrictionModalUser(null);
+      setRestrictReason('');
+      showSuccess('Đã áp dụng chế độ hạn chế cho người dùng');
+      fetchTabData();
+    } catch (err) {
+      showError(err.response?.data?.error || err.message);
+    }
+  };
+
+  const handleRestrictSellerSubmit = async (e) => {
+    e.preventDefault();
+    if (!restrictionModalSeller) return;
+    try {
+      await restrictAdminSeller(restrictionModalSeller.id, {
+        restriction_type: restrictType,
+        restriction_duration_days: parseInt(restrictDurationDays, 10),
+        restriction_reason: restrictReason
+      });
+      setRestrictionModalSeller(null);
+      setRestrictReason('');
+      showSuccess('Đã áp dụng chế độ hạn chế cho người bán');
+      fetchTabData();
+    } catch (err) {
+      showError(err.response?.data?.error || err.message);
+    }
+  };
+
+  const handleModerateMediaItem = async (mediaId, status) => {
+    try {
+      await moderateAdminMediaItem(mediaId, status);
+      showSuccess(`Đã cập nhật trạng thái hình ảnh thành: ${status}`);
+      fetchTabData();
+    } catch (err) {
+      showError(err.response?.data?.error || err.message);
+    }
   };
 
   // UI Format Helpers
@@ -329,7 +460,11 @@ const AdminDashboard = () => {
               { key: 'sellers', label: 'Quản lý Đối tác', icon: '🏪' },
               { key: 'vendors', label: 'Danh sách Cửa hàng', icon: '🍲' },
               { key: 'orders', label: 'Quản lý Đơn hàng', icon: '📦' },
-              { key: 'finance', label: 'Tài chính & Hoa hồng', icon: '💰' }
+              { key: 'finance', label: 'Tài chính & Hoa hồng', icon: '💰' },
+              { key: 'reviews', label: 'Kiểm duyệt Review', icon: '💬' },
+              { key: 'student-verifications', label: 'Duyệt Sinh Viên', icon: '🎓' },
+              { key: 'account-reports', label: 'Báo Cáo Tài Khoản', icon: '⚠️' },
+              { key: 'media-moderation', label: 'Duyệt Hình Ảnh', icon: '🖼️' }
             ].map(item => (
               <button
                 key={item.key}
@@ -501,6 +636,7 @@ const AdminDashboard = () => {
                           <td style={{ padding: '14px 16px' }}>{new Date(u.created_at).toLocaleDateString('vi-VN')}</td>
                           <td style={{ padding: '14px 16px', display: 'flex', gap: 10 }}>
                             <button onClick={() => handleToggleAdminStatus(u.id, u.is_admin)} style={{ padding: '6px 12px', background: 'rgba(242,112,36,0.1)', color: '#F27024', border: '1px solid rgba(242,112,36,0.2)', borderRadius: 8, fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}>Set Admin</button>
+                            <button onClick={() => setRestrictionModalUser(u)} style={{ padding: '6px 12px', background: 'rgba(239,68,68,0.1)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}>Hạn chế</button>
                             <button onClick={() => handleDeleteUserClick(u.id)} style={{ padding: '6px 12px', background: 'rgba(239,68,68,0.1)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}>Xóa</button>
                           </td>
                         </tr>
@@ -549,6 +685,7 @@ const AdminDashboard = () => {
                           <td style={{ padding: '14px 16px', display: 'flex', gap: 10 }}>
                             <button onClick={() => handleUpdateVendorStatus(s.vendor_id, s.vendor_status)} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}>{s.vendor_status === 'suspended' ? 'Mở khóa' : 'Khóa shop'}</button>
                             <button onClick={() => handleOpenCommissionModal(s.vendor_id, s.vendor_name || 'Đối tác', s.commission_rate)} style={{ padding: '6px 12px', background: 'rgba(242,112,36,0.1)', color: '#F27024', border: '1px solid rgba(242,112,36,0.2)', borderRadius: 8, fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}>% Hoa hồng</button>
+                            <button onClick={() => setRestrictionModalSeller(s)} style={{ padding: '6px 12px', background: 'rgba(239,68,68,0.1)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}>Hạn chế</button>
                             <button onClick={() => handleDeleteSellerClick(s.id)} style={{ padding: '6px 12px', background: 'rgba(239,68,68,0.1)', color: '#EF4444', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}>Xóa</button>
                           </td>
                         </tr>
@@ -730,6 +867,335 @@ const AdminDashboard = () => {
               </div>
             )}
 
+            {/* TAB 7: REVIEW MODERATION */}
+            {activeTab === 'reviews' && (
+              <div>
+                <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#fff', marginBottom: 20 }}>Kiểm duyệt Review & Báo cáo vi phạm</h1>
+                
+                {/* Status subtabs */}
+                <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
+                  {[
+                    { val: 'all', lbl: 'Tất cả' },
+                    { val: 'pending', lbl: 'Chờ duyệt ảnh (Pending)' },
+                    { val: 'reported', lbl: 'Bị báo cáo (Reported)' },
+                    { val: 'approved', lbl: 'Đã phê duyệt (Approved)' },
+                    { val: 'hidden', lbl: 'Đã ẩn (Hidden)' }
+                  ].map(tab => {
+                    const count = reviewsList.filter(r => {
+                      if (tab.val === 'all') return true;
+                      if (tab.val === 'reported') return (r.report_count || 0) > 0;
+                      return r.status === tab.val;
+                    }).length;
+                    return (
+                      <button
+                        key={tab.val}
+                        onClick={() => setReviewStatusFilter(tab.val)}
+                        style={{
+                          padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                          background: reviewStatusFilter === tab.val ? '#F27024' : 'rgba(255,255,255,0.05)',
+                          color: '#fff', fontWeight: 600, fontSize: '0.82rem'
+                        }}
+                      >
+                        {tab.lbl} ({count})
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24, padding: 24, overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)' }}>
+                        <th style={{ padding: '12px 16px' }}>Người viết</th>
+                        <th style={{ padding: '12px 16px' }}>Đối tượng review</th>
+                        <th style={{ padding: '12px 16px' }}>Đánh giá</th>
+                        <th style={{ padding: '12px 16px' }}>Nội dung</th>
+                        <th style={{ padding: '12px 16px' }}>Ảnh đính kèm</th>
+                        <th style={{ padding: '12px 16px' }}>Báo cáo vi phạm</th>
+                        <th style={{ padding: '12px 16px' }}>Trạng thái</th>
+                        <th style={{ padding: '12px 16px' }}>Hành động</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {reviewsList.filter(r => {
+                        if (reviewStatusFilter === 'all') return true;
+                        if (reviewStatusFilter === 'reported') return (r.report_count || 0) > 0;
+                        return r.status === reviewStatusFilter;
+                      }).map(r => (
+                        <tr key={r.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                          <td style={{ padding: '14px 16px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <img src={r.reviewer_avatar || 'https://ui-avatars.com/api/?name=An+Danh'} alt="avatar" style={{ width: '28px', height: '28px', borderRadius: '50%' }} />
+                              <div>
+                                <div style={{ color: '#fff', fontWeight: 600 }}>{r.reviewer_name}</div>
+                                <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)' }}>{new Date(r.created_at).toLocaleDateString('vi-VN')}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td style={{ padding: '14px 16px' }}>
+                            <span style={{ fontSize: '0.72rem', background: 'rgba(255,255,255,0.08)', padding: '2px 6px', borderRadius: '4px', marginRight: '4px' }}>
+                              {r.review_type === 'dish' ? 'Món' : r.review_type === 'student_store' ? 'Stall' : 'Shop'}
+                            </span>
+                            <span style={{ fontWeight: 600, color: '#FFB800' }}>
+                              {r.dish_name ? `"${r.dish_name}"` : 'Cửa hàng'}
+                            </span>
+                          </td>
+                          <td style={{ padding: '14px 16px', color: '#FFB800', fontWeight: 700 }}>{'★'.repeat(r.rating)}</td>
+                          <td style={{ padding: '14px 16px', maxWidth: '220px', whiteSpace: 'normal', overflowWrap: 'break-word', color: 'rgba(255,255,255,0.8)' }}>{r.content}</td>
+                          <td style={{ padding: '14px 16px' }}>
+                            {Array.isArray(r.images) && r.images.length > 0 ? (
+                              <div style={{ display: 'flex', gap: '4px' }}>
+                                {r.images.map((img, i) => (
+                                  <a href={img} target="_blank" rel="noreferrer" key={i}>
+                                    <img src={img} alt="review" style={{ width: '36px', height: '36px', borderRadius: '6px', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.1)' }} />
+                                  </a>
+                                ))}
+                              </div>
+                            ) : (
+                              <span style={{ color: 'rgba(255,255,255,0.3)' }}>Không có</span>
+                            )}
+                          </td>
+                          <td style={{ padding: '14px 16px' }}>
+                            {(r.report_count || 0) > 0 ? (
+                              <button
+                                onClick={() => handleViewReviewReports(r)}
+                                style={{
+                                  background: 'rgba(239,68,68,0.15)', color: '#EF4444',
+                                  border: '1px solid rgba(239,68,68,0.3)', borderRadius: '6px',
+                                  padding: '4px 8px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer'
+                                }}
+                              >
+                                {r.report_count} báo cáo 🚩
+                              </button>
+                            ) : (
+                              <span style={{ color: 'rgba(255,255,255,0.3)' }}>0</span>
+                            )}
+                          </td>
+                          <td style={{ padding: '14px 16px' }}>
+                            <span style={{
+                              background: r.status === 'approved' ? 'rgba(16,185,129,0.15)' : r.status === 'pending' ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)',
+                              color: r.status === 'approved' ? '#10B981' : r.status === 'pending' ? '#F59E0B' : '#EF4444',
+                              padding: '2px 8px', borderRadius: '6px', fontWeight: 700, fontSize: '0.72rem'
+                            }}>
+                              {r.status}
+                            </span>
+                          </td>
+                          <td style={{ padding: '14px 16px' }}>
+                            <div style={{ display: 'flex', gap: '6px' }}>
+                              {r.status !== 'approved' && (
+                                <button
+                                  onClick={() => handleModerateReview(r.id, 'approved')}
+                                  style={{ background: '#10B981', color: '#fff', border: 'none', borderRadius: '6px', padding: '6px 10px', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer' }}
+                                >
+                                  Duyệt
+                                </button>
+                              )}
+                              {r.status !== 'hidden' && (
+                                <button
+                                  onClick={() => handleModerateReview(r.id, 'hidden')}
+                                  style={{ background: '#F59E0B', color: '#fff', border: 'none', borderRadius: '6px', padding: '6px 10px', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer' }}
+                                >
+                                  Ẩn đi
+                                </button>
+                              )}
+                              <button
+                                onClick={() => {
+                                  if (window.confirm('Xác nhận XÓA VĨNH VIỄN review này khỏi database?')) {
+                                    handleModerateReview(r.id, 'deleted');
+                                  }
+                                }}
+                                style={{ background: '#EF4444', color: '#fff', border: 'none', borderRadius: '6px', padding: '6px 10px', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer' }}
+                              >
+                                Xóa
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 8: STUDENT VERIFICATIONS */}
+            {activeTab === 'student-verifications' && (
+              <div>
+                <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#fff', marginBottom: 20 }}>Kiểm duyệt Xác thực Sinh viên FPTU</h1>
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24, padding: 24, overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)' }}>
+                        <th style={{ padding: '12px 16px' }}>Họ Tên</th>
+                        <th style={{ padding: '12px 16px' }}>Email Hệ Thống</th>
+                        <th style={{ padding: '12px 16px' }}>Mã Sinh Viên</th>
+                        <th style={{ padding: '12px 16px' }}>Email Sinh Viên</th>
+                        <th style={{ padding: '12px 16px' }}>Trạng Thái</th>
+                        <th style={{ padding: '12px 16px' }}>Hành Động</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {studentVerifications.map(v => (
+                        <tr key={v.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                          <td style={{ padding: '14px 16px', fontWeight: 600, color: '#fff' }}>{v.name}</td>
+                          <td style={{ padding: '14px 16px' }}>{v.email}</td>
+                          <td style={{ padding: '14px 16px', fontWeight: 700, color: '#FFB800' }}>{v.student_id || 'N/A'}</td>
+                          <td style={{ padding: '14px 16px' }}>{v.student_email || 'N/A'}</td>
+                          <td style={{ padding: '14px 16px' }}>
+                            <span style={{
+                              background: v.student_verification_status === 'approved' ? 'rgba(16,185,129,0.15)' : v.student_verification_status === 'pending' ? 'rgba(245,158,11,0.15)' : 'rgba(239,68,68,0.15)',
+                              color: v.student_verification_status === 'approved' ? '#10B981' : v.student_verification_status === 'pending' ? '#F59E0B' : '#EF4444',
+                              padding: '2px 8px', borderRadius: 6, fontWeight: 700, fontSize: '0.72rem'
+                            }}>{v.student_verification_status || 'none'}</span>
+                          </td>
+                          <td style={{ padding: '14px 16px' }}>
+                            {v.student_verification_status === 'pending' && (
+                              <div style={{ display: 'flex', gap: 8 }}>
+                                <button onClick={() => handleModerateStudentVerification(v.id, 'approved')} style={{ padding: '6px 12px', background: '#10B981', color: '#fff', border: 'none', borderRadius: 8, fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}>Duyệt</button>
+                                <button onClick={() => handleModerateStudentVerification(v.id, 'rejected')} style={{ padding: '6px 12px', background: '#EF4444', color: '#fff', border: 'none', borderRadius: 8, fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}>Từ chối</button>
+                              </div>
+                            )}
+                            {v.student_verification_status !== 'pending' && (
+                              <button onClick={() => handleModerateStudentVerification(v.id, 'pending')} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: '0.75rem', cursor: 'pointer' }}>Đặt lại Chờ duyệt</button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                      {studentVerifications.length === 0 && (
+                        <tr>
+                          <td colSpan="6" style={{ padding: '30px', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>Không có yêu cầu xác thực nào.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 9: ACCOUNT REPORTS */}
+            {activeTab === 'account-reports' && (
+              <div>
+                <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#fff', marginBottom: 20 }}>Danh sách Báo cáo Vi phạm Tài khoản</h1>
+                <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 24, padding: 24, overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.85rem' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.5)' }}>
+                        <th style={{ padding: '12px 16px' }}>Người Báo Cáo</th>
+                        <th style={{ padding: '12px 16px' }}>Đối Tượng Bị Báo Cáo</th>
+                        <th style={{ padding: '12px 16px' }}>Loại Đối Tượng</th>
+                        <th style={{ padding: '12px 16px' }}>Lý Do</th>
+                        <th style={{ padding: '12px 16px' }}>Mô Tả Chi Tiết</th>
+                        <th style={{ padding: '12px 16px' }}>Trạng Thái</th>
+                        <th style={{ padding: '12px 16px' }}>Hành Động</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {accountReports.map(rep => (
+                        <tr key={rep.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                          <td style={{ padding: '14px 16px' }}>
+                            <div style={{ fontWeight: 600, color: '#fff' }}>{rep.reporter_name}</div>
+                            <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)' }}>{rep.reporter_email}</div>
+                          </td>
+                          <td style={{ padding: '14px 16px' }}>
+                            <div style={{ fontWeight: 600, color: '#FFB800' }}>{rep.target_name}</div>
+                            <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)' }}>{rep.target_email}</div>
+                          </td>
+                          <td style={{ padding: '14px 16px' }}>
+                            <span style={{
+                              background: rep.reported_seller_id ? 'rgba(59,130,246,0.15)' : 'rgba(163,163,163,0.15)',
+                              color: rep.reported_seller_id ? '#3B82F6' : '#A3A3A3',
+                              padding: '2px 8px', borderRadius: 6, fontWeight: 700, fontSize: '0.72rem'
+                            }}>{rep.reported_seller_id ? 'Seller' : 'Buyer'}</span>
+                          </td>
+                          <td style={{ padding: '14px 16px', fontWeight: 600, color: '#EF4444' }}>{rep.reason}</td>
+                          <td style={{ padding: '14px 16px', maxWidth: '250px', whiteSpace: 'normal', overflowWrap: 'break-word' }}>{rep.description || 'Không có mô tả chi tiết'}</td>
+                          <td style={{ padding: '14px 16px' }}>
+                            <span style={{
+                              background: rep.status === 'actioned' ? 'rgba(16,185,129,0.15)' : rep.status === 'pending' ? 'rgba(245,158,11,0.15)' : 'rgba(163,163,163,0.15)',
+                              color: rep.status === 'actioned' ? '#10B981' : rep.status === 'pending' ? '#F59E0B' : '#A3A3A3',
+                              padding: '2px 8px', borderRadius: 6, fontWeight: 700, fontSize: '0.72rem'
+                            }}>{rep.status}</span>
+                          </td>
+                          <td style={{ padding: '14px 16px' }}>
+                            {rep.status === 'pending' && (
+                              <div style={{ display: 'flex', gap: 8 }}>
+                                <button onClick={() => handleModerateAccountReport(rep.id, 'actioned')} style={{ padding: '6px 12px', background: '#10B981', color: '#fff', border: 'none', borderRadius: 8, fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}>Đã Xử Lý</button>
+                                <button onClick={() => handleModerateAccountReport(rep.id, 'dismissed')} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: '0.75rem', cursor: 'pointer' }}>Bỏ Qua</button>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                      {accountReports.length === 0 && (
+                        <tr>
+                          <td colSpan="7" style={{ padding: '30px', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>Không có báo cáo vi phạm nào.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 10: MEDIA MODERATION */}
+            {activeTab === 'media-moderation' && (
+              <div>
+                <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#fff', marginBottom: 20 }}>Kiểm duyệt Hình ảnh hệ thống</h1>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 24 }}>
+                  {mediaItems.map(item => (
+                    <div key={item.id} style={{
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid rgba(255,255,255,0.06)',
+                      borderRadius: 20,
+                      overflow: 'hidden',
+                      display: 'flex',
+                      flexDirection: 'column'
+                    }}>
+                      <div style={{ position: 'relative', width: '100%', paddingBottom: '75%', background: '#000' }}>
+                        <img 
+                          src={item.image_url} 
+                          alt="Moderation candidate" 
+                          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                        <span style={{
+                          position: 'absolute', top: 12, right: 12,
+                          background: item.status === 'approved' ? 'rgba(16,185,129,0.85)' : item.status === 'pending' ? 'rgba(245,158,11,0.85)' : 'rgba(239,68,68,0.85)',
+                          color: '#fff', padding: '3px 8px', borderRadius: 6, fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase'
+                        }}>{item.status}</span>
+                      </div>
+
+                      <div style={{ padding: 18, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                        <div style={{ marginBottom: 14 }}>
+                          <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', marginBottom: 4 }}>Nguồn hình ảnh:</div>
+                          <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#FFB800' }}>{item.source}</div>
+                          {item.reviewer_name && (
+                            <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.6)', marginTop: 4 }}>
+                              Đăng bởi: <strong>{item.reviewer_name}</strong>
+                            </div>
+                          )}
+                        </div>
+
+                        <div style={{ display: 'flex', gap: 10 }}>
+                          {item.status !== 'approved' && (
+                            <button onClick={() => handleModerateMediaItem(item.id, 'approved')} style={{ flex: 1, padding: '8px 12px', background: '#10B981', color: '#fff', border: 'none', borderRadius: 8, fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}>Duyệt</button>
+                          )}
+                          {item.status !== 'flagged' && (
+                            <button onClick={() => handleModerateMediaItem(item.id, 'flagged')} style={{ flex: 1, padding: '8px 12px', background: '#EF4444', color: '#fff', border: 'none', borderRadius: 8, fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer' }}>Gỡ Bỏ</button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {mediaItems.length === 0 && (
+                    <div style={{ gridColumn: 'span 3', padding: '50px', textAlign: 'center', color: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.02)', borderRadius: 20 }}>
+                      Không có hình ảnh nào cần kiểm duyệt.
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
           </div>
         )}
       </div>
@@ -903,6 +1369,125 @@ const AdminDashboard = () => {
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
               <button type="button" onClick={() => setEditingVendorId(null)} style={{ padding: '12px 20px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, cursor: 'pointer', fontWeight: 600 }}>Hủy bỏ</button>
               <button type="submit" style={{ padding: '12px 24px', background: 'linear-gradient(135deg, #F27024, #FF5722)', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700 }}>Lưu thay đổi</button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* MODAL 4: Review Reports List */}
+      {selectedReviewReports && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
+          <div style={{ background: '#0F172A', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: 32, maxWidth: 600, width: '100%', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: 16 }}>
+              <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', margin: 0 }}>🚩 Chi tiết báo cáo vi phạm</h2>
+              <button type="button" onClick={() => setSelectedReviewReports(null)} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer', outline: 'none' }}>&times;</button>
+            </div>
+
+            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 16, padding: 16, marginBottom: 20 }}>
+              <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>Nội dung review bị báo cáo:</div>
+              <p style={{ fontSize: '0.88rem', margin: 0, color: '#fff', fontStyle: 'italic' }}>"{selectedReviewReports.content}"</p>
+            </div>
+
+            {loadingReports ? (
+              <div style={{ textAlign: 'center', padding: '20px 0', color: 'rgba(255,255,255,0.4)' }}>Đang tải báo cáo...</div>
+            ) : reportsList.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '20px 0', color: 'rgba(255,255,255,0.3)' }}>Không tìm thấy chi tiết báo cáo.</div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {reportsList.map((rep, idx) => (
+                  <div key={idx} style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 12, padding: 14 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: '0.78rem' }}>
+                      <span style={{ color: '#F27024', fontWeight: 700 }}>Lý do: {rep.reason}</span>
+                      <span style={{ color: 'rgba(255,255,255,0.4)' }}>{new Date(rep.created_at).toLocaleString('vi-VN')}</span>
+                    </div>
+                    <p style={{ fontSize: '0.82rem', margin: 0, color: 'rgba(255,255,255,0.8)' }}>
+                      <strong>Mô tả:</strong> {rep.description || 'Không có mô tả chi tiết.'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 24 }}>
+              <button type="button" onClick={() => setSelectedReviewReports(null)} style={{ padding: '10px 20px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, cursor: 'pointer', fontWeight: 600 }}>Đóng</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 5: Restrict User */}
+      {restrictionModalUser && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
+          <form onSubmit={handleRestrictUserSubmit} style={{ background: '#0F172A', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: 32, maxWidth: 500, width: '100%', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: 16 }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', margin: 0 }}>⚠️ Hạn chế Người dùng: {restrictionModalUser.name}</h2>
+              <button type="button" onClick={() => setRestrictionModalUser(null)} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer', outline: 'none' }}>&times;</button>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Hình thức hạn chế:</label>
+              <select value={restrictType} onChange={(e) => setRestrictType(e.target.value)} style={{ width: '100%', padding: '12px 14px', background: '#0F172A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, color: '#fff', outline: 'none' }}>
+                <option value="warn">Cảnh cáo (Gửi thông báo)</option>
+                <option value="restrict_posts">Hạn chế viết Review / Đánh giá</option>
+                <option value="ban_temporary">Khóa tài khoản tạm thời</option>
+                <option value="ban_permanent">Khóa tài khoản vĩnh viễn</option>
+              </select>
+            </div>
+
+            {restrictType === 'ban_temporary' && (
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Thời hạn khóa (ngày):</label>
+                <input type="number" min="1" value={restrictDurationDays} onChange={(e) => setRestrictDurationDays(e.target.value)} required style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, color: '#fff', outline: 'none' }} />
+              </div>
+            )}
+
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ display: 'block', fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Lý do hạn chế:</label>
+              <textarea value={restrictReason} onChange={(e) => setRestrictReason(e.target.value)} required placeholder="Nhập lý do cụ thể..." style={{ width: '100%', height: 100, padding: '12px 14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, color: '#fff', outline: 'none', resize: 'none' }} />
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+              <button type="button" onClick={() => setRestrictionModalUser(null)} style={{ padding: '12px 20px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, cursor: 'pointer', fontWeight: 600 }}>Hủy bỏ</button>
+              <button type="submit" style={{ padding: '12px 24px', background: 'linear-gradient(135deg, #EF4444, #C084FC)', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700 }}>Xác nhận Hạn chế</button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* MODAL 6: Restrict Seller */}
+      {restrictionModalSeller && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
+          <form onSubmit={handleRestrictSellerSubmit} style={{ background: '#0F172A', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: 32, maxWidth: 500, width: '100%', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: 16 }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', margin: 0 }}>⚠️ Hạn chế Đối tác (Seller): {restrictionModalSeller.name}</h2>
+              <button type="button" onClick={() => setRestrictionModalSeller(null)} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer', outline: 'none' }}>&times;</button>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Hình thức hạn chế:</label>
+              <select value={restrictType} onChange={(e) => setRestrictType(e.target.value)} style={{ width: '100%', padding: '12px 14px', background: '#0F172A', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, color: '#fff', outline: 'none' }}>
+                <option value="warn">Cảnh cáo (Gửi thông báo)</option>
+                <option value="restrict_posts">Hạn chế quyền bán hàng tạm thời</option>
+                <option value="ban_temporary">Khóa tài khoản đối tác tạm thời</option>
+                <option value="ban_permanent">Khóa tài khoản đối tác vĩnh viễn</option>
+              </select>
+            </div>
+
+            {restrictType === 'ban_temporary' && (
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Thời hạn khóa (ngày):</label>
+                <input type="number" min="1" value={restrictDurationDays} onChange={(e) => setRestrictDurationDays(e.target.value)} required style={{ width: '100%', padding: '12px 14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, color: '#fff', outline: 'none' }} />
+              </div>
+            )}
+
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ display: 'block', fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>Lý do hạn chế:</label>
+              <textarea value={restrictReason} onChange={(e) => setRestrictReason(e.target.value)} required placeholder="Nhập lý do cụ thể..." style={{ width: '100%', height: 100, padding: '12px 14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, color: '#fff', outline: 'none', resize: 'none' }} />
+            </div>
+
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+              <button type="button" onClick={() => setRestrictionModalSeller(null)} style={{ padding: '12px 20px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, cursor: 'pointer', fontWeight: 600 }}>Hủy bỏ</button>
+              <button type="submit" style={{ padding: '12px 24px', background: 'linear-gradient(135deg, #EF4444, #C084FC)', color: '#fff', border: 'none', borderRadius: 10, cursor: 'pointer', fontWeight: 700 }}>Xác nhận Hạn chế</button>
             </div>
           </form>
         </div>

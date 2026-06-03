@@ -48,6 +48,22 @@ const connectPg = async () => {
     
     // Add columns dynamically if they do not exist
     await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;');
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS phone TEXT;');
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS student_id TEXT;');
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS student_email TEXT;');
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS student_verified BOOLEAN DEFAULT FALSE;');
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS student_verification_status VARCHAR(50) DEFAULT \'none\';');
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS anonymity_setting BOOLEAN DEFAULT FALSE;');
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS is_banned BOOLEAN DEFAULT FALSE;');
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS warning_count INTEGER DEFAULT 0;');
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS ban_reason TEXT;');
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS lock_until TIMESTAMP WITH TIME ZONE;');
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS can_write_review BOOLEAN DEFAULT TRUE;');
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS can_vote_review BOOLEAN DEFAULT TRUE;');
+    await client.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS can_sell BOOLEAN DEFAULT TRUE;');
+    await client.query('ALTER TABLE sellers ADD COLUMN IF NOT EXISTS is_banned BOOLEAN DEFAULT FALSE;');
+    await client.query('ALTER TABLE sellers ADD COLUMN IF NOT EXISTS ban_reason TEXT;');
+    await client.query('ALTER TABLE sellers ADD COLUMN IF NOT EXISTS can_sell BOOLEAN DEFAULT TRUE;');
     await client.query('ALTER TABLE vendors ADD COLUMN IF NOT EXISTS commission_rate REAL DEFAULT 10.0;');
     await client.query('ALTER TABLE vendors ADD COLUMN IF NOT EXISTS total_revenue BIGINT DEFAULT 0;');
     await client.query('ALTER TABLE vendors ADD COLUMN IF NOT EXISTS status TEXT DEFAULT \'active\';');
@@ -149,6 +165,76 @@ const connectPg = async () => {
         category VARCHAR(100) DEFAULT 'Món chính',
         image TEXT,
         is_available BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Create community_reviews table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS community_reviews (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        review_type VARCHAR(50) NOT NULL,
+        vendor_id TEXT,
+        student_store_id UUID REFERENCES student_stores(id) ON DELETE CASCADE,
+        dish_name VARCHAR(255),
+        rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+        content TEXT NOT NULL,
+        images JSONB DEFAULT '[]'::JSONB,
+        is_anonymous BOOLEAN DEFAULT FALSE,
+        status VARCHAR(50) DEFAULT 'approved',
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Create review_votes table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS review_votes (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        review_id UUID NOT NULL REFERENCES community_reviews(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(review_id, user_id)
+      );
+    `);
+
+    // Create review_reports table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS review_reports (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        review_id UUID NOT NULL REFERENCES community_reviews(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        reason VARCHAR(255) NOT NULL,
+        description TEXT,
+        status VARCHAR(50) DEFAULT 'pending',
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Create account_reports table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS account_reports (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        reporter_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        reported_user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        reported_seller_id UUID REFERENCES sellers(id) ON DELETE CASCADE,
+        reason VARCHAR(255) NOT NULL,
+        description TEXT,
+        status VARCHAR(50) DEFAULT 'pending',
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Create media_items table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS media_items (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        url TEXT NOT NULL UNIQUE,
+        source_type VARCHAR(100) NOT NULL,
+        source_id VARCHAR(255) NOT NULL,
+        status VARCHAR(50) DEFAULT 'pending',
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
     `);

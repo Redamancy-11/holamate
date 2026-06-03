@@ -10,8 +10,8 @@ import {
   getStudentStoreOrders,
   updateStudentStoreOrderStatus
 } from '../services/api';
-import vietmapgl from '@vietmap/vietmap-gl-js/dist/vietmap-gl';
-import '@vietmap/vietmap-gl-js/dist/vietmap-gl.css';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 const StudentStoreDashboard = () => {
   const { user, loading: authLoading, setShowAuthModal } = useContext(AuthContext);
@@ -163,44 +163,42 @@ const StudentStoreDashboard = () => {
       mapRef.current = null;
     }
 
-    const map = new vietmapgl.Map({
-      container: mapContainerRef.current,
-      style: {
-        version: 8,
-        sources: {
-          osm: {
-            type: 'raster',
-            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-            tileSize: 256,
-            attribution: '© OpenStreetMap contributors',
-          },
-        },
-        layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
-      },
-      center: storeCoords,
+    const map = L.map(mapContainerRef.current, {
+      center: [storeCoords[1], storeCoords[0]],
       zoom: 15,
+      zoomControl: false
     });
 
-    map.addControl(new vietmapgl.NavigationControl(), 'bottom-right');
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
     mapRef.current = map;
 
     const el = document.createElement('div');
     el.innerHTML = `<span style="font-size:1.8rem;display:flex;align-items:center;justify-content:center;width:40px;height:40px;background:rgba(8,12,28,0.95);border:2px solid #FF9800;border-radius:50%;cursor:pointer;box-shadow:0 4px 12px rgba(242,112,36,0.5);">🎓</span>`;
 
-    const marker = new vietmapgl.Marker({ element: el, draggable: true })
-      .setLngLat(storeCoords)
-      .addTo(map);
+    const storeIcon = L.divIcon({
+      html: el,
+      className: 'student-store-marker-icon',
+      iconSize: [40, 40],
+      iconAnchor: [20, 20]
+    });
+
+    const marker = L.marker([storeCoords[1], storeCoords[0]], { icon: storeIcon, draggable: true }).addTo(map);
 
     markerRef.current = marker;
 
     marker.on('dragend', () => {
-      const lngLat = marker.getLngLat();
-      setStoreCoords([lngLat.lng, lngLat.lat]);
+      const latLng = marker.getLatLng();
+      setStoreCoords([latLng.lng, latLng.lat]);
     });
 
     map.on('click', (e) => {
-      const coords = [e.lngLat.lng, e.lngLat.lat];
-      marker.setLngLat(coords);
+      const coords = [e.latlng.lng, e.latlng.lat];
+      marker.setLatLng(e.latlng);
       setStoreCoords(coords);
     });
 

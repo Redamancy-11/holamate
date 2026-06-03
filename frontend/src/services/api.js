@@ -352,5 +352,110 @@ export const updateStudentStoreOrderStatus = async (orderId, status) => {
   return data;
 };
 
+// ===================== COMMUNITY REVIEWS API =====================
+export const getCommunityReviews = async (params = {}) => {
+  const { data } = await api.get('/community-reviews', { params });
+  return data;
+};
+
+export const createCommunityReview = async (reviewData) => {
+  const { data } = await api.post('/community-reviews', reviewData);
+  return data;
+};
+
+export const voteCommunityReview = async (reviewId, rating) => {
+  const { data } = await api.post(`/community-reviews/${reviewId}/vote`, { rating });
+  return data;
+};
+
+export const reportCommunityReview = async (reviewId, reportData) => {
+  const { data } = await api.post(`/community-reviews/${reviewId}/report`, reportData);
+  return data;
+};
+
+// Admin Review moderation
+export const adminGetCommunityReviews = async () => {
+  const { data } = await api.get('/admin/dashboard/community-reviews', { headers: adminHeaders() });
+  return data;
+};
+
+export const adminGetReviewReports = async (reviewId) => {
+  const { data } = await api.get(`/admin/dashboard/community-reviews/${reviewId}/reports`, { headers: adminHeaders() });
+  return data;
+};
+
+export const adminModerateReview = async (reviewId, status) => {
+  const { data } = await api.put(`/admin/dashboard/community-reviews/${reviewId}`, { status }, { headers: adminHeaders() });
+  return data;
+};
+
+// ===================== STUDENT STORES PUBLIC API =====================
+export const getStudentStoresPublic = async () => {
+  const { data } = await api.get('/student-store/public');
+  return data;
+};
+
+export const getStudentStorePublicById = async (id) => {
+  const { data } = await api.get(`/student-store/public/${id}`);
+  return data;
+};
+
+// ===================== USER PROFILE & COMPLAINTS API =====================
+export const updateUserProfile = async (profileData) => {
+  const { data } = await api.put('/auth/profile', profileData);
+  return data;
+};
+
+export const requestStudentVerification = async (verifyData) => {
+  const { data } = await api.post('/auth/student-verify', verifyData);
+  return data;
+};
+
+export const reportAccount = async (reportData) => {
+  const { data } = await api.post('/auth/report-account', reportData);
+  return data;
+};
+
+// ===================== ADMIN EXTENDED MODERATION API =====================
+export const getAdminStudentVerifications = async () => {
+  const { data } = await api.get('/admin/dashboard/student-verifications', { headers: adminHeaders() });
+  return data;
+};
+
+export const moderateAdminStudentVerification = async (userId, status) => {
+  const { data } = await api.put(`/admin/dashboard/student-verifications/${userId}`, { status }, { headers: adminHeaders() });
+  return data;
+};
+
+export const getAdminAccountReports = async () => {
+  const { data } = await api.get('/admin/dashboard/account-reports', { headers: adminHeaders() });
+  return data;
+};
+
+export const moderateAdminAccountReport = async (reportId, status) => {
+  const { data } = await api.put(`/admin/dashboard/account-reports/${reportId}`, { status }, { headers: adminHeaders() });
+  return data;
+};
+
+export const restrictAdminUser = async (userId, restrictionData) => {
+  const { data } = await api.put(`/admin/dashboard/users/${userId}/restrict`, restrictionData, { headers: adminHeaders() });
+  return data;
+};
+
+export const restrictAdminSeller = async (sellerId, restrictionData) => {
+  const { data } = await api.put(`/admin/dashboard/sellers/${sellerId}/restrict`, restrictionData, { headers: adminHeaders() });
+  return data;
+};
+
+export const getAdminMediaItems = async () => {
+  const { data } = await api.get('/admin/dashboard/media', { headers: adminHeaders() });
+  return data;
+};
+
+export const moderateAdminMediaItem = async (mediaId, status) => {
+  const { data } = await api.put(`/admin/dashboard/media/${mediaId}`, { status }, { headers: adminHeaders() });
+  return data;
+};
+
 export default api;
 

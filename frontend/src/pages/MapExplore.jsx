@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
-import vietmapgl from '@vietmap/vietmap-gl-js/dist/vietmap-gl';
-import '@vietmap/vietmap-gl-js/dist/vietmap-gl.css';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import api, {
   postLocationPing,
   detectIpLocation,
@@ -223,22 +223,27 @@ const MapExplore = () => {
     return () => clearInterval(interval);
   }, [activeOrder]);
 
-  // Thêm/cập nhật user marker bằng chính SDK của VietMap
+  // Thêm/cập nhật user marker bằng Leaflet
   const addUserMarker = useCallback((coords) => {
     if (!mapRef.current) return;
     if (userMarkerRef.current) userMarkerRef.current.remove();
 
-    const popup = new vietmapgl.Popup({ offset: 35 })
-      .setHTML('<div style="color:#111;font-weight:700;font-size:0.8rem;padding:2px 4px;font-family:Inter,sans-serif;">📍 Vị trí giao hàng của bạn</div>');
+    const el = document.createElement('div');
+    el.innerHTML = `<span style="font-size:1.8rem;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));cursor:pointer;">📍</span>`;
 
-    // Sử dụng class Marker mặc định của SDK VietMap (tận dụng icon ghim mặc định)
-    const marker = new vietmapgl.Marker({ color: '#F27024' })
-      .setLngLat(coords)
-      .setPopup(popup)
+    const userIcon = L.divIcon({
+      html: el,
+      className: 'user-marker-icon',
+      iconSize: [36, 36],
+      iconAnchor: [18, 36]
+    });
+
+    const marker = L.marker([coords[1], coords[0]], { icon: userIcon })
+      .bindPopup('<div style="color:#111;font-weight:700;font-size:0.8rem;padding:2px 4px;font-family:Inter,sans-serif;">📍 Vị trí giao hàng của bạn</div>', { offset: L.point(0, -28) })
       .addTo(mapRef.current);
 
     userMarkerRef.current = marker;
-    marker.togglePopup();
+    marker.openPopup();
   }, []);
 
   const handleGeolocationSuccess = async (pos) => {
@@ -249,7 +254,7 @@ const MapExplore = () => {
     localStorage.setItem('hanomate_chat_location', JSON.stringify(locationForAI));
 
     if (mapRef.current) {
-      mapRef.current.flyTo({ center: coords, zoom: 16, pitch: 40, duration: 2000 });
+      mapRef.current.flyTo([coords[1], coords[0]], 16, { duration: 1.5 });
       addUserMarker(coords);
     }
 
@@ -318,7 +323,7 @@ const MapExplore = () => {
         localStorage.setItem('hanomate_chat_location', JSON.stringify({ latitude: coords[1], longitude: coords[0] }));
 
         if (mapRef.current) {
-          mapRef.current.flyTo({ center: coords, zoom: 15, pitch: 40, duration: 2000 });
+          mapRef.current.flyTo([coords[1], coords[0]], 15, { duration: 1.5 });
           addUserMarker(coords);
         }
         setUserAddress(ipData.address || `Vị trí: ${coords[1].toFixed(5)}°N, ${coords[0].toFixed(5)}°E`);
@@ -339,11 +344,11 @@ const MapExplore = () => {
     const handleMapClick = async (e) => {
       if (!isPickingLocation) return;
 
-      const coords = [e.lngLat.lng, e.lngLat.lat];
+      const coords = [e.latlng.lng, e.latlng.lat];
       setUserLocation(coords);
       setIsPickingLocation(false);
 
-      const locationForAI = { latitude: e.lngLat.lat, longitude: e.lngLat.lng };
+      const locationForAI = { latitude: e.latlng.lat, longitude: e.latlng.lng };
       localStorage.setItem('hanomate_chat_location', JSON.stringify(locationForAI));
 
       addUserMarker(coords);
@@ -438,25 +443,18 @@ const MapExplore = () => {
   useEffect(() => {
     if (!initCoords || !mapContainerRef.current || mapRef.current) return;
 
-    const map = new vietmapgl.Map({
-      container: mapContainerRef.current,
-      style: {
-        version: 8,
-        sources: {
-          osm: {
-            type: 'raster',
-            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-            tileSize: 256,
-            attribution: '© OpenStreetMap contributors',
-          },
-        },
-        layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
-      },
-      center: initCoords,
+    const map = L.map(mapContainerRef.current, {
+      center: [initCoords[1], initCoords[0]],
       zoom: 15,
+      zoomControl: false
     });
 
-    map.addControl(new vietmapgl.NavigationControl(), 'bottom-right');
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
     mapRef.current = map;
 
     // Thêm user marker và lưu trạng thái vị trí
@@ -497,14 +495,24 @@ const MapExplore = () => {
       el.addEventListener('mouseenter', () => { el.firstChild.style.transform = 'scale(1.3)'; el.firstChild.style.boxShadow = '0 4px 14px rgba(242,112,36,0.55)'; });
       el.addEventListener('mouseleave', () => { el.firstChild.style.transform = 'scale(1)'; el.firstChild.style.boxShadow = '0 2px 8px rgba(242,112,36,0.25)'; });
 
-      const popup = new vietmapgl.Popup({ offset: 28, closeButton: true, maxWidth: '280px' }).setHTML(`
-        <div style="font-family:Inter,sans-serif;padding:4px;">
+      const placeIcon = L.divIcon({
+        html: el,
+        className: 'place-marker-icon',
+        iconSize: [28, 28],
+        iconAnchor: [14, 14]
+      });
+
+      const popupContent = `
+        <div style="font-family:Inter,sans-serif;padding:4px;color:#111;">
           <h3 style="margin:0 0 6px;font-size:.95rem;font-weight:700;color:#1a1a2e;">${place.emoji} ${place.name}</h3>
           <p style="margin:0 0 8px;font-size:.83rem;color:#555;line-height:1.5;">${place.description}</p>
           <div style="background:#fff8e8;border-radius:8px;padding:8px;font-size:.78rem;color:#7a5000;">💡 <strong>Tip:</strong> ${place.tips}</div>
-        </div>`);
+        </div>`;
 
-      const marker = new vietmapgl.Marker({ element: el }).setLngLat(place.coords).setPopup(popup).addTo(mapRef.current);
+      const marker = L.marker([place.coords[1], place.coords[0]], { icon: placeIcon })
+        .bindPopup(popupContent, { offset: L.point(0, -10), maxWidth: 280 })
+        .addTo(mapRef.current);
+
       el.addEventListener('click', () => {
         setSelectedPlace(place);
         setIsCheckoutMode(false);
@@ -517,9 +525,9 @@ const MapExplore = () => {
     if (!mapRef.current) return;
     setSelectedPlace(place);
     setIsCheckoutMode(false);
-    mapRef.current.flyTo({ center: place.coords, zoom: 16, pitch: 45, duration: 1500 });
+    mapRef.current.flyTo([place.coords[1], place.coords[0]], 16, { duration: 1.5 });
     const idx = filteredLandmarks.findIndex(l => l.id === place.id);
-    if (idx >= 0 && markersRef.current[idx]) markersRef.current[idx].togglePopup();
+    if (idx >= 0 && markersRef.current[idx]) markersRef.current[idx].openPopup();
   }, [filteredLandmarks]);
 
   // Map Search: prioritize local database vendors first, fallback to OSM Nominatim API
@@ -596,7 +604,7 @@ const MapExplore = () => {
 
     setSearchResults([]);
     setSearchQuery('');
-    mapRef.current.flyTo({ center: result.coords, zoom: 16, pitch: 45, duration: 1500 });
+    mapRef.current.flyTo([result.coords[1], result.coords[0]], 16, { duration: 1.5 });
 
     if (result.isLocal && result.place) {
       setSelectedPlace(result.place);
@@ -607,7 +615,7 @@ const MapExplore = () => {
       if (idx >= 0 && markersRef.current[idx]) {
         setTimeout(() => {
           if (markersRef.current[idx]) {
-            markersRef.current[idx].togglePopup();
+            markersRef.current[idx].openPopup();
           }
         }, 1000);
       }
@@ -619,12 +627,18 @@ const MapExplore = () => {
     setSelectedPlace(searchPlace);
     setIsCheckoutMode(false);
 
-    new vietmapgl.Marker({ color: '#F27024' })
-      .setLngLat(result.coords)
-      .setPopup(new vietmapgl.Popup({ offset: 28 }).setHTML(
-        `<div style="font-family:Inter,sans-serif;padding:4px;"><h3 style="margin:0 0 4px;font-size:.95rem;color:#1a1a2e;">📍 ${result.name}</h3><p style="margin:0;font-size:.82rem;color:#555;">${result.address}</p></div>`
-      ))
-      .addTo(mapRef.current).togglePopup();
+    const searchIcon = L.divIcon({
+      html: `<span style="font-size:1.8rem;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));cursor:pointer;">📍</span>`,
+      className: 'search-marker-icon',
+      iconSize: [36, 36],
+      iconAnchor: [18, 36]
+    });
+
+    const marker = L.marker([result.coords[1], result.coords[0]], { icon: searchIcon })
+      .bindPopup(`<div style="font-family:Inter,sans-serif;padding:4px;color:#111;"><h3 style="margin:0 0 4px;font-size:.95rem;color:#1a1a2e;">📍 ${result.name}</h3><p style="margin:0;font-size:.82rem;color:#555;">${result.address}</p></div>`, { offset: L.point(0, -28) })
+      .addTo(mapRef.current);
+    
+    marker.openPopup();
   }, [filteredLandmarks]);
 
 

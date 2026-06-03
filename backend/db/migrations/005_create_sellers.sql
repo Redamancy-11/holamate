@@ -24,4 +24,5 @@ ALTER TABLE vendors DROP CONSTRAINT IF EXISTS vendors_owner_id_fkey;
 ALTER TABLE vendors DROP CONSTRAINT IF EXISTS vendors_owner_id_sellers_fkey;
 
 ALTER TABLE vendors ALTER COLUMN owner_id TYPE UUID;
-ALTER TABLE vendors ADD CONSTRAINT vendors_owner_id_sellers_fkey FOREIGN KEY (owner_id) REFERENCES sellers(id) ON DELETE SET NULL;
+-- No foreign key constraint is added here because owner_id can polymorphically point to either sellers(id) or users(id) for student stores.
+

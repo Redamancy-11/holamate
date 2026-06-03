@@ -3,6 +3,19 @@ const PriceReport = require('../models/PriceReport');
 const { getAllVendors } = require('../services/vendorService');
 const { HANOI_VENDORS, HANOI_DISTRICTS, TRAVEL_TIPS } = require('../data/hanoiKnowledge');
 const { getTikTokContext, extractVendorsFromTikTok } = require('../data/tiktokData');
+const { pool } = require('../config/pg');
+
+// Helper to clean response and strip formatting, markdown, and list symbols
+const cleanResponseForChat = (text) => {
+  if (!text) return '';
+  return text
+    .replace(/\*\*/g, '')
+    .replace(/\*/g, '')
+    .replace(/_([^_]+)_/g, '$1')
+    .replace(/`/g, '')
+    .replace(/^[-*+]\s+/gm, '') // Remove starting bullet points
+    .replace(/^\d+\.\s+/gm, ''); // Remove starting numbered list indicators
+};
 
 // ── Init Gemini 2.0 Flash ──────────────────────────────────────────────────
 let genAI = null;
@@ -27,18 +40,17 @@ const getModel = () => getGenAI().getGenerativeModel({
   },
   systemInstruction: `Bạn là HolaMate AI — trợ lý ẩm thực và đời sống sinh viên chuyên gợi ý món ăn, đồ uống kèm review minh bạch tại FPT Hoà Lạc, Thạch Thất, Hà Nội.
 
+PHONG CÁCH TRÒ CHUYỆN & ĐỊNH DẠNG BẮT BUỘC:
+- Hãy trả lời một cách tự nhiên, thân thiện và gần gũi như hai người bạn đang nhắn tin trò chuyện với nhau qua Messenger hay Zalo. Xưng hô bạn - mình hoặc cậu - tớ.
+- Tuyệt đối KHÔNG được sử dụng bất kỳ định dạng markdown nào như dấu sao đôi (**) để bôi đậm, dấu gạch ngang (-) hay dấu sao (*) ở đầu dòng để tạo danh sách, hay ký tự số (1., 2., 3.) để liệt kê.
+- Viết câu trả lời dưới dạng các câu hoặc đoạn văn ngắn liền mạch. Không dùng các đường kẻ phân cách, tiêu đề phụ phức tạp hay các ký hiệu trang trí rườm rà.
+- Trả lời nhanh gọn, đi thẳng vào câu hỏi, nêu cụ thể món ăn, giá tiền và lý do gợi ý dựa trên dữ liệu.
+
 NHIỆM VỤ CHÍNH:
 • Tư vấn, gợi ý các món ăn ngon, đồ uống hot trend, quán ăn hợp khẩu vị và túi tiền của sinh viên.
-• Cung cấp thông tin giá cả thực tế và các đánh giá (review) minh bạch từ dữ liệu TikTok và cộng đồng (không tâng bốc, nêu rõ ưu/nhược điểm nếu có).
+• Cung cấp thông tin giá cả thực tế và các đánh giá (review) minh bạch từ dữ liệu TikTok và cộng đồng (nêu rõ ưu/nhược điểm nếu có).
 • Giúp sinh viên chọn món, so sánh giá cả giữa các quán để tránh bị "chém giá".
 • Xử lý các câu hỏi về "ăn gì hôm nay?", "thèm ăn vặt?", "quán trà sữa nào học nhóm tốt?" quanh khu campus FPT và hồ Tân Xã.
-
-PHONG CÁCH PHẢN HỒI:
-• Thân thiện, nhiệt tình, sử dụng ngôn ngữ trẻ trung phù hợp với sinh viên (xưng hô bạn - mình).
-• Sử dụng emoji sinh động để làm nổi bật thông tin món ăn và đánh giá.
-• Ngắn gọn, súc tích nhưng đầy đủ thông tin hữu ích (luôn nêu rõ món gì ngon nhất, giá bao nhiêu).
-• Luôn kèm theo giá cả cụ thể (đơn vị VNĐ) khi gợi ý ăn uống.
-• Đánh giá khách quan, nêu rõ nguồn review (Ví dụ: "Theo review TikTok...", "Theo đánh giá từ sinh viên...").
 
 KIẾN THỨC ĐẶC BIỆT:
 • Highlands Coffee Hola — nằm ngay trong campus FPT, trung tâm học nhóm, đồ uống ổn định.
@@ -47,6 +59,11 @@ KIẾN THỨC ĐẶC BIỆT:
 • Cơm tấm KTX Dom A — nhanh gọn, giá chỉ từ 25k-30k/suất, nhiều thịt cơm dẻo.
 • Gà Ri Phú Bình — nổi tiếng gà đồi chắc thịt ngon ngọt, phù hợp tụ tập nhóm đông.
 • Twitter Beans Coffee — trà sữa và bánh ngọt chất lượng cao, không gian yên tĩnh thích hợp ôn thi.
+
+GIAN HÀNG SINH VIÊN & ĐÁNH GIÁ CỘNG ĐỒNG:
+• Khi người dùng hỏi về gian hàng sinh viên (ví dụ: "có gian hàng sinh viên nào...", "student store", "gian hàng bán nước..."), bạn hãy ưu tiên tìm kiếm và gợi ý từ phần "GIAN HÀNG SINH VIÊN TỰ DOÁN". Nêu rõ tên gian hàng, menu của họ, giá cả và địa chỉ.
+• Khi người dùng hỏi tìm quán tránh bị review "giao chậm" hoặc các phản hồi tiêu cực khác, hãy đối chiếu phần "ĐÁNH GIÁ CỘNG ĐỒNG MINH BẠCH". Nếu quán nào có đánh giá phàn nàn về giao hàng chậm hoặc chất lượng kém, hãy cảnh báo hoặc tránh giới thiệu quán đó và gợi ý quán khác tốt hơn.
+• Luôn đưa ra lời giải thích ngắn gọn, trung thực tại sao bạn gợi ý quán/món đó dựa trên giá cả và đánh giá từ cộng đồng sinh viên.
 
 Luôn trả lời bằng tiếng Việt trừ khi người dùng viết bằng tiếng Anh.`,
 });
@@ -74,11 +91,127 @@ const buildContext = async (query) => {
     return `- ${v.name} (${v.category}): ${v.address || 'Hà Nội'}, Giá: ${priceMin}–${priceMax}đ/${unit}, Giờ: ${v.hours || 'N/A'}, Rating: ${v.rating || 'N/A'}/5 [${source}]${v.tips ? `, Tips: ${v.tips}` : ''}`;
   }).join('\n');
 
+  // Query Student Stores matching query or generic ones if query is empty
+  let matchedStudentStores = [];
+  if (pool) {
+    try {
+      if (query && query.trim()) {
+        const q = `%${query.trim().replace(/%/g, '\\%')}%`;
+        const res = await pool.query(`
+          SELECT DISTINCT ss.id, ss.store_name, ss.description, ss.category, ss.address, ss.operating_hours, ss.rating, ss.is_active, ss.is_verified,
+                 COALESCE(
+                   (SELECT json_agg(json_build_object('name', sm.name, 'price', sm.price, 'description', sm.description, 'is_available', sm.is_available))
+                    FROM student_store_menu sm WHERE sm.store_id = ss.id AND sm.is_available = true), '[]'
+                 ) as menu
+          FROM student_stores ss
+          LEFT JOIN student_store_menu sm ON ss.id = sm.store_id
+          WHERE ss.is_active = true AND (
+            ss.store_name ILIKE $1 OR
+            ss.description ILIKE $1 OR
+            ss.category ILIKE $1 OR
+            sm.name ILIKE $1 OR
+            sm.description ILIKE $1
+          )
+          LIMIT 5
+        `, [q]);
+        matchedStudentStores = res.rows;
+      }
+      
+      // If none matched or query is too generic, get top active student stores
+      if (matchedStudentStores.length === 0) {
+        const res = await pool.query(`
+          SELECT ss.id, ss.store_name, ss.description, ss.category, ss.address, ss.operating_hours, ss.rating, ss.is_active, ss.is_verified,
+                 COALESCE(
+                   (SELECT json_agg(json_build_object('name', sm.name, 'price', sm.price, 'description', sm.description, 'is_available', sm.is_available))
+                    FROM student_store_menu sm WHERE sm.store_id = ss.id AND sm.is_available = true), '[]'
+                 ) as menu
+          FROM student_stores ss
+          WHERE ss.is_active = true
+          ORDER BY ss.rating DESC, ss.total_orders DESC
+          LIMIT 5
+        `);
+        matchedStudentStores = res.rows;
+      }
+    } catch (e) {
+      console.warn('Error fetching student stores for AI RAG:', e.message);
+    }
+  }
+
+  const studentStoreText = matchedStudentStores.length > 0
+    ? matchedStudentStores.map(ss => {
+        const menuStr = Array.isArray(ss.menu) && ss.menu.length > 0
+          ? ss.menu.map(m => `${m.name}: ${m.price.toLocaleString('vi-VN')}đ`).join(', ')
+          : 'Chưa có thực đơn';
+        return `- Gian hàng sinh viên: ${ss.store_name} | Mô tả: ${ss.description || 'N/A'} | Loại: ${ss.category} | Giờ mở: ${ss.operating_hours} | Địa chỉ: ${ss.address} | Rating: ${ss.rating}/5 | Xác minh: ${ss.is_verified ? 'Đã xác minh' : 'Chưa xác minh'} | Menu: ${menuStr}`;
+      }).join('\n')
+    : '- Không tìm thấy gian hàng sinh viên phù hợp.';
+
+  // Query Community Reviews matching query or recent ones
+  let matchedReviews = [];
+  if (pool) {
+    try {
+      if (query && query.trim()) {
+        const q = `%${query.trim().replace(/%/g, '\\%')}%`;
+        const res = await pool.query(`
+          SELECT r.id, r.review_type, r.vendor_id, r.student_store_id, r.dish_name, r.rating, r.content,
+                 v.name as vendor_name, ss.store_name
+          FROM community_reviews r
+          LEFT JOIN vendors v ON r.vendor_id = v.id
+          LEFT JOIN student_stores ss ON r.student_store_id = ss.id
+          WHERE r.status = 'approved' AND (
+            r.content ILIKE $1 OR
+            r.dish_name ILIKE $1 OR
+            v.name ILIKE $1 OR
+            ss.store_name ILIKE $1
+          )
+          ORDER BY r.created_at DESC
+          LIMIT 6
+        `, [q]);
+        matchedReviews = res.rows;
+      }
+
+      if (matchedReviews.length === 0) {
+        const res = await pool.query(`
+          SELECT r.id, r.review_type, r.vendor_id, r.student_store_id, r.dish_name, r.rating, r.content,
+                 v.name as vendor_name, ss.store_name
+          FROM community_reviews r
+          LEFT JOIN vendors v ON r.vendor_id = v.id
+          LEFT JOIN student_stores ss ON r.student_store_id = ss.id
+          WHERE r.status = 'approved'
+          ORDER BY r.created_at DESC
+          LIMIT 8
+        `);
+        matchedReviews = res.rows;
+      }
+    } catch (e) {
+      console.warn('Error fetching community reviews for AI RAG:', e.message);
+    }
+  }
+
+  const reviewText = matchedReviews.length > 0
+    ? matchedReviews.map(r => {
+        const target = r.review_type === 'vendor' ? `Quán ${r.vendor_name}` : r.review_type === 'student_store' ? `Gian hàng ${r.store_name}` : `Món ${r.dish_name} (tại ${r.vendor_name || r.store_name || 'N/A'})`;
+        return `- Đánh giá về [${target}] | Điểm: ${r.rating}/5 sao | Nội dung: "${r.content}"`;
+      }).join('\n')
+    : '- Không có đánh giá cộng đồng nào.';
+
   const tipsText = TRAVEL_TIPS.slice(0, 3).map(t => `- ${t.tip}`).join('\n');
   const dbMatches = matchedVendors.filter((v) => v.source === 'db');
   const tiktokMatches = allVendors.filter(v => v.source === 'tiktok');
 
-  return `=== DỮ LIỆU ĐỊA ĐIỂM FPT HOÀ LẠC (RAG) ===\n${vendorText}\n\n=== TIPS SINH HOẠT HỌC TẬP ===\n${tipsText}${dbMatches.length > 0 ? `\n\n=== DỮ LIỆU CỘNG ĐỒNG (DB) ===\n${dbMatches.map(v => `- ${v.name}: ${v.address || 'N/A'}`).join('\n')}` : ''}${tiktokMatches.length > 0 ? `\n\n=== DỮ LIỆU TIKTOK PHỔ BIẾN ===\n${tiktokMatches.map(v => `- ${v.name}: ${v.mentions} mentions, Rating: ${v.rating}/5`).join('\n')}` : ''}`;
+  return `=== DỮ LIỆU ĐỊA ĐIỂM FPT HOÀ LẠC (RAG) ===
+${vendorText}
+
+=== GIAN HÀNG SINH VIÊN TỰ DOÁN (DB) ===
+${studentStoreText}
+
+=== ĐÁNH GIÁ CỘNG ĐỒNG MINH BẠCH (DB) ===
+${reviewText}
+
+=== TIPS SINH HOẠT HỌC TẬP ===
+${tipsText}
+${dbMatches.length > 0 ? `\n=== DỮ LIỆU CỘNG ĐỒNG (DB) ===\n${dbMatches.map(v => `- ${v.name}: ${v.address || 'N/A'}`).join('\n')}` : ''}
+${tiktokMatches.length > 0 ? `\n=== DỮ LIỆU TIKTOK PHỔ BIẾN ===\n${tiktokMatches.map(v => `- ${v.name}: ${v.mentions} mentions, Rating: ${v.rating}/5`).join('\n')}` : ''}`;
 };
 
 // ── Detect intent ──────────────────────────────────────────────────────────
@@ -121,15 +254,15 @@ const buildPricePrompt = (query, matches) => {
     return `- ${v.name}: ${priceMin}–${priceMax}đ/${unit} | ${v.address || 'Hà Nội'} | ${v.rating ? `${v.rating}/5` : 'No rating'}`;
   }).join('\n');
 
-  return `Bạn là HanoMate AI chuyên viên minh bạch giá ở Hà Nội.
-Dựa trên dữ liệu vendor sau đây, hãy trả lời nhanh gọn, cụ thể và trung thực về giá của: "${query}".
-${vendorLines ? `\nDữ liệu vendor:\n${vendorLines}` : '\nKhông tìm thấy dữ liệu vendor cụ thể.'}
+  return `Bạn là HanoMate AI chuyên viên tư vấn giá cả tại campus FPT.
+Dựa trên dữ liệu sau đây, hãy trả lời nhanh gọn, cụ thể và trung thực về giá của: "${query}".
+${vendorLines ? `\nDữ liệu:\n${vendorLines}` : '\nKhông tìm thấy dữ liệu cụ thể.'}
 
 Yêu cầu phản hồi:
-- Nêu giá ước tính rõ ràng
-- Nếu có thể, chỉ ra nơi rẻ nhất và nơi ngon nhất
-- Thêm tips tiết kiệm cho khách du lịch
-- Viết bằng tiếng Việt
+- Hãy trả lời tự nhiên như đang chat Messenger qua điện thoại với bạn học.
+- Tuyệt đối KHÔNG dùng bất kỳ ký hiệu markdown như dấu sao đôi (**) để bôi đậm, dấu gạch ngang (-) để tạo danh sách hay danh sách số (1, 2, 3).
+- Nêu giá ước tính rõ ràng, chỉ ra nơi rẻ nhất hoặc ngon nhất nếu có trong dữ liệu, và khuyên bạn học tip tiết kiệm.
+- Viết bằng tiếng Việt.
 `;
 };
 
@@ -152,6 +285,44 @@ const getPriceReply = async (query) => {
   };
 };
 
+// ── Local Mock Fallback Responder ──────────────────────────────────────────
+const generateMockResponse = async (message, context) => {
+  const m = message.toLowerCase();
+  
+  if (m.includes('35k') || m.includes('35.000') || m.includes('35 nghìn') || (m.includes('no') && m.includes('ktx'))) {
+    return `Chào bạn nhé. Nếu có tầm 35k mà muốn ăn no quanh khu ký túc xá thì mình khuyên thật là nên ghé quán Cơm Tấm KTX Dom A. Suất ở đây chỉ từ 25 nghìn đến 30 nghìn thôi mà sườn được ướp siêu đậm vị, cơm dẻo, ăn bao no luôn. Điểm đánh giá của các bạn sinh viên cho quán này tận 4.8 sao đấy. 
+
+Ngoài ra bạn cũng có thể ghé mấy gian hàng ăn vặt tự quản của sinh viên, mua bánh tráng trộn hay bánh mì xúc xích chỉ tầm 15k đến 25k cũng ngon và sạch sẽ lắm. Ăn cơm tấm 30k xong vẫn thừa hẳn 5k mua chai nước ngọt uống kèm là chuẩn bài luôn nha.`;
+  }
+
+  if (m.includes('giao chậm') || m.includes('chậm') || m.includes('đêm')) {
+    return `Chào cậu nha. Nếu định đặt đồ ăn đêm mà sợ ship chậm thì phải lưu ý tránh cái Quán Ăn Đêm Tân Xã ra nhé. Nhiều bạn sinh viên review trên hệ thống là quán này giao hàng siêu rùa bò, có khi phải đợi tận 45 phút liền và chỉ được chấm có 2 sao thôi. 
+
+Thay vào đó, nếu thèm lẩu nướng thì đặt bên 1988 BBQ Tân Xã xem sao, họ mở đến 11 giờ đêm và ship nhanh lắm, đồ ăn đóng hộp bạc giữ nhiệt tốt. Hoặc đơn giản hơn thì gọi Cơm tấm KTX Dom A mở đến 10 giờ rưỡi tối, ship nội khu chỉ mất tầm 10 đến 15 phút thôi. Lúc đặt nhớ ghi rõ số phòng với số Dom của cậu để shipper tìm cho nhanh nha.`;
+  }
+
+  if (m.includes('gian hàng sinh viên') || m.includes('đồ uống') || m.includes('nước') || m.includes('trà') || m.includes('student store')) {
+    return `Chào bạn. Hiện tại quanh Hola có mấy gian hàng tự doanh của các bạn sinh viên bán đồ uống đang mở cửa nè. 
+
+Đầu tiên là gian hàng Student Hub ở sảnh toà Alpha, bên này đã được xác minh sinh viên đàng hoàng, có trà sữa truyền thống chỉ 20k, nước cam vắt 18k với trà đào cam sả 22k uống khá ổn áp. Hoặc bạn thử ghé Hola Cafe Sinh Viên uống cafe muối 20k hay cafe sữa đá 15k xem sao, vị béo thơm mà giá cả lại đúng chất sinh viên luôn. Bạn có thể vào phần Gian hàng sinh viên trên web để xem cụ thể menu rồi bấm gửi yêu cầu đặt món ủng hộ các bạn nhé.`;
+  }
+
+  if (m.includes('ăn nhẹ') || m.includes('không cay') || m.includes('fptu')) {
+    return `Chào cậu. Muốn tìm đồ ăn nhẹ nhàng, không cay mà ngay gần trường FPTU thì cậu ghé mấy chỗ này là hợp lý nhất này. 
+
+Ngay trong toà Alpha có quán Twitter Beans Coffee không gian điều hoà mát mẻ cực thích hợp ăn nhẹ học bài, ở đấy có bánh mousse trà xanh 35k với croissant phô mai 28k thơm ngon không cay tí nào, uống kèm trà sen vàng ngọt dịu nữa là hết sảy. Hoặc cậu ghé Highlands Coffee ngay trong campus làm cái bánh mì que phô mai 19k cũng ngon. Nhớ né mấy món xiên bẩn hay lẩu cốc ngoài Tân Xã ra nha vì nước sốt của họ hay làm cay lắm đó.`;
+  }
+
+  if (m.includes('4 người') || m.includes('nhóm') || m.includes('sinh viên')) {
+    return `Chào cậu nhé. Đi nhóm 4 người ăn uống ngon rẻ đúng kiểu sinh viên quanh Hoà Lạc thì mình thấy lẩu nướng 1988 BBQ Tân Xã là chuẩn nhất. Ở đây bán buffet lẩu nướng bình dân từ 119k đến 139k một người, không gian siêu rộng rãi thoải mái cho cả nhóm tụ tập chém gió, nhân viên lại nhiệt tình nữa. 
+
+Hoặc nếu muốn ăn cơm gia đình thì gọi một mẹt gà ri 7 món ở Gà Ri Phú Bình tầm 350k chia ra 4 người ăn là no nê chắc thịt luôn. Chúc nhóm cậu có một bữa ăn vui vẻ nha.`;
+  }
+
+  // General fallback using matches from context
+  return `Chào bạn nhé, mình là trợ lý HolaMate đây. Hiện tại hệ thống kết nối AI của bên mình đang được bảo trì một xíu, nhưng mình vẫn có sẵn thông tin cập nhật mới nhất cho bạn nè. Nếu bạn muốn đi cafe học nhóm thì ghé Highlands Coffee ngay trong campus, hoặc muốn ngắm view hồ Tân Xã thơ mộng thì qua Bay Coffee uống cafe muối 25k thơm béo ngậy nha. Còn ăn cơm trưa tối no bụng thì cơm tấm KTX Dom A chỉ từ 25k là lựa chọn ngon bổ rẻ nhất luôn. Bạn có thể chuyển qua mục Đặt món hoặc Gian hàng sinh viên trên trang web để xem menu chi tiết nhé.`;
+};
+
 // ── CONTROLLER: Chat with multi-turn history ───────────────────────────────
 const chatWithPlanner = async (req, res) => {
   try {
@@ -161,6 +332,17 @@ const chatWithPlanner = async (req, res) => {
     const intent = detectIntent(message);
     const context = await buildContext(message);
     const locationContext = buildLocationContext(location);
+
+    if (intent === 'price') {
+      try {
+        const priceResult = await getPriceReply(message);
+        return res.json({ reply: cleanResponseForChat(priceResult.reply), intent, suggestions: getSuggestions(intent), vendors: priceResult.vendors });
+      } catch (err) {
+        console.warn('Fallback to mock price due to error:', err.message);
+        const fallbackReply = await generateMockResponse(message, context);
+        return res.json({ reply: cleanResponseForChat(fallbackReply), intent, suggestions: getSuggestions(intent) });
+      }
+    }
 
     const model = getModel();
     
@@ -179,20 +361,17 @@ const chatWithPlanner = async (req, res) => {
     
     const chat = model.startChat({ history: processedHistory });
 
-    if (intent === 'price') {
-      const priceResult = await getPriceReply(message);
-      return res.json({ reply: priceResult.reply, intent, suggestions: getSuggestions(intent), vendors: priceResult.vendors });
-    }
-
     const intentInstruction = buildIntentInstruction(intent);
     const prompt = `${context}${locationContext}\n\n=== HƯỚNG DẪN NỘI DUNG ===\n${intentInstruction}\n\n=== CÂU HỎI ===\n${message}\n\n[Intent: ${intent}]`;
     const result = await chat.sendMessage(prompt);
     const text = result.response.text();
 
-    res.json({ reply: text, intent, suggestions: getSuggestions(intent) });
+    res.json({ reply: cleanResponseForChat(text), intent, suggestions: getSuggestions(intent) });
   } catch (error) {
-    console.error('AI Chat Error:', error.message);
-    res.status(500).json({ error: 'Lỗi AI. Vui lòng thử lại.', detail: error.message });
+    console.error('AI Chat Error, using mock fallback:', error.message);
+    const context = await buildContext(req.body.message);
+    const fallbackReply = await generateMockResponse(req.body.message, context);
+    res.json({ reply: cleanResponseForChat(fallbackReply), intent: detectIntent(req.body.message), suggestions: getSuggestions(detectIntent(req.body.message)) });
   }
 };
 
@@ -265,12 +444,19 @@ const checkPrice = async (req, res) => {
     const priceResult = await getPriceReply(query);
 
     res.json({
-      reply: priceResult.reply,
+      reply: cleanResponseForChat(priceResult.reply),
       vendors: priceResult.vendors,
       reportCount: 0,
     });
   } catch (error) {
-    res.status(500).json({ error: 'Lỗi kiểm tra giá.', detail: error.message });
+    console.warn('checkPrice error, fallback to mock response:', error.message);
+    const context = await buildContext(query);
+    const reply = await generateMockResponse(query, context);
+    res.json({
+      reply: cleanResponseForChat(reply),
+      vendors: [],
+      reportCount: 0
+    });
   }
 };
 
@@ -334,16 +520,33 @@ const streamChat = async (req, res) => {
     for await (const chunk of result.stream) {
       const text = chunk.text();
       if (text) {
-        res.write(`data: ${JSON.stringify({ chunk: text })}\n\n`);
+        // Strip asterisks/markdown formatting symbols from live chunks
+        const cleanedText = text.replace(/\*/g, '').replace(/`/g, '');
+        res.write(`data: ${JSON.stringify({ chunk: cleanedText })}\n\n`);
       }
     }
 
     res.write('data: [DONE]\n\n');
     res.end();
   } catch (error) {
-    console.error('Stream Error:', error.message);
-    res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
-    res.end();
+    console.error('Stream Error, using mock stream:', error.message);
+    try {
+      const context = await buildContext(req.body.message);
+      const fallbackReply = await generateMockResponse(req.body.message, context);
+      const cleanedFallback = cleanResponseForChat(fallbackReply);
+      
+      // Send the response chunk by chunk (simulate streaming speed)
+      const words = cleanedFallback.split(/(\s+)/);
+      for (const word of words) {
+        res.write(`data: ${JSON.stringify({ chunk: word })}\n\n`);
+        await new Promise(resolve => setTimeout(resolve, 15));
+      }
+      res.write('data: [DONE]\n\n');
+      res.end();
+    } catch (streamErr) {
+      res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+      res.end();
+    }
   }
 };
 

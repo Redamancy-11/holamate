@@ -2,8 +2,8 @@ import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import { getVendorById, updateVendor, getOrdersByVendor, getSellerOrders, updateOrderStatus, scanVendorMenu, deleteOrder, bulkHideOrders } from '../services/api';
-import vietmapgl from '@vietmap/vietmap-gl-js/dist/vietmap-gl';
-import '@vietmap/vietmap-gl-js/dist/vietmap-gl.css';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 const SellerDashboard = () => {
   const { sellerUser: user, loading: authLoading, setShowAuthModal, logoutSeller: logout, notificationClickedOrder, setNotificationClickedOrder } = useContext(AuthContext);
@@ -400,34 +400,32 @@ const SellerDashboard = () => {
 
     const initialCoords = storeCoords;
 
-    const map = new vietmapgl.Map({
-      container: miniMapContainerRef.current,
-      style: {
-        version: 8,
-        sources: {
-          osm: {
-            type: 'raster',
-            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-            tileSize: 256,
-            attribution: '© OpenStreetMap contributors',
-          },
-        },
-        layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
-      },
-      center: initialCoords,
+    const map = L.map(miniMapContainerRef.current, {
+      center: [initialCoords[1], initialCoords[0]],
       zoom: 15,
+      zoomControl: false
     });
 
-    map.addControl(new vietmapgl.NavigationControl(), 'bottom-right');
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
     miniMapRef.current = map;
 
     // Create marker element
     const el = document.createElement('div');
     el.innerHTML = `<span style="font-size:1.8rem;display:flex;align-items:center;justify-content:center;width:40px;height:40px;background:rgba(8,12,28,0.95);border:2px solid #F27024;border-radius:50%;cursor:pointer;box-shadow:0 4px 12px rgba(242,112,36,0.5);">🏪</span>`;
 
-    const marker = new vietmapgl.Marker({ element: el, draggable: true })
-      .setLngLat(initialCoords)
-      .addTo(map);
+    const miniMapIcon = L.divIcon({
+      html: el,
+      className: 'minimap-store-icon',
+      iconSize: [40, 40],
+      iconAnchor: [20, 20]
+    });
+
+    const marker = L.marker([initialCoords[1], initialCoords[0]], { icon: miniMapIcon, draggable: true }).addTo(map);
 
     miniMapMarkerRef.current = marker;
 
@@ -440,8 +438,8 @@ const SellerDashboard = () => {
           if (userLng > 104.0 && userLng < 106.5 && userLat > 20.0 && userLat < 22.0) {
             const gpsCoords = [userLng, userLat];
             setStoreCoords(gpsCoords);
-            marker.setLngLat(gpsCoords);
-            map.setCenter(gpsCoords);
+            marker.setLatLng([gpsCoords[1], gpsCoords[0]]);
+            map.setView([gpsCoords[1], gpsCoords[0]], 15);
             showFlashMessage('Đã tự động định vị và ghim vị trí hiện tại của bạn trên bản đồ!', 'success');
           }
         },
@@ -454,14 +452,14 @@ const SellerDashboard = () => {
 
     // Listen to dragend
     marker.on('dragend', () => {
-      const lngLat = marker.getLngLat();
-      setStoreCoords([lngLat.lng, lngLat.lat]);
+      const latLng = marker.getLatLng();
+      setStoreCoords([latLng.lng, latLng.lat]);
     });
 
     // Listen to click on map to position marker
     map.on('click', (e) => {
-      const coords = [e.lngLat.lng, e.lngLat.lat];
-      marker.setLngLat(coords);
+      const coords = [e.latlng.lng, e.latlng.lat];
+      marker.setLatLng(e.latlng);
       setStoreCoords(coords);
     });
 
@@ -497,39 +495,42 @@ const SellerDashboard = () => {
       routingOrder.deliveryLatitude || 21.01354
     ];
 
-    const map = new vietmapgl.Map({
-      container: routingMapContainerRef.current,
-      style: {
-        version: 8,
-        sources: {
-          osm: {
-            type: 'raster',
-            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-            tileSize: 256,
-            attribution: '© OpenStreetMap contributors',
-          },
-        },
-        layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
-      },
-      center: startCoords,
+    const map = L.map(routingMapContainerRef.current, {
+      center: [startCoords[1], startCoords[0]],
       zoom: 14,
+      zoomControl: false
     });
+
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
     routingMapRef.current = map;
 
     // Custom Store Marker
     const storeEl = document.createElement('div');
     storeEl.innerHTML = `<span style="font-size:1.8rem;display:flex;align-items:center;justify-content:center;width:42px;height:42px;background:rgba(11,20,37,0.95);border:2px solid #F27024;border-radius:50%;box-shadow:0 4px 14px rgba(242,112,36,0.6);">🏪</span>`;
-    const storeMarker = new vietmapgl.Marker({ element: storeEl })
-      .setLngLat(startCoords)
-      .addTo(map);
+    const storeIcon = L.divIcon({
+      html: storeEl,
+      className: 'routing-store-icon',
+      iconSize: [42, 42],
+      iconAnchor: [21, 21]
+    });
+    const storeMarker = L.marker([startCoords[1], startCoords[0]], { icon: storeIcon }).addTo(map);
 
     // Custom Buyer Marker
     const customerEl = document.createElement('div');
     customerEl.innerHTML = `<span style="font-size:1.8rem;display:flex;align-items:center;justify-content:center;width:42px;height:42px;background:rgba(11,20,37,0.95);border:2px solid #10B981;border-radius:50%;box-shadow:0 4px 14px rgba(16,185,129,0.6);">🛵</span>`;
-    const customerMarker = new vietmapgl.Marker({ element: customerEl })
-      .setLngLat(endCoords)
-      .addTo(map);
+    const custIcon = L.divIcon({
+      html: customerEl,
+      className: 'routing-cust-icon',
+      iconSize: [42, 42],
+      iconAnchor: [21, 21]
+    });
+    L.marker([endCoords[1], endCoords[0]], { icon: custIcon }).addTo(map);
+
+    let routeLayer = null;
 
     const drawRoute = async (fromCoords, toCoords) => {
       try {
@@ -538,7 +539,6 @@ const SellerDashboard = () => {
         
         if (data.routes && data.routes.length > 0) {
           const route = data.routes[0];
-          const routeGeometry = route.geometry;
           const distanceKm = (route.distance / 1000).toFixed(2);
           const durationMins = Math.round(route.duration / 60);
 
@@ -547,58 +547,34 @@ const SellerDashboard = () => {
             infoEl.innerHTML = `🏁 Quãng đường: <strong>${distanceKm} km</strong> | ⏱️ Thời gian dự kiến: <strong>${durationMins} phút</strong>`;
           }
 
-          const bounds = new vietmapgl.LngLatBounds();
-          bounds.extend(fromCoords);
-          bounds.extend(toCoords);
-          map.fitBounds(bounds, { padding: 60 });
-
-          if (map.getSource('route')) {
-            map.getSource('route').setData({
-              type: 'Feature',
-              properties: {},
-              geometry: routeGeometry
-            });
-          } else {
-            map.addSource('route', {
-              type: 'geojson',
-              data: {
-                type: 'Feature',
-                properties: {},
-                geometry: routeGeometry
-              }
-            });
-
-            map.addLayer({
-              id: 'route',
-              type: 'line',
-              source: 'route',
-              layout: {
-                'line-join': 'round',
-                'line-cap': 'round'
-              },
-              paint: {
-                'line-color': '#F27024',
-                'line-width': 6,
-                'line-opacity': 0.85
-              }
-            });
+          if (routeLayer) {
+            map.removeLayer(routeLayer);
           }
+
+          routeLayer = L.geoJSON(route.geometry, {
+            style: {
+              color: '#F27024',
+              weight: 6,
+              opacity: 0.85
+            }
+          }).addTo(map);
+
+          map.fitBounds(routeLayer.getBounds(), { padding: [60, 60] });
         }
       } catch (err) {
         console.error('Error fetching routing geometry:', err);
       }
     };
 
-    map.on('load', () => {
-      drawRoute(startCoords, endCoords);
-    });
+    // Draw route initially
+    drawRoute(startCoords, endCoords);
 
     window.recalculateFromGPS = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const gpsCoords = [position.coords.longitude, position.coords.latitude];
-            storeMarker.setLngLat(gpsCoords);
+            storeMarker.setLatLng([gpsCoords[1], gpsCoords[0]]);
             drawRoute(gpsCoords, endCoords);
             showFlashMessage('Đã cập nhật tuyến đường từ GPS thực tế của bạn!', 'success');
           },

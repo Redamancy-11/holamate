@@ -143,9 +143,11 @@ const ChatBox = ({ defaultLocation = null }) => {
   };
 
   const suggestions = [
-    '🍜 Gợi ý lẩu nướng Tân Xã',
-    '☕ Quán cafe học nhóm yên tĩnh ở Hola',
-    '🍊 Đánh giá Highlands Coffee Hola có gì ngon?',
+    '💰 Có 35k muốn ăn no gần KTX',
+    '🛵 Đồ ăn đêm tránh giao chậm',
+    '🏫 Có gian hàng sinh viên nào bán đồ uống hôm nay?',
+    '🌶️ Ăn nhẹ, không cay, gần FPTU',
+    '👥 Quán đi nhóm 4 người giá sinh viên',
   ];
 
   return (

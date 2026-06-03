@@ -1,0 +1,12 @@
+[
+  {
+    "line": 1,
+    "created_at": "2026-06-02T04:48:32Z",
+    "content": "<USER_REQUEST>\nmình muốn tận dụng tối ưu Các tính năng cốt lõi của Supabase BaaS\nSupabase cung cấp một \"hệ sinh thái\" backend hoàn chỉnh thông qua một trang dashboard trực quan:\nDatabase (PostgreSQL): Mỗi dự án Supabase là một database Postgres thực thụ. Bạn có đầy đủ sức mạnh của SQL (truy vấn nâng cao, thiết lập mối quan hệ giữa các bảng, triggers, views).\nAuto-generated APIs: Ngay khi bạn tạo một bảng dữ liệu trên giao diện của Supabase, hệ thống sẽ tự động tạo ra các đường link API (RESTful và GraphQL). Bạn chỉ việc gọi các API này từ frontend để lấy hoặc ghi dữ liệu mà không cần viết code backend.\nAuthentication (Xác thực người dùng): Tích hợp sẵn hệ thống quản lý người dùng. Hỗ trợ đăng nhập bằng Email/Password, OTP, Magic Link hoặc qua các bên thứ ba (Google, Apple, Facebook, GitHub...).\n<truncated 10289 bytes>"
+  },
+  {
+    "line": 119,
+    "created_at": "2026-06-02T05:03:07Z",
+    "content": "<USER_REQUEST>\n4. Trợ lý AI\nTrang này dùng cho các nhu cầu phức tạp hơn bộ lọc thông thường.\nVai trò\nTrợ lý AI giúp người dùng tìm món/quán theo ngôn ngữ tự nhiên thay vì phải tự chọn nhiều bộ lọc.\nVí dụ yêu cầu\n“Mình có 35k, muốn ăn no gần KTX.”\n“Gợi ý quán đi nhóm 4 người, giá sinh viên.”\n“Tìm đồ ăn đêm nhưng tránh quán bị review giao chậm.”\n“Có gian hàng sinh viên nào bán đồ uống hôm nay không?”\n“Mình muốn ăn nhẹ, không cay, gần FPTU.”\nCách hoạt động\nAI hiểu nhu cầu của người dùng\nAI chuyển nhu cầu thành tiêu chí tìm kiếm\nAI truy xuất dữ liệu từ database\nAI gợi ý quán ăn hoặc gian hàng phù hợp\nAI giải thích ngắn gọn lý do gợi ý\n\n5. Đặt món / Gửi yêu cầu đặt món\n<truncated 6211 bytes>"
+  }
+]
