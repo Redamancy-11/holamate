@@ -50,14 +50,43 @@ const ChatBox = ({ defaultLocation = null }) => {
     }
   }, [userLocation]);
 
+  const isAtBottom = useRef(true);
+
+  const handleScroll = () => {
+    if (!messagesContainerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
+    // Nếu cách đáy dưới 120px thì coi như đang ở đáy
+    isAtBottom.current = scrollHeight - scrollTop - clientHeight < 120;
+  };
+
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      return () => container.removeEventListener('scroll', handleScroll);
+    }
+  }, []);
+
+  // Cuộn mượt khi có tin nhắn mới hoàn tất
   useEffect(() => {
     if (messagesContainerRef.current) {
       messagesContainerRef.current.scrollTo({
         top: messagesContainerRef.current.scrollHeight,
         behavior: 'smooth',
       });
+      isAtBottom.current = true;
     }
-  }, [messages, streamingReply]);
+  }, [messages]);
+
+  // Cuộn tức thì (không smooth để tránh giật lag khi stream liên tục) nếu đang ở đáy
+  useEffect(() => {
+    if (messagesContainerRef.current && isAtBottom.current && streamingReply) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: 'auto',
+      });
+    }
+  }, [streamingReply]);
 
   const handleLocateMe = () => {
     if (!navigator.geolocation) {
@@ -154,14 +183,31 @@ const ChatBox = ({ defaultLocation = null }) => {
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 18, width: '100%' }}>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, gap: 12, width: '100%', height: '100%' }}>
+      {/* Suggestions and Locate Button */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
         {suggestions.map((s, index) => (
           <button
             key={index}
             onClick={() => setInput(s)}
             style={{
-              padding: '10px 18px', borderRadius: 999, border: '1px solid rgba(255,255,255,0.18)', background: 'rgba(255,255,255,0.09)', color: '#fff', cursor: 'pointer', fontSize: '.88rem', fontWeight: 600,
+              padding: '8px 14px', borderRadius: 999, 
+              border: '1px solid rgba(255,255,255,0.08)', 
+              background: 'rgba(255,255,255,0.04)', 
+              color: 'rgba(255,255,255,0.85)', 
+              cursor: 'pointer', fontSize: '.78rem', fontWeight: 600,
+              transition: 'all 0.25s ease',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = 'rgba(242,112,36,0.1)';
+              e.currentTarget.style.borderColor = 'rgba(242,112,36,0.4)';
+              e.currentTarget.style.color = '#fff';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+              e.currentTarget.style.color = 'rgba(255,255,255,0.85)';
             }}
           >
             {s}
@@ -171,27 +217,56 @@ const ChatBox = ({ defaultLocation = null }) => {
           onClick={handleLocateMe}
           disabled={locating}
           style={{
-            padding: '10px 18px', borderRadius: 999, border: 'none', background: locating ? 'rgba(255,255,255,0.16)' : 'linear-gradient(135deg,#F27024,#FF5722)', color: '#fff', fontWeight: 800, cursor: locating ? 'not-allowed' : 'pointer', fontSize: '.88rem', boxShadow: '0 10px 20px rgba(242,112,36,0.24)',
+            padding: '8px 14px', borderRadius: 999, border: 'none', 
+            background: locating ? 'rgba(255,255,255,0.12)' : 'linear-gradient(135deg, #F27024, #FF5722)', 
+            color: '#fff', fontWeight: 800, 
+            cursor: locating ? 'not-allowed' : 'pointer', fontSize: '.78rem', 
+            boxShadow: '0 8px 20px rgba(242,112,36,0.3)',
+            transition: 'all 0.25s ease',
+          }}
+          onMouseEnter={e => {
+            if (!locating) e.currentTarget.style.transform = 'translateY(-1px)';
+          }}
+          onMouseLeave={e => {
+            if (!locating) e.currentTarget.style.transform = 'translateY(0)';
           }}
         >
-          {locating ? '⏳ Đang xác định...' : '📍 Dùng vị trí của tôi'}
+          {locating ? '⏳ Đang xác định...' : '📍 Vị trí hiện tại'}
         </button>
       </div>
 
       {userLocation && (
-        <div style={{ padding: '12px 18px', borderRadius: 18, background: 'rgba(242,112,36,0.12)', color: '#FFB74D', textAlign: 'center', fontWeight: 600 }}>
-          Vị trí hiện tại: {userLocation.latitude.toFixed(5)}°N, {userLocation.longitude.toFixed(5)}°E
+        <div style={{ 
+          padding: '8px 14px', borderRadius: 12, 
+          background: 'rgba(242, 112, 36, 0.08)', 
+          border: '1px solid rgba(242, 112, 36, 0.25)', 
+          color: '#FFB74D', textAlign: 'center', fontWeight: 600, fontSize: '0.78rem'
+        }}>
+          🎯 Đã kết nối định vị GPS: {userLocation.latitude.toFixed(5)}°N, {userLocation.longitude.toFixed(5)}°E (Gợi ý dựa trên tọa độ thực tế)
         </div>
       )}
       {locError && (
-        <div style={{ padding: '12px 18px', borderRadius: 18, background: 'rgba(248,113,113,0.15)', color: '#FCA5A5', textAlign: 'center', fontWeight: 600 }}>
+        <div style={{ 
+          padding: '8px 14px', borderRadius: 12, 
+          background: 'rgba(239, 68, 68, 0.08)', 
+          border: '1px solid rgba(239, 68, 68, 0.25)', 
+          color: '#FCA5A5', textAlign: 'center', fontWeight: 600, fontSize: '0.78rem' 
+        }}>
           {locError}
         </div>
       )}
 
+      {/* Messages Window (Glassmorphic) */}
       <div 
         ref={messagesContainerRef}
-        style={{ height: '550px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 16, padding: '18px', borderRadius: 24, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)' }}
+        style={{ 
+          flex: 1, minHeight: 0, height: 'auto', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 14, 
+          padding: '16px', borderRadius: 20, 
+          background: 'rgba(15, 23, 42, 0.45)', 
+          backdropFilter: 'blur(20px)',
+          border: '1px solid rgba(255, 255, 255, 0.08)', 
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+        }}
       >
         {messages.map((msg, index) => (
           <div
@@ -199,11 +274,23 @@ const ChatBox = ({ defaultLocation = null }) => {
             style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', gap: 10 }}
           >
             {msg.role === 'ai' && (
-              <div style={{ width: 34, height: 34, borderRadius: 14, background: 'linear-gradient(135deg,#F27024,#FF5722)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '.85rem' }}>
-                O
+              <div style={{ 
+                width: 32, height: 32, borderRadius: 10, 
+                background: 'linear-gradient(135deg, #F27024, #FF5722)', 
+                display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                color: '#fff', fontWeight: 900, fontSize: '.85rem',
+                boxShadow: '0 4px 12px rgba(242,112,36,0.3)'
+              }}>
+                🤖
               </div>
             )}
-            <div style={{ maxWidth: '75%', padding: '16px 18px', borderRadius: 24, background: msg.role === 'user' ? 'linear-gradient(135deg,#F27024,#FF5722)' : 'rgba(255,255,255,0.08)', color: '#fff', whiteSpace: 'pre-line', lineHeight: 1.7 }}>
+            <div style={{ 
+              maxWidth: '78%', padding: '12px 16px', borderRadius: 16, 
+              background: msg.role === 'user' ? 'linear-gradient(135deg, #F27024, #FF5722)' : 'rgba(255,255,255,0.04)', 
+              border: msg.role === 'user' ? 'none' : '1px solid rgba(255,255,255,0.06)',
+              color: '#fff', whiteSpace: 'pre-line', lineHeight: 1.5, fontSize: '0.88rem',
+              boxShadow: msg.role === 'user' ? '0 4px 15px rgba(242,112,36,0.2)' : 'none'
+            }}>
               {msg.content}
             </div>
           </div>
@@ -211,30 +298,69 @@ const ChatBox = ({ defaultLocation = null }) => {
 
         {streamingReply && (
           <div style={{ display: 'flex', justifyContent: 'flex-start', gap: 10 }}>
-            <div style={{ width: 34, height: 34, borderRadius: 14, background: 'linear-gradient(135deg,#F27024,#FF5722)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 800, fontSize: '.85rem' }}>
-              O
+            <div style={{ 
+              width: 32, height: 32, borderRadius: 10, 
+              background: 'linear-gradient(135deg, #F27024, #FF5722)', 
+              display: 'flex', alignItems: 'center', justifyContent: 'center', 
+              color: '#fff', fontWeight: 900, fontSize: '.85rem',
+              boxShadow: '0 4px 12px rgba(242,112,36,0.3)'
+            }}>
+              🤖
             </div>
-            <div style={{ maxWidth: '75%', padding: '16px 18px', borderRadius: 24, background: 'rgba(255,255,255,0.08)', color: '#fff', whiteSpace: 'pre-line', lineHeight: 1.7 }}>
+            <div style={{ 
+              maxWidth: '78%', padding: '12px 16px', borderRadius: 16, 
+              background: 'rgba(255,255,255,0.04)', 
+              border: '1px solid rgba(255,255,255,0.06)',
+              color: '#fff', whiteSpace: 'pre-line', lineHeight: 1.5, fontSize: '0.88rem'
+            }}>
               {streamingReply}
             </div>
           </div>
         )}
       </div>
 
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+      {/* Input bar */}
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center', paddingBottom: 4 }}>
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
-          placeholder="Hỏi AI Hola: thèm ăn vặt, tìm quán cafe học bài, trà sữa ngon kèm review..."
-          style={{ flex: 1, padding: '16px 18px', borderRadius: 18, border: '1px solid rgba(255,255,255,0.16)', background: 'rgba(255,255,255,0.06)', color: '#fff', outline: 'none', fontSize: '.95rem' }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSend();
+            }
+          }}
+          placeholder="Hỏi AI Hola: thèm ăn vặt, tìm quán cafe học bài, lẩu nướng gần đây..."
+          style={{ 
+            flex: 1, padding: '14px 18px', borderRadius: 14, 
+            border: '1px solid rgba(255,255,255,0.08)', 
+            background: 'rgba(255,255,255,0.03)', 
+            color: '#fff', outline: 'none', fontSize: '.9rem',
+            transition: 'border-color 0.2s',
+          }}
+          onFocus={e => e.currentTarget.style.borderColor = 'rgba(242,112,36,0.5)'}
+          onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'}
         />
         <button
           onClick={handleSend}
           disabled={loading || !input.trim()}
-          style={{ padding: '16px 22px', borderRadius: 18, border: 'none', background: loading || !input.trim() ? 'rgba(255,255,255,0.14)' : 'linear-gradient(135deg,#F27024,#FF5722)', color: '#fff', fontWeight: 700, cursor: loading || !input.trim() ? 'not-allowed' : 'pointer', minWidth: 120 }}
+          style={{ 
+            padding: '14px 22px', borderRadius: 14, border: 'none', 
+            background: loading || !input.trim() ? 'rgba(255,255,255,0.08)' : 'linear-gradient(135deg, #F27024, #FF5722)', 
+            color: loading || !input.trim() ? 'rgba(255,255,255,0.3)' : '#fff', 
+            fontWeight: 700, cursor: loading || !input.trim() ? 'not-allowed' : 'pointer', 
+            minWidth: 80,
+            boxShadow: loading || !input.trim() ? 'none' : '0 4px 15px rgba(242,112,36,0.3)',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={e => {
+            if (!loading && input.trim()) e.currentTarget.style.transform = 'translateY(-1px)';
+          }}
+          onMouseLeave={e => {
+            if (!loading && input.trim()) e.currentTarget.style.transform = 'translateY(0)';
+          }}
         >
-          {loading ? '⏳ Đang gửi...' : 'Gửi'}
+          {loading ? '⏳' : 'Gửi'}
         </button>
       </div>
     </div>

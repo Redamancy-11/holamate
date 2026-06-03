@@ -88,6 +88,13 @@ const MapExplore = () => {
   // Basic states
   const [activeCategory, setActiveCategory] = useState('all');
   const [selectedPlace, setSelectedPlace] = useState(null);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -110,44 +117,54 @@ const MapExplore = () => {
   const [isCheckoutMode, setIsCheckoutMode] = useState(false);
   const [activeOrder, setActiveOrder] = useState(null);
 
-  // Merge static landmarks and dynamic database vendors
+  // Helper to compute distance in km (Haversine)
+  const haversineKm = useCallback((lon1, lat1, lon2, lat2) => {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }, []);
+
+  // Merge static landmarks and dynamic database vendors (all vendors included)
   const allMapPlaces = React.useMemo(() => {
     const places = [...HOLA_LANDMARKS];
 
     dbVendors.forEach((vendor) => {
+      if (!vendor.coords || vendor.coords.length !== 2) return;
+
+      // Skip if already exists in landmarks
       const exists = places.some(
         p => p.name.toLowerCase() === vendor.name.toLowerCase() ||
-          (vendor.coords && vendor.coords.length === 2 &&
-            p.coords && p.coords.length === 2 &&
+          (p.coords && p.coords.length === 2 &&
             p.coords[0] === vendor.coords[0] && p.coords[1] === vendor.coords[1])
       );
+      if (exists) return;
 
-      if (!exists && vendor.coords && vendor.coords.length === 2) {
-        const rawCat = (vendor.category || '').toLowerCase();
-        let mapCategory = 'food';
-        let mapEmoji = '🍜';
+      const rawCat = (vendor.category || '').toLowerCase();
+      let mapCategory = 'food';
+      let mapEmoji = '🍜';
 
-        if (rawCat.includes('cafe') || rawCat.includes('coffee') || rawCat.includes('trà') || rawCat.includes('tea') || rawCat.includes('tiệm nước') || rawCat.includes('giải khát')) {
-          mapEmoji = '☕';
-        } else if (rawCat.includes('nướng') || rawCat.includes('lẩu') || rawCat.includes('bbq') || rawCat.includes('nướng lẩu')) {
-          mapEmoji = '🥩';
-        } else if (rawCat.includes('bánh mì') || rawCat.includes('croissant') || rawCat.includes('bánh')) {
-          mapEmoji = '🥖';
-        } else if (rawCat.includes('ăn vặt') || rawCat.includes('snack') || rawCat.includes('chè')) {
-          mapEmoji = '🍿';
-        }
-
-        places.push({
-          id: vendor.id || vendor._id,
-          name: vendor.name,
-          coords: vendor.coords,
-          category: mapCategory,
-          emoji: mapEmoji,
-          description: vendor.address || 'Cửa hàng ẩm thực trên hệ thống HolaMate.',
-          tips: vendor.tips || 'Đặt món nhanh chóng, giao hàng tận phòng KTX.',
-          menu: vendor.menu || []
-        });
+      if (rawCat.includes('cafe') || rawCat.includes('coffee') || rawCat.includes('trà') || rawCat.includes('tea') || rawCat.includes('tiệm nước') || rawCat.includes('giải khát')) {
+        mapEmoji = '☕';
+      } else if (rawCat.includes('nướng') || rawCat.includes('lẩu') || rawCat.includes('bbq') || rawCat.includes('nướng lẩu')) {
+        mapEmoji = '🥩';
+      } else if (rawCat.includes('bánh mì') || rawCat.includes('croissant') || rawCat.includes('bánh')) {
+        mapEmoji = '🥖';
+      } else if (rawCat.includes('ăn vặt') || rawCat.includes('snack') || rawCat.includes('chè')) {
+        mapEmoji = '🍿';
       }
+
+      places.push({
+        id: vendor.id || vendor._id,
+        name: vendor.name,
+        coords: vendor.coords,
+        category: mapCategory,
+        emoji: mapEmoji,
+        description: vendor.address || 'Cửa hàng ẩm thực trên hệ thống HolaMate.',
+        tips: vendor.tips || 'Đặt món nhanh chóng, giao hàng tận phòng KTX.',
+        menu: vendor.menu || []
+      });
     });
 
     return places;
@@ -164,15 +181,26 @@ const MapExplore = () => {
   }, [allMapPlaces, searchQuery]);
 
   const filteredLandmarks = React.useMemo(() => {
+    const hasSearch = !!searchQuery.trim();
+    const query = hasSearch ? normalizeVietnamese(searchQuery.trim()) : '';
+
     return allMapPlaces.filter(l => {
       // 1. Category Filter
       const matchesCategory = activeCategory === 'all' || l.category === activeCategory;
       if (!matchesCategory) return false;
 
-      // 2. Search Query Filter (real-time)
-      if (!searchQuery.trim()) return true;
-      const query = normalizeVietnamese(searchQuery.trim());
+      // 2. Default View (no search query)
+      if (!hasSearch) {
+        // Keep static landmarks. For DB vendors, limit to 8km to avoid map lag
+        const isStatic = HOLA_LANDMARKS.some(p => p.id === l.id || p.name === l.name);
+        if (!isStatic && l.coords) {
+          const dist = haversineKm(HOLA_CENTER[0], HOLA_CENTER[1], l.coords[0], l.coords[1]);
+          return dist <= 8; // Only show dynamic vendors within 8km by default
+        }
+        return true;
+      }
 
+      // 3. Active Search View (matches everything in database)
       const matchesName = normalizeVietnamese(l.name).includes(query);
       const matchesDesc = normalizeVietnamese(l.description || '').includes(query);
       const matchesTips = normalizeVietnamese(l.tips || '').includes(query);
@@ -180,7 +208,7 @@ const MapExplore = () => {
 
       return matchesName || matchesDesc || matchesTips || matchesMenu;
     });
-  }, [allMapPlaces, activeCategory, searchQuery]);
+  }, [allMapPlaces, activeCategory, searchQuery, haversineKm]);
 
   // Load vendors list from DB to match IDs
   useEffect(() => {
@@ -344,6 +372,7 @@ const MapExplore = () => {
     if (!mapRef.current) return;
 
     const handleMapClick = async (e) => {
+      // Only handle clicks when in location picking mode
       if (!isPickingLocation) return;
 
       const coords = [e.latlng.lng, e.latlng.lat];
@@ -503,16 +532,112 @@ const MapExplore = () => {
     };
   }, [initCoords, addUserMarker]);
 
-  // Cập nhật markers khi category thay đổi
+  // Gộp kết quả tìm kiếm (local + OSM) hoặc danh sách lọc theo category để hiển thị trên bản đồ
+  const displayPlacesList = React.useMemo(() => {
+    if (searchResults && searchResults.length > 0) {
+      // Luôn giữ toàn bộ các quán ở database và static landmarks trên bản đồ
+      const basePlaces = [...allMapPlaces];
+
+      // Lấy các kết quả OSM mới (không phải local) để hiển thị cùng
+      const osmPlaces = searchResults
+        .filter(r => !r.isLocal)
+        .map((r, index) => ({
+          id: r.place?.id || `osm_${index}_${r.coords?.[0] || 0}_${r.coords?.[1] || 0}`,
+          name: r.name,
+          description: r.address,
+          emoji: '📍',
+          tips: 'Địa điểm từ bản đồ vệ tinh',
+          coords: r.coords,
+          category: 'explore',
+          menu: [],
+          isOsm: true // Nhãn để hiển thị marker màu xanh biển
+        }));
+
+      // Gộp lại và loại bỏ trùng lặp nếu trùng tọa độ
+      const combined = [...basePlaces];
+      osmPlaces.forEach(osmP => {
+        const isDuplicate = combined.some(p => 
+          p.coords && p.coords.length === 2 && 
+          Math.abs(p.coords[0] - osmP.coords[0]) < 0.0001 && 
+          Math.abs(p.coords[1] - osmP.coords[1]) < 0.0001
+        );
+        if (!isDuplicate) {
+          combined.push(osmP);
+        }
+      });
+
+      return combined.filter(p => p.coords && p.coords.length === 2);
+    }
+    return filteredLandmarks;
+  }, [searchResults, allMapPlaces, filteredLandmarks]);
+
+  // Cập nhật markers khi displayPlacesList hoặc selectedPlace thay đổi (Sử dụng đối chiếu reconciliation để tránh lag, giật màn hình)
   useEffect(() => {
     if (!mapRef.current) return;
-    markersRef.current.forEach(m => m.remove());
-    markersRef.current = [];
-    filteredLandmarks.forEach(place => {
+
+    // Khởi tạo Map lưu trữ markers nếu chưa tồn tại
+    if (!(markersRef.current instanceof Map)) {
+      markersRef.current = new Map();
+    }
+
+    const displayPlaces = [...displayPlacesList];
+    if (selectedPlace && selectedPlace.coords && selectedPlace.coords.length === 2) {
+      const exists = displayPlaces.some(p => p.id === selectedPlace.id || p.name.toLowerCase() === selectedPlace.name.toLowerCase());
+      if (!exists) {
+        displayPlaces.push(selectedPlace);
+      }
+    }
+
+    // Tạo tập hợp các khóa hoạt động cho các địa điểm cần hiển thị
+    const activeKeys = new Set();
+    displayPlaces.forEach(place => {
+      if (place.coords && place.coords.length === 2) {
+        const key = place.id || place.name;
+        activeKeys.add(String(key));
+      }
+    });
+
+    // 1. Loại bỏ các marker không còn nằm trong danh sách cần hiển thị
+    markersRef.current.forEach((marker, key) => {
+      if (!activeKeys.has(key)) {
+        marker.remove();
+        markersRef.current.delete(key);
+      }
+    });
+
+    // 2. Thêm các marker mới chưa có trên bản đồ
+    displayPlaces.forEach(place => {
+      if (!place.coords || place.coords.length !== 2) return;
+      const key = String(place.id || place.name);
+
+      // Nếu đã có marker cho địa điểm này, bỏ qua không tạo lại để tránh chớp nháy
+      if (markersRef.current.has(key)) {
+        return;
+      }
+
       const el = document.createElement('div');
-      el.innerHTML = `<span style="font-size:0.9rem;display:flex;align-items:center;justify-content:center;width:28px;height:28px;background:rgba(8,12,28,0.9);border:1.5px solid rgba(242,112,36,0.75);border-radius:50%;cursor:pointer;box-shadow:0 2px 8px rgba(242,112,36,0.25);transition:transform .2s,box-shadow .2s;">${place.emoji}</span>`;
-      el.addEventListener('mouseenter', () => { el.firstChild.style.transform = 'scale(1.3)'; el.firstChild.style.boxShadow = '0 4px 14px rgba(242,112,36,0.55)'; });
-      el.addEventListener('mouseleave', () => { el.firstChild.style.transform = 'scale(1)'; el.firstChild.style.boxShadow = '0 2px 8px rgba(242,112,36,0.25)'; });
+      const isOsm = !!place.isOsm;
+      const themeColor = isOsm ? 'rgba(59,130,246,0.85)' : 'rgba(242,112,36,0.85)';
+      const themeShadow = isOsm ? 'rgba(59,130,246,0.3)' : 'rgba(242,112,36,0.3)';
+      const hoverShadow = isOsm ? 'rgba(59,130,246,0.6)' : 'rgba(242,112,36,0.6)';
+
+      el.innerHTML = `<span style="font-size:0.92rem;display:flex;align-items:center;justify-content:center;width:28px;height:28px;background:rgba(8,12,28,0.92);border:1.5px solid ${themeColor};border-radius:50%;cursor:pointer;box-shadow:0 3px 10px ${themeShadow};transition:transform .2s ease, box-shadow .2s ease;">${place.emoji || '🍜'}</span>`;
+      
+      el.addEventListener('mouseenter', () => { 
+        if (el.firstChild) {
+          el.firstChild.style.transform = 'scale(1.25)'; 
+          el.firstChild.style.boxShadow = `0 4px 14px ${hoverShadow}`; 
+        }
+        // Smoothly open the right panel on hover/pointing without shifting the map view
+        setSelectedPlace(place);
+        setIsCheckoutMode(false);
+      });
+      el.addEventListener('mouseleave', () => { 
+        if (el.firstChild) {
+          el.firstChild.style.transform = 'scale(1)'; 
+          el.firstChild.style.boxShadow = `0 3px 10px ${themeShadow}`; 
+        }
+      });
 
       const placeIcon = L.divIcon({
         html: el,
@@ -524,7 +649,15 @@ const MapExplore = () => {
       const marker = L.marker([place.coords[1], place.coords[0]], { icon: placeIcon })
         .addTo(mapRef.current);
 
-      // Click opens the right panel with full info + menu, no Leaflet popup flickering
+      // Thêm Tooltip hiển thị tên quán khi trỏ chuột vào (hover)
+      marker.bindTooltip(`<div style="font-weight:700;color:#fff;background:#0b0704;border:1px solid #F27024;padding:4px 8px;border-radius:8px;font-family:Inter,sans-serif;font-size:0.78rem;box-shadow:0 4px 16px rgba(0,0,0,0.5);">${place.name}</div>`, {
+        direction: 'top',
+        offset: L.point(0, -10),
+        opacity: 0.95,
+        permanent: false
+      });
+
+      // Click opens the right panel with full info + menu
       marker.on('click', (e) => {
         L.DomEvent.stopPropagation(e);
         setSelectedPlace(place);
@@ -534,16 +667,16 @@ const MapExplore = () => {
         }
       });
 
-      markersRef.current.push(marker);
+      markersRef.current.set(key, marker);
     });
-  }, [activeCategory, filteredLandmarks]);
+  }, [displayPlacesList, selectedPlace]);
 
   const flyToPlace = useCallback((place) => {
     if (!mapRef.current) return;
     setSelectedPlace(place);
     setIsCheckoutMode(false);
     mapRef.current.flyTo([place.coords[1], place.coords[0]], 16, { duration: 1.5 });
-  }, [filteredLandmarks]);
+  }, []);
 
   // Map Search: prioritize local database vendors first, fallback to OSM Nominatim API
   const handleSearch = useCallback(async () => {
@@ -573,9 +706,24 @@ const MapExplore = () => {
     });
 
     try {
-      // 2. Query Nominatim OSM Geocoding API
-      const q = encodeURIComponent(searchQuery + ', Thạch Thất, Hà Nội, Việt Nam');
-      const url = `https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=5&accept-language=vi&countrycodes=vn`;
+      // 2. Query Nominatim OSM Geocoding API with viewbox bias around current map center (like Google Maps)
+      let viewboxParam = '';
+      if (mapRef.current) {
+        const center = mapRef.current.getCenter();
+        const lat = center.lat;
+        const lng = center.lng;
+        // Approx 8km bounding box around the current map center
+        const left = lng - 0.08;
+        const right = lng + 0.08;
+        const top = lat + 0.08;
+        const bottom = lat - 0.08;
+        viewboxParam = `&viewbox=${left},${top},${right},${bottom}&bounded=0`;
+      } else {
+        // Fallback viewbox around FPT Hoa Lac
+        viewboxParam = '&viewbox=105.44,21.09,105.60,20.93&bounded=0';
+      }
+
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=8&accept-language=vi&countrycodes=vn${viewboxParam}`;
       const res = await fetch(url, { headers: { 'User-Agent': 'HolaMate App' } });
       const data = await res.json();
 
@@ -617,8 +765,7 @@ const MapExplore = () => {
   const flyToSearchResult = useCallback((result) => {
     if (!result.coords || !mapRef.current) return;
 
-    setSearchResults([]);
-    setSearchQuery('');
+    // Do NOT clear search results or query box, keeping the context intact (Google Maps style)
     mapRef.current.flyTo([result.coords[1], result.coords[0]], 16, { duration: 1.5 });
 
     if (result.isLocal && result.place) {
@@ -627,21 +774,20 @@ const MapExplore = () => {
       return;
     }
 
-    // Fallback for custom search place
-    const searchPlace = { name: result.name, description: result.address, emoji: '📍', tips: '', coords: result.coords, category: 'search' };
+    // Fallback for custom search place (e.g. from Google Maps/OSM)
+    const searchPlace = {
+      id: result.place?.id || `search_${normalizeVietnamese(result.name)}_${result.coords?.[0] || 0}_${result.coords?.[1] || 0}`,
+      name: result.name,
+      description: result.address,
+      emoji: '📍',
+      tips: 'Địa điểm từ bản đồ vệ tinh',
+      coords: result.coords,
+      category: 'explore',
+      menu: []
+    };
     setSelectedPlace(searchPlace);
     setIsCheckoutMode(false);
-
-    const searchIcon = L.divIcon({
-      html: `<span style="font-size:1.8rem;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.3));cursor:pointer;">📍</span>`,
-      className: 'search-marker-icon',
-      iconSize: [36, 36],
-      iconAnchor: [18, 36]
-    });
-
-    L.marker([result.coords[1], result.coords[0]], { icon: searchIcon })
-      .addTo(mapRef.current);
-  }, [filteredLandmarks]);
+  }, []);
 
 
   // Cart Handlers
@@ -759,21 +905,37 @@ const MapExplore = () => {
     return map[status] ?? 0;
   };
 
-  // Styles object
+  // Styles object — panels use high z-index to stay above map tiles & markers
   const S = {
     sidebar: {
-      position: 'absolute', top: 0, left: 0, width: 360, height: '100%',
-      background: 'rgba(11,7,4,0.95)', backdropFilter: 'blur(16px)',
-      borderRight: '1px solid rgba(242,112,36,0.15)', zIndex: 10,
-      display: 'flex', flexDirection: 'column', overflowY: 'hidden',
-      transform: sidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
-      transition: 'transform .3s ease',
+      position: 'absolute',
+      top: 20,
+      left: windowWidth < 480 ? 10 : 20,
+      width: windowWidth < 480 ? 'calc(100% - 20px)' : 360,
+      maxHeight: 'calc(100vh - 112px)',
+      background: 'rgba(11,7,4,0.95)',
+      backdropFilter: 'blur(16px)',
+      border: '1px solid rgba(242,112,36,0.25)',
+      borderRadius: 16,
+      zIndex: 1500,
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden',
+      boxShadow: '0 12px 40px rgba(0,0,0,0.6)',
+      transition: 'all .3s ease',
     },
     rightPanel: {
-      position: 'absolute', top: 0, right: 0, width: 380, height: '100%',
-      background: 'rgba(11,7,4,0.97)', backdropFilter: 'blur(18px)',
-      borderLeft: '1px solid rgba(242,112,36,0.18)', zIndex: 11,
-      display: 'flex', flexDirection: 'column',
+      position: 'absolute',
+      top: 0,
+      right: 0,
+      width: windowWidth < 480 ? '100%' : 380,
+      height: '100%',
+      background: 'rgba(11,7,4,0.97)',
+      backdropFilter: 'blur(18px)',
+      borderLeft: '1px solid rgba(242,112,36,0.18)',
+      zIndex: 1600,
+      display: 'flex',
+      flexDirection: 'column',
       transform: selectedPlace ? 'translateX(0)' : 'translateX(100%)',
       transition: 'transform .3s ease',
       boxShadow: '-8px 0 35px rgba(0,0,0,0.5)',
@@ -792,78 +954,82 @@ const MapExplore = () => {
       {/* Left Sidebar */}
       <div style={S.sidebar}>
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 20px 14px', borderBottom: '1px solid rgba(242,112,36,0.12)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px 10px', borderBottom: '1px solid rgba(242,112,36,0.12)' }}>
           <div>
-            <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#FF9800', margin: 0 }}>🗺️ Bản Đồ Hola</h2>
-            <p style={{ margin: '3px 0 0', fontSize: '.73rem', color: 'rgba(255,255,255,.4)' }}>{filteredLandmarks.length} địa điểm</p>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#FF9800', margin: 0 }}>🗺️ Bản Đồ Hola</h2>
+            <p style={{ margin: '2px 0 0', fontSize: '.7rem', color: 'rgba(255,255,255,.4)' }}>{filteredLandmarks.length} địa điểm quanh bạn</p>
           </div>
-          <button onClick={() => setSidebarOpen(false)} style={{ background: 'rgba(242,112,36,0.1)', border: '1px solid rgba(242,112,36,0.25)', color: '#F27024', borderRadius: 8, width: 32, height: 32, cursor: 'pointer' }}>✕</button>
+          <button onClick={() => setSidebarOpen(prev => !prev)} style={{
+            background: 'rgba(242,112,36,0.1)', border: '1px solid rgba(242,112,36,0.25)',
+            color: '#F27024', borderRadius: 8, padding: '4px 10px', cursor: 'pointer', fontSize: '.75rem', fontWeight: 700
+          }}>
+            {sidebarOpen ? '▲ Thu nhỏ' : '▼ Mở rộng'}
+          </button>
         </div>
 
         {/* GPS Button */}
-        <div style={{ padding: '14px 20px', borderBottom: '1px solid rgba(242,112,36,0.08)' }}>
-          <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ padding: '12px 20px', borderBottom: '1px solid rgba(242,112,36,0.08)' }}>
+          <div style={{ display: 'flex', gap: 6 }}>
             <button onClick={locateUser} disabled={locating} style={{
-              flex: 2, padding: '12px 10px', borderRadius: 12, border: 'none',
+              flex: 2, padding: '10px 8px', borderRadius: 10, border: 'none',
               background: locating ? 'rgba(255,255,255,.06)' : 'linear-gradient(135deg,#F27024,#FF5722)',
-              color: locating ? '#aaa' : '#fff', fontWeight: 700, fontSize: '.8rem', cursor: locating ? 'not-allowed' : 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-              boxShadow: locating ? 'none' : '0 4px 12px rgba(242,112,36,0.25)', fontFamily: 'Inter,sans-serif',
+              color: locating ? '#aaa' : '#fff', fontWeight: 700, fontSize: '.78rem', cursor: locating ? 'not-allowed' : 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+              boxShadow: locating ? 'none' : '0 4px 10px rgba(242,112,36,0.2)', fontFamily: 'Inter,sans-serif',
               transition: 'all 0.2s ease',
             }}>
               {locating ? '⏳ Đang định vị...' : '📍 Định vị tự động'}
             </button>
             <button onClick={() => setIsPickingLocation(prev => !prev)} style={{
-              flex: 1, padding: '12px 10px', borderRadius: 12,
+              flex: 1, padding: '10px 8px', borderRadius: 10,
               border: isPickingLocation ? '1px solid #FF5722' : '1px solid rgba(242,112,36,0.3)',
               background: isPickingLocation ? 'rgba(242,112,36,0.2)' : 'rgba(255,255,255,0.05)',
-              color: '#FF9800', fontWeight: 700, fontSize: '.8rem', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
+              color: '#FF9800', fontWeight: 700, fontSize: '.78rem', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2,
               fontFamily: 'Inter,sans-serif',
               transition: 'all 0.2s ease',
             }}>
-              {isPickingLocation ? '🛑 Hủy chọn' : '🎯 Chọn bản đồ'}
+              {isPickingLocation ? '🛑 Hủy' : '🎯 Bản đồ'}
             </button>
           </div>
 
           {isPickingLocation && (
             <div style={{
-              marginTop: 10, padding: '8px 12px', borderRadius: 8,
+              marginTop: 8, padding: '6px 10px', borderRadius: 6,
               background: 'rgba(242,112,36,0.1)', border: '1px dashed rgba(242,112,36,0.4)',
-              fontSize: '.75rem', color: '#FF9800', textAlign: 'center',
-              animation: 'slideUp 0.2s ease',
+              fontSize: '.72rem', color: '#FF9800', textAlign: 'center',
             }}>
-              👉 Click vào bất kỳ điểm nào trên bản đồ để chọn vị trí của bạn.
+              👉 Click bất kỳ điểm nào trên bản đồ để chọn vị trí.
             </div>
           )}
 
           {userLocation && (
-            <div style={{ marginTop: 10, fontSize: '.75rem', color: '#10B981', textAlign: 'center', fontWeight: 500 }}>
+            <div style={{ marginTop: 8, fontSize: '.72rem', color: '#10B981', textAlign: 'center', fontWeight: 500 }}>
               ✓ Đã định vị: {userLocation[1].toFixed(5)}°N, {userLocation[0].toFixed(5)}°E
             </div>
           )}
           {userAddress && (
-            <div style={{ marginTop: 6, fontSize: '.75rem', color: '#E2D7B5', textAlign: 'center', lineHeight: 1.4, padding: '4px 8px', background: 'rgba(255,255,255,0.02)', borderRadius: 6 }}>
+            <div style={{ marginTop: 6, fontSize: '.72rem', color: '#E2D7B5', textAlign: 'center', lineHeight: 1.3, padding: '4px 8px', background: 'rgba(255,255,255,0.02)', borderRadius: 6 }}>
               🏠 {userAddress}
             </div>
           )}
-          {locError && <div style={{ marginTop: 8, fontSize: '.73rem', color: '#FCA5A5', textAlign: 'center', lineHeight: 1.5 }}>⚠️ {locError}</div>}
+          {locError && <div style={{ marginTop: 6, fontSize: '.7rem', color: '#FCA5A5', textAlign: 'center' }}>⚠️ {locError}</div>}
         </div>
 
         {/* Search */}
-        <div style={{ display: 'flex', gap: 8, padding: '14px 20px 8px' }}>
+        <div style={{ display: 'flex', gap: 6, padding: '12px 20px 8px' }}>
           <div style={{ flex: 1, position: 'relative' }}>
             <input
               type="text" value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleSearch()}
               placeholder="Tìm quán ăn, món ăn, địa danh..."
-              style={{ width: '100%', padding: '10px 32px 10px 14px', borderRadius: 10, border: '1px solid rgba(242,112,36,0.2)', background: 'rgba(255,255,255,.05)', color: '#fff', fontSize: '.88rem', fontFamily: 'Inter,sans-serif', outline: 'none' }}
+              style={{ width: '100%', padding: '8px 28px 8px 12px', borderRadius: 8, border: '1px solid rgba(242,112,36,0.25)', background: 'rgba(255,255,255,.05)', color: '#fff', fontSize: '.84rem', fontFamily: 'Inter,sans-serif', outline: 'none' }}
             />
             {searchQuery && (
               <button
                 onClick={() => { setSearchQuery(''); setSearchResults([]); }}
-                style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: '1.1rem', padding: 0 }}
+                style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: '1rem', padding: 0 }}
               >
                 &times;
               </button>
@@ -872,29 +1038,29 @@ const MapExplore = () => {
               <div style={{
                 position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 1200,
                 background: 'rgba(15, 23, 42, 0.98)', backdropFilter: 'blur(16px)',
-                border: '1px solid rgba(242, 112, 36, 0.35)', borderRadius: 10,
+                border: '1px solid rgba(242, 112, 36, 0.35)', borderRadius: 8,
                 marginTop: 4, overflow: 'hidden', boxShadow: '0 10px 25px rgba(0,0,0,0.55)',
-                maxHeight: '260px', overflowY: 'auto'
+                maxHeight: '200px', overflowY: 'auto'
               }}>
                 {searchSuggestions.map((place) => (
                   <div
                     key={place.id}
                     onClick={() => {
                       flyToPlace(place);
-                      setSearchQuery('');
+                      setSearchQuery(place.name);
                     }}
                     style={{
-                      padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.06)',
-                      cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)',
+                      cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8,
                       transition: 'background 0.2s'
                     }}
                     onMouseEnter={e => e.currentTarget.style.background = 'rgba(242,112,36,0.15)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
-                    <span style={{ fontSize: '1.25rem' }}>{place.emoji}</span>
+                    <span style={{ fontSize: '1.1rem' }}>{place.emoji}</span>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#fff' }}>{place.name}</div>
-                      <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#fff' }}>{place.name}</div>
+                      <div style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.5)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {place.description}
                       </div>
                     </div>
@@ -903,71 +1069,90 @@ const MapExplore = () => {
               </div>
             )}
           </div>
-          <button onClick={handleSearch} disabled={isSearching} style={{ padding: '10px 14px', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg,#F27024,#FF5722)', color: '#fff', cursor: 'pointer', fontWeight: 700 }}>
+          <button onClick={handleSearch} disabled={isSearching} style={{ padding: '8px 12px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg,#F27024,#FF5722)', color: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: '.84rem' }}>
             {isSearching ? '⏳' : '🔍'}
           </button>
         </div>
 
-        {/* Search Results */}
-        {searchResults.length > 0 && (
-          <div style={{ padding: '4px 20px 8px', display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {searchResults.map((r, i) => (
-              <div key={i} onClick={() => flyToSearchResult(r)}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: r.coords ? 'rgba(242,112,36,0.07)' : 'rgba(255,0,0,0.05)', borderRadius: 10, cursor: r.coords ? 'pointer' : 'default', border: '1px solid rgba(242,112,36,0.12)' }}>
-                <span>{r.coords ? '📍' : '⚠️'}</span>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '.84rem', fontWeight: 600, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.name}</div>
-                  <div style={{ fontSize: '.73rem', color: 'rgba(255,255,255,.45)', marginTop: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.address}</div>
+        {/* Collapsible List Container (Only rendered when sidebarOpen is true) */}
+        {sidebarOpen && (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', animation: 'slideUp 0.25s ease' }}>
+            {/* Search Results or Category Filters */}
+            {searchResults.length > 0 ? (
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px 6px', borderBottom: '1px solid rgba(242,112,36,0.08)' }}>
+                  <span style={{ fontSize: '0.74rem', fontWeight: 700, color: '#FF9800', letterSpacing: '0.05em' }}>🔍 KẾT QUẢ TÌM KIẾM ({searchResults.length})</span>
+                  <button 
+                    onClick={() => { setSearchQuery(''); setSearchResults([]); }}
+                    style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#EF4444', fontSize: '0.68rem', padding: '2px 6px', borderRadius: 4, fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    ✕ Xóa
+                  </button>
+                </div>
+                <div style={{ flex: 1, overflowY: 'auto', padding: '10px 20px 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {searchResults.map((r, i) => (
+                    <div key={i} onClick={() => flyToSearchResult(r)} style={{
+                      display: 'flex', alignItems: 'flex-start', gap: 10, padding: 10, borderRadius: 10, cursor: r.coords ? 'pointer' : 'default',
+                      background: selectedPlace?.name.toLowerCase() === r.name.toLowerCase() ? 'rgba(242,112,36,.12)' : 'rgba(255,255,255,.04)',
+                      border: `1px solid ${selectedPlace?.name.toLowerCase() === r.name.toLowerCase() ? 'rgba(242,112,36,.45)' : 'rgba(255,255,255,.06)'}`,
+                      transition: 'all .2s ease',
+                    }}>
+                      <div style={{ fontSize: '1.2rem', flexShrink: 0, width: 28, textAlign: 'center' }}>
+                        {r.isLocal ? (r.place?.emoji || '🍜') : '📍'}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '.8rem', fontWeight: 600, color: '#fff', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                          {r.name}
+                          {r.isLocal && <span style={{ fontSize: '0.58rem', background: 'rgba(242,112,36,0.2)', color: '#FF9800', padding: '1px 4px', borderRadius: 3, fontWeight: 700 }}>Hệ thống</span>}
+                        </div>
+                        <div style={{ fontSize: '.7rem', color: 'rgba(255,255,255,.42)', lineHeight: 1.3, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                          {r.address}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
+            ) : (
+              <>
+                {/* Category Filter */}
+                <div style={{ display: 'flex', gap: 4, padding: '10px 20px', flexWrap: 'wrap' }}>
+                  {CATEGORIES.map(cat => (
+                    <button key={cat.key} onClick={() => setActiveCategory(cat.key)} style={{
+                      padding: '6px 10px', borderRadius: 16, fontFamily: 'Inter,sans-serif',
+                      border: `1px solid ${activeCategory === cat.key ? '#F27024' : 'rgba(242,112,36,.15)'}`,
+                      background: activeCategory === cat.key ? 'rgba(242,112,36,.15)' : 'rgba(255,255,255,.04)',
+                      color: activeCategory === cat.key ? '#FF9800' : 'rgba(255,255,255,.55)',
+                      fontSize: '.74rem', fontWeight: 600, cursor: 'pointer',
+                    }}>{cat.emoji} {cat.label}</button>
+                  ))}
+                </div>
+
+                {/* Places List */}
+                <div style={{ flex: 1, overflowY: 'auto', padding: '4px 20px 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {filteredLandmarks.map(place => (
+                    <div key={place.id} onClick={() => flyToPlace(place)} style={{
+                      display: 'flex', alignItems: 'flex-start', gap: 10, padding: 10, borderRadius: 10, cursor: 'pointer',
+                      background: selectedPlace?.id === place.id ? 'rgba(242,112,36,.12)' : 'rgba(255,255,255,.04)',
+                      border: `1px solid ${selectedPlace?.id === place.id ? 'rgba(242,112,36,.45)' : 'rgba(255,255,255,.06)'}`,
+                      transition: 'all .2s ease',
+                    }}>
+                      <div style={{ fontSize: '1.2rem', flexShrink: 0, width: 28, textAlign: 'center' }}>{place.emoji}</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '.8rem', fontWeight: 600, color: '#fff', marginBottom: 2 }}>{place.name}</div>
+                        <div style={{ fontSize: '.7rem', color: 'rgba(255,255,255,.42)', lineHeight: 1.3, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{place.description}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         )}
-
-        {/* Category Filter */}
-        <div style={{ display: 'flex', gap: 6, padding: '12px 20px', flexWrap: 'wrap' }}>
-          {CATEGORIES.map(cat => (
-            <button key={cat.key} onClick={() => setActiveCategory(cat.key)} style={{
-              padding: '7px 13px', borderRadius: 20, fontFamily: 'Inter,sans-serif',
-              border: `1px solid ${activeCategory === cat.key ? '#F27024' : 'rgba(242,112,36,.15)'}`,
-              background: activeCategory === cat.key ? 'rgba(242,112,36,.15)' : 'rgba(255,255,255,.04)',
-              color: activeCategory === cat.key ? '#FF9800' : 'rgba(255,255,255,.55)',
-              fontSize: '.78rem', fontWeight: 600, cursor: 'pointer',
-            }}>{cat.emoji} {cat.label}</button>
-          ))}
-        </div>
-
-        {/* Places List */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '4px 20px 20px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {filteredLandmarks.map(place => (
-            <div key={place.id} onClick={() => flyToPlace(place)} style={{
-              display: 'flex', alignItems: 'flex-start', gap: 12, padding: 12, borderRadius: 12, cursor: 'pointer',
-              background: selectedPlace?.id === place.id ? 'rgba(242,112,36,.12)' : 'rgba(255,255,255,.04)',
-              border: `1px solid ${selectedPlace?.id === place.id ? 'rgba(242,112,36,.45)' : 'rgba(255,255,255,.06)'}`,
-              transition: 'all .2s ease',
-            }}>
-              <div style={{ fontSize: '1.3rem', flexShrink: 0, width: 32, textAlign: 'center' }}>{place.emoji}</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: '.87rem', fontWeight: 600, color: '#fff', marginBottom: 3 }}>{place.name}</div>
-                <div style={{ fontSize: '.75rem', color: 'rgba(255,255,255,.42)', lineHeight: 1.4, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{place.description}</div>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
 
-      {!sidebarOpen && (
-        <button onClick={() => setSidebarOpen(true)} style={{
-          position: 'absolute', top: 16, left: 16, zIndex: 10,
-          padding: '10px 18px', borderRadius: 12,
-          border: '1px solid rgba(242,112,36,.3)', background: 'rgba(11,7,4,.92)',
-          backdropFilter: 'blur(12px)', color: '#FF9800', fontSize: '.9rem',
-          fontWeight: 600, cursor: 'pointer', fontFamily: 'Inter,sans-serif',
-        }}>☰ Danh Sách</button>
-      )}
-
       {/* Map Container */}
-      <div ref={mapContainerRef} style={{ flex: 1, width: '100%', height: '100%', position: 'relative' }}>
+      <div ref={mapContainerRef} style={{ flex: 1, width: '100%', height: '100%', position: 'relative', zIndex: 1 }}>
         {!initCoords && (
           <div style={{
             position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
@@ -983,7 +1168,7 @@ const MapExplore = () => {
 
       {/* Map Layer Switcher */}
       <div style={{
-        position: 'absolute', top: 16, right: selectedPlace ? 400 : 16, zIndex: 10,
+        position: 'absolute', top: 16, right: selectedPlace ? (windowWidth < 480 ? 16 : 400) : 16, zIndex: 1400,
         display: 'flex', flexDirection: 'column', gap: 4,
         background: 'rgba(11,7,4,0.92)', backdropFilter: 'blur(12px)',
         borderRadius: 14, padding: 6, border: '1px solid rgba(242,112,36,0.2)',
@@ -1004,7 +1189,7 @@ const MapExplore = () => {
               width: 40, height: 40, borderRadius: 10, border: 'none',
               background: activeMapLayer === layer.key
                 ? 'linear-gradient(135deg,#F27024,#FF5722)'
-                : 'rgba(255,255,255,0.06)',
+                 : 'rgba(255,255,255,0.06)',
               color: activeMapLayer === layer.key ? '#fff' : 'rgba(255,255,255,0.6)',
               fontSize: '1.1rem', cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -1018,7 +1203,7 @@ const MapExplore = () => {
       </div>
 
       <Link to="/planner" state={{ location: userLocation }} style={{
-        position: 'absolute', bottom: 24, left: sidebarOpen ? 384 : 24, zIndex: 10,
+        position: 'absolute', bottom: 24, left: windowWidth < 480 ? 10 : 400, zIndex: 1400,
         padding: '14px 18px', borderRadius: 999, background: 'linear-gradient(135deg,#F27024,#FF5722)', color: '#fff', fontWeight: 800, textDecoration: 'none', boxShadow: '0 20px 45px rgba(242,112,36,0.28)',
         transition: 'left 0.3s ease',
       }}>

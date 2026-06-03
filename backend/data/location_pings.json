@@ -1688,5 +1688,1421 @@
       ]
     },
     "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T12:36:44.924Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238470197,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T12:38:13.739Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238470197,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52375927135769,
+      21.013560450232244
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T12:38:17.272Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Trường Trung học phổ thông FPT, Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Trường Trung học phổ thông FPT",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238115779,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 10678143866,
+      "lat": "21.0133844",
+      "lon": "105.5234537",
+      "category": "amenity",
+      "type": "school",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "Trường Trung học phổ thông FPT",
+      "display_name": "Trường Trung học phổ thông FPT, Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "amenity": "Trường Trung học phổ thông FPT",
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0133344",
+        "21.0134344",
+        "105.5234037",
+        "105.5235037"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.51380551394276,
+      21.014522502736014
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T12:38:20.707Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Hà Nội",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238541321,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "way",
+      "osm_id": 1318794028,
+      "lat": "21.0158899",
+      "lon": "105.5141306",
+      "category": "highway",
+      "type": "residential",
+      "place_rank": 26,
+      "importance": 0.05340616388189513,
+      "addresstype": "road",
+      "name": "",
+      "display_name": "Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0155301",
+        "21.0166711",
+        "105.5108453",
+        "105.5156441"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T12:39:46.650Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238470197,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T12:40:03.213Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238470197,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T13:06:08.362Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238470197,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T13:16:05.611Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238470197,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T13:21:18.290Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238470197,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T13:41:36.821Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238470197,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T14:25:00.687Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238689848,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "postcode": "13117",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T14:31:12.401Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238470197,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T14:31:20.181Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238470197,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T14:32:29.740Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238470197,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T14:33:02.917Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238470197,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T14:33:36.212Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238470197,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T14:34:26.161Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238470197,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T14:44:17.428Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238013883,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T14:44:17.407Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238013883,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T14:47:24.923Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238013883,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T14:48:20.076Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238689848,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "postcode": "13117",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T14:48:20.059Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238689848,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "postcode": "13117",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T14:48:39.914Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238689848,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "postcode": "13117",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T14:49:00.035Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238689848,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "postcode": "13117",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T14:52:35.934Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238689848,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "postcode": "13117",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T14:53:19.304Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238689848,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, 13117, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "postcode": "13117",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T14:54:49.481Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238013883,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T14:55:37.910Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238013883,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T15:00:15.512Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238013883,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
+  },
+  {
+    "userId": null,
+    "coords": [
+      105.52522,
+      21.01354
+    ],
+    "accuracy": 10,
+    "timestamp": "2026-06-03T16:59:45.439Z",
+    "source": "browser",
+    "provider": "nominatim",
+    "address": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+    "placeName": "Đường N16",
+    "district": "Xã Hòa Lạc",
+    "city": "Hà Nội",
+    "country": "Việt Nam",
+    "raw": {
+      "place_id": 238470197,
+      "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+      "osm_type": "node",
+      "osm_id": 5317478036,
+      "lat": "21.0138530",
+      "lon": "105.5254902",
+      "category": "amenity",
+      "type": "library",
+      "place_rank": 30,
+      "importance": 0.00007283054856179167,
+      "addresstype": "amenity",
+      "name": "",
+      "display_name": "Đường N16, Khu Công nghệ cao Hòa Lạc, Xã Hòa Lạc, Hà Nội, Việt Nam",
+      "address": {
+        "road": "Đường N16",
+        "industrial": "Khu Công nghệ cao Hòa Lạc",
+        "city_district": "Xã Hòa Lạc",
+        "city": "Hà Nội",
+        "ISO3166-2-lvl4": "VN-HN",
+        "country": "Việt Nam",
+        "country_code": "vn"
+      },
+      "boundingbox": [
+        "21.0138030",
+        "21.0139030",
+        "105.5254402",
+        "105.5255402"
+      ]
+    },
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36"
   }
 ]

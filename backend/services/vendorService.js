@@ -46,6 +46,32 @@ const normalizeVendor = (vendor) => {
     else riskBadge = 'medium';
   }
 
+  let parsedMenu = [];
+  if (vendor.menu) {
+    if (typeof vendor.menu === 'string') {
+      try {
+        parsedMenu = JSON.parse(vendor.menu);
+      } catch (e) {
+        parsedMenu = [];
+      }
+    } else if (Array.isArray(vendor.menu)) {
+      parsedMenu = vendor.menu;
+    }
+  }
+
+  let parsedReviews = [];
+  if (vendor.reviews) {
+    if (typeof vendor.reviews === 'string') {
+      try {
+        parsedReviews = JSON.parse(vendor.reviews);
+      } catch (e) {
+        parsedReviews = [];
+      }
+    } else if (Array.isArray(vendor.reviews)) {
+      parsedReviews = vendor.reviews;
+    }
+  }
+
   return {
     id: vendor.id || vendor._id?.toString(),
     name: vendor.name,
@@ -59,8 +85,8 @@ const normalizeVendor = (vendor) => {
     tags: vendor.tags || [],
     tips: vendor.tips || '',
     riskBadge,
-    menu: vendor.menu || [],
-    reviews: vendor.reviews || [],
+    menu: parsedMenu,
+    reviews: parsedReviews,
     source: vendor._id ? 'db' : 'local',
     phone: vendor.phone || '',
     note: vendor.note || '',

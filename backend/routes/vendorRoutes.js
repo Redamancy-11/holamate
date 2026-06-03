@@ -94,7 +94,7 @@ router.put('/:id', protect, async (req, res) => {
       coords: r.longitude && r.latitude ? [Number(r.longitude), Number(r.latitude)] : [],
       tags: r.tags,
       tips: r.tips,
-      menu: r.menu,
+      menu: typeof r.menu === 'string' ? JSON.parse(r.menu) : (r.menu || []),
       phone: r.phone,
       note: r.note
     };

@@ -36,39 +36,25 @@ const getGenAI = () => {
 const getModel = () => getGenAI().getGenerativeModel({
   model: 'gemini-flash-latest',
   generationConfig: {
-    temperature: 0.85,
+    temperature: 0.88,
     topK: 40,
     topP: 0.95,
     maxOutputTokens: 2048,
   },
-  systemInstruction: `Bạn là HolaMate AI — trợ lý ẩm thực và đời sống sinh viên chuyên gợi ý món ăn, đồ uống kèm review minh bạch tại FPT Hoà Lạc, Thạch Thất, Hà Nội.
+  systemInstruction: `Bạn là HolaMate AI — người bạn thân thiết, trợ lý ẩm thực và đời sống sinh viên tại campus FPT Hoà Lạc (Hola), Thạch Thất, Hà Nội.
 
-PHONG CÁCH TRÒ CHUYỆN & ĐỊNH DẠNG BẮT BUỘC:
-- Hãy trả lời một cách tự nhiên, thân thiện và gần gũi như hai người bạn đang nhắn tin trò chuyện với nhau qua Messenger hay Zalo. Xưng hô bạn - mình hoặc cậu - tớ.
-- Tuyệt đối KHÔNG được sử dụng bất kỳ định dạng markdown nào như dấu sao đôi (**) để bôi đậm, dấu gạch ngang (-) hay dấu sao (*) ở đầu dòng để tạo danh sách, hay ký tự số (1., 2., 3.) để liệt kê.
-- Viết câu trả lời dưới dạng các câu hoặc đoạn văn ngắn liền mạch. Không dùng các đường kẻ phân cách, tiêu đề phụ phức tạp hay các ký hiệu trang trí rườm rà.
-- Trả lời nhanh gọn, đi thẳng vào câu hỏi, nêu cụ thể món ăn, giá tiền và lý do gợi ý dựa trên dữ liệu.
+PHONG CÁCH TRÒ CHUYỆN BẮT BUỘC:
+- Trò chuyện tự nhiên, dí dỏm, thân thiện và ấm áp như một người bạn học cùng khóa (sử dụng xưng hô: cậu - tớ, bạn - mình, hoặc dùng từ ngữ đậm chất sinh viên Hola như KTX, Dom, Tân Xã, quân sự, kỳ nọ kỳ kia, học lại, bus 74, xiên bẩn...).
+- Bạn có thể trò chuyện về BẤT CỨ THỨ GÌ người dùng tâm sự (tình yêu, học tập, ôn thi, cuộc sống quân sự ở Hola, tâm trạng buồn vui, chán nản...) như một người bạn thực thụ, không cứng nhắc từ chối. Tuy nhiên, hãy khéo léo đan xen các gợi ý ăn uống hoặc quán cafe để giải tỏa tâm trạng cho họ.
+- Tuyệt đối KHÔNG dùng định dạng markdown như dấu sao đôi (**) để bôi đậm, dấu gạch ngang (-) hay dấu sao (*) ở đầu dòng để tạo danh sách, hay ký tự số (1., 2., 3.) để liệt kê. Hãy viết thành các đoạn văn ngắn, trôi chảy, xuống dòng tự nhiên.
 
-NHIỆM VỤ CHÍNH:
-• Tư vấn, gợi ý các món ăn ngon, đồ uống hot trend, quán ăn hợp khẩu vị và túi tiền của sinh viên.
-• Cung cấp thông tin giá cả thực tế và các đánh giá (review) minh bạch từ dữ liệu TikTok và cộng đồng (nêu rõ ưu/nhược điểm nếu có).
-• Giúp sinh viên chọn món, so sánh giá cả giữa các quán để tránh bị "chém giá".
-• Xử lý các câu hỏi về "ăn gì hôm nay?", "thèm ăn vặt?", "quán trà sữa nào học nhóm tốt?" quanh khu campus FPT và hồ Tân Xã.
+TỐI ƯU GỢI Ý DỰA TRÊN ĐỊNH VỊ GPS VÀ MENU:
+- Luôn kiểm tra tọa độ GPS của người dùng trong phần ngữ cảnh "VỊ TRÍ NGƯỜI DÙNG" và "KHOẢNG CÁCH GPS". Khi gợi ý các quán ăn, bạn PHẢI NÊU CỤ THỂ khoảng cách tính bằng mét hoặc km (ví dụ: "cách cậu chỉ 300m đi bộ thôi", "quán này cách cậu khoảng 1.2km ở khu Tân Xã nhé"). Điều này chứng minh cho người dùng thấy gợi ý dựa trên GPS cực kỳ chính xác.
+- Khi gợi ý món, KHÔNG được gợi ý chung chung. Bạn phải quét toàn bộ danh sách "Thực đơn" của các quán trong ngữ cảnh để chỉ ra món cụ thể kèm giá tiền chính xác (ví dụ: "cậu có thể thử món Bún chả 35.000đ ở quán X", "trà sữa matcha 25k ở quán Y").
+- Nếu người dùng thèm món gì đó không có trong danh mục hoặc muốn tìm quán nào đó ngoài dữ liệu hệ thống, hãy đề cập đến các địa điểm gần họ qua GPS từ dữ liệu ngoài hoặc hướng dẫn họ tìm trên map để đặt món.
+- Ưu tiên giới thiệu các gian hàng tự doanh của sinh viên (Student Store) hoặc cảnh báo những quán bị đánh giá tiêu cực (như giao chậm, chất lượng kém) dựa vào dữ liệu Đánh Giá Cộng Đồng.
 
-KIẾN THỨC ĐẶC BIỆT:
-• Highlands Coffee Hola — nằm ngay trong campus FPT, trung tâm học nhóm, đồ uống ổn định.
-• Bay Coffee & Tea — view hồ Tân Xã cực thoáng mát, nổi tiếng cafe muối 25k thơm béo.
-• 1988 BBQ Tân Xã — buffet nướng lẩu rẻ khoái khẩu của sinh viên, không gian rộng rãi nhưng hơi đông vào cuối tuần.
-• Cơm tấm KTX Dom A — nhanh gọn, giá chỉ từ 25k-30k/suất, nhiều thịt cơm dẻo.
-• Gà Ri Phú Bình — nổi tiếng gà đồi chắc thịt ngon ngọt, phù hợp tụ tập nhóm đông.
-• Twitter Beans Coffee — trà sữa và bánh ngọt chất lượng cao, không gian yên tĩnh thích hợp ôn thi.
-
-GIAN HÀNG SINH VIÊN & ĐÁNH GIÁ CỘNG ĐỒNG:
-• Khi người dùng hỏi về gian hàng sinh viên (ví dụ: "có gian hàng sinh viên nào...", "student store", "gian hàng bán nước..."), bạn hãy ưu tiên tìm kiếm và gợi ý từ phần "GIAN HÀNG SINH VIÊN TỰ DOÁN". Nêu rõ tên gian hàng, menu của họ, giá cả và địa chỉ.
-• Khi người dùng hỏi tìm quán tránh bị review "giao chậm" hoặc các phản hồi tiêu cực khác, hãy đối chiếu phần "ĐÁNH GIÁ CỘNG ĐỒNG MINH BẠCH". Nếu quán nào có đánh giá phàn nàn về giao hàng chậm hoặc chất lượng kém, hãy cảnh báo hoặc tránh giới thiệu quán đó và gợi ý quán khác tốt hơn.
-• Luôn đưa ra lời giải thích ngắn gọn, trung thực tại sao bạn gợi ý quán/món đó dựa trên giá cả và đánh giá từ cộng đồng sinh viên.
-
-Luôn trả lời bằng tiếng Việt trừ khi người dùng viết bằng tiếng Anh.`,
+Hãy bắt đầu cuộc trò chuyện thật tự nhiên, thân thiện và thấu hiểu nhé!`,
 });
 
 // Helper to compute geographic distance (Haversine formula) in kilometers
@@ -88,47 +74,153 @@ const getDistance = (lat1, lon1, lat2, lon2) => {
   return R * c; // Distance in km
 };
 
+// Quét toàn bộ database dựa vào GPS & từ khoá để đưa ra gợi ý AI chính xác nhất
+const getAIVendorsFromDb = async (query, location = null) => {
+  if (!pool) return [];
+  try {
+    const userLat = location ? (location.latitude || location.lat) : null;
+    const userLng = location ? (location.longitude || location.lng || location.lon) : null;
+
+    let dbVendors = [];
+
+    // 1. Nếu có tọa độ GPS, lấy toàn bộ quán trong bán kính 15km quanh user
+    if (userLat && userLng) {
+      const res = await pool.query(`SELECT * FROM vendors WHERE longitude IS NOT NULL AND latitude IS NOT NULL`);
+      const list = res.rows.map(r => ({
+        id: r.id,
+        name: r.name,
+        category: r.category,
+        address: r.address,
+        latitude: Number(r.latitude),
+        longitude: Number(r.longitude),
+        rating: Number(r.rating || 0),
+        priceRange: { min: Number(r.price_min || 0), max: Number(r.price_max || 0), unit: r.price_unit || 'đ' },
+        hours: r.hours,
+        tips: r.tips,
+        menu: typeof r.menu === 'string' ? JSON.parse(r.menu) : (Array.isArray(r.menu) ? r.menu : []),
+        phone: r.phone,
+        note: r.note,
+        source: 'db'
+      }));
+
+      list.forEach(v => {
+        v.distance = getDistance(userLat, userLng, v.latitude, v.longitude);
+      });
+
+      dbVendors = list
+        .filter(v => v.distance !== null && v.distance <= 15)
+        .sort((a, b) => a.distance - b.distance);
+    }
+
+    // 2. Phân tích trích xuất từ khóa đồ ăn phổ biến trong tin nhắn chat để tìm quán phù hợp
+    const words = (query || '').toLowerCase();
+    const foodKeywords = ['phở', 'bún', 'cơm', 'bánh', 'mì', 'cafe', 'cà phê', 'trà', 'nướng', 'lẩu', 'gà', 'nem', 'ốc', 'chè', 'sữa', 'ăn vặt', 'cháo', 'bbq', 'coffee'];
+    const matchedKeywords = foodKeywords.filter(k => words.includes(k));
+
+    if (matchedKeywords.length > 0) {
+      const conditions = [];
+      const params = [];
+      matchedKeywords.forEach((k, idx) => {
+        conditions.push(`name ILIKE $${idx+1} OR category ILIKE $${idx+1} OR menu::text ILIKE $${idx+1}`);
+        params.push(`%${k}%`);
+      });
+
+      const res = await pool.query(`SELECT * FROM vendors WHERE ${conditions.join(' OR ')} LIMIT 35`, params);
+      const keywordMatches = res.rows.map(r => ({
+        id: r.id,
+        name: r.name,
+        category: r.category,
+        address: r.address,
+        latitude: Number(r.latitude || 0),
+        longitude: Number(r.longitude || 0),
+        rating: Number(r.rating || 0),
+        priceRange: { min: Number(r.price_min || 0), max: Number(r.price_max || 0), unit: r.price_unit || 'đ' },
+        hours: r.hours,
+        tips: r.tips,
+        menu: typeof r.menu === 'string' ? JSON.parse(r.menu) : (Array.isArray(r.menu) ? r.menu : []),
+        phone: r.phone,
+        note: r.note,
+        source: 'db'
+      }));
+
+      keywordMatches.forEach(item => {
+        if (!dbVendors.some(v => v.id === item.id)) {
+          if (userLat && userLng && item.latitude && item.longitude) {
+            item.distance = getDistance(userLat, userLng, item.latitude, item.longitude);
+          } else {
+            item.distance = null;
+          }
+          dbVendors.push(item);
+        }
+      });
+    }
+
+    // 3. Dự phòng: Lấy danh sách quán có rating tốt nhất
+    if (dbVendors.length === 0) {
+      const res = await pool.query(`SELECT * FROM vendors ORDER BY rating DESC LIMIT 25`);
+      dbVendors = res.rows.map(r => ({
+        id: r.id,
+        name: r.name,
+        category: r.category,
+        address: r.address,
+        latitude: Number(r.latitude || 0),
+        longitude: Number(r.longitude || 0),
+        rating: Number(r.rating || 0),
+        priceRange: { min: Number(r.price_min || 0), max: Number(r.price_max || 0), unit: r.price_unit || 'đ' },
+        hours: r.hours,
+        tips: r.tips,
+        menu: typeof r.menu === 'string' ? JSON.parse(r.menu) : (Array.isArray(r.menu) ? r.menu : []),
+        phone: r.phone,
+        note: r.note,
+        source: 'db'
+      }));
+    }
+
+    return dbVendors;
+  } catch (err) {
+    console.error('Error fetching AI vendors from database:', err.message);
+    return [];
+  }
+};
+
 // ── RAG: Build context từ knowledge base + DB + TikTok ──────────────────────
 const buildContext = async (query, location = null) => {
   const userLat = location ? (location.latitude || location.lat) : null;
   const userLng = location ? (location.longitude || location.lng || location.lon) : null;
 
-  const matchedVendors = await getAllVendors(query);
+  // Lấy toàn bộ kết quả phù hợp từ DB (bao gồm quét vị trí GPS & từ khoá thực đơn)
+  const matchedVendors = await getAIVendorsFromDb(query, location);
   const tiktokVendors = extractVendorsFromTikTok();
   
-  // Combine vendors from DB and TikTok
+  // Gộp thông tin DB và TikTok
   const allVendors = [
     ...matchedVendors,
     ...tiktokVendors.filter(tv => !matchedVendors.find(mv => mv.name?.toLowerCase() === tv.name.toLowerCase()))
   ];
 
-  // Calculate distance for all vendors
+  // Tính khoảng cách cho các quán còn lại
   allVendors.forEach(v => {
     let vLat = v.latitude || (v.coords && v.coords[1]);
     let vLng = v.longitude || (v.coords && v.coords[0]);
-    if (vLat && vLng) {
+    if (vLat && vLng && v.distance === undefined) {
       v.distance = getDistance(userLat, userLng, vLat, vLng);
-    } else {
-      v.distance = null;
     }
   });
 
-  // Sort vendors by distance (closest first) if location is available, else sort by rating
+  // Sắp xếp các quán theo khoảng cách (ưu tiên gần nhất), nếu không có GPS thì xếp theo rating
   let sortedVendors = [...allVendors];
-  if (userLat && userLng) {
-    sortedVendors.sort((a, b) => {
-      if (a.distance !== null && b.distance !== null) return a.distance - b.distance;
-      if (a.distance !== null) return -1;
-      if (b.distance !== null) return 1;
-      return (b.rating || 0) - (a.rating || 0);
-    });
-  } else {
-    sortedVendors.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-  }
+  sortedVendors.sort((a, b) => {
+    if (a.distance !== null && b.distance !== null && a.distance !== undefined && b.distance !== undefined) {
+      return a.distance - b.distance;
+    }
+    if (a.distance !== null && a.distance !== undefined) return -1;
+    if (b.distance !== null && b.distance !== undefined) return 1;
+    return (b.rating || 0) - (a.rating || 0);
+  });
 
   const contextVendors = sortedVendors.length > 0
-    ? sortedVendors.slice(0, 10)
-    : HANOI_VENDORS.filter(v => v.rating >= 4.7).slice(0, 10).map(v => ({ ...v, source: 'local', priceRange: v.price }));
+    ? sortedVendors.slice(0, 15)
+    : HANOI_VENDORS.filter(v => v.rating >= 4.7).slice(0, 15).map(v => ({ ...v, source: 'local', priceRange: v.price }));
 
   const vendorText = contextVendors.map((v) => {
     const priceMin = (v.priceRange?.min || v.price?.min)?.toLocaleString?.('vi-VN') || 'N/A';
