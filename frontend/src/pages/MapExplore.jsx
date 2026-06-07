@@ -96,6 +96,7 @@ const MapExplore = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -675,55 +676,72 @@ const MapExplore = () => {
     if (!mapRef.current) return;
     setSelectedPlace(place);
     setIsCheckoutMode(false);
-    mapRef.current.flyTo([place.coords[1], place.coords[0]], 16, { duration: 1.5 });
+    mapRef.current.flyTo([place.coords[1], place.coords[0]], 16, { duration: 1.2 });
+
+    // Programmatically open tooltip on the marker once flight finishes
+    const key = String(place.id || place.name);
+    if (markersRef.current && typeof markersRef.current.get === 'function' && markersRef.current.has(key)) {
+      const marker = markersRef.current.get(key);
+      setTimeout(() => {
+        if (marker) marker.openTooltip();
+      }, 1200);
+    }
   }, []);
 
-  // Map Search: prioritize local database vendors first, fallback to OSM Nominatim API
+  // Map Search: prioritize database search via api, fallback to local and OSM
   const handleSearch = useCallback(async () => {
     if (!searchQuery.trim()) return;
     setIsSearching(true);
     setSearchResults([]);
 
-    // 1. Search local matches in allMapPlaces
-    const query = normalizeVietnamese(searchQuery.trim());
-    const localMatches = allMapPlaces.filter(p =>
-      normalizeVietnamese(p.name).includes(query) ||
-      normalizeVietnamese(p.description || '').includes(query) ||
-      (p.menu || []).some(m => normalizeVietnamese(m.name || '').includes(query))
-    ).map(p => {
-      const matchedItems = p.menu
-        ? p.menu.filter(m => normalizeVietnamese(m.name || '').includes(query))
-        : [];
-      return {
-        name: p.name,
-        address: matchedItems.length > 0
-          ? `🍜 Có bán: ${matchedItems.map(m => m.name).slice(0, 2).join(', ')}`
-          : (p.description || p.tips || 'Cửa hàng trên hệ thống HolaMate'),
-        coords: p.coords,
-        isLocal: true,
-        place: p
-      };
-    });
+    const query = searchQuery.trim();
 
     try {
+      // 1. Fetch matching vendors directly from the database search endpoint
+      const dbRes = await api.get(`/vendors?search=${encodeURIComponent(query)}`);
+      const dbMatches = dbRes?.data?.success && Array.isArray(dbRes.data.data) ? dbRes.data.data : [];
+
+      // Map dbMatches to search results format
+      const localMatches = dbMatches.map(v => {
+        const existing = allMapPlaces.find(p => p.id === v.id || p.name.toLowerCase() === v.name.toLowerCase());
+        const emoji = existing?.emoji || '🍜';
+        const description = v.address || 'Cửa hàng ẩm thực trên hệ thống HolaMate';
+        const coords = v.coords && v.coords.length === 2 ? v.coords : (v.longitude && v.latitude ? [Number(v.longitude), Number(v.latitude)] : null);
+
+        return {
+          name: v.name,
+          address: description,
+          coords: coords,
+          isLocal: true,
+          place: {
+            id: v.id || v._id,
+            name: v.name,
+            coords: coords,
+            category: 'food',
+            emoji: emoji,
+            description: description,
+            tips: v.tips || 'Giao hàng tận phòng KTX.',
+            menu: v.menu || []
+          }
+        };
+      }).filter(r => r.coords && r.coords.length === 2);
+
       // 2. Query Nominatim OSM Geocoding API with viewbox bias around current map center (like Google Maps)
       let viewboxParam = '';
       if (mapRef.current) {
         const center = mapRef.current.getCenter();
         const lat = center.lat;
         const lng = center.lng;
-        // Approx 8km bounding box around the current map center
         const left = lng - 0.08;
         const right = lng + 0.08;
         const top = lat + 0.08;
         const bottom = lat - 0.08;
         viewboxParam = `&viewbox=${left},${top},${right},${bottom}&bounded=0`;
       } else {
-        // Fallback viewbox around FPT Hoa Lac
         viewboxParam = '&viewbox=105.44,21.09,105.60,20.93&bounded=0';
       }
 
-      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=8&accept-language=vi&countrycodes=vn${viewboxParam}`;
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=8&accept-language=vi&countrycodes=vn${viewboxParam}`;
       const res = await fetch(url, { headers: { 'User-Agent': 'HolaMate App' } });
       const data = await res.json();
 
@@ -739,7 +757,7 @@ const MapExplore = () => {
       osmResults.forEach(osm => {
         const alreadyExists = combined.some(l =>
           l.name.toLowerCase() === osm.name.toLowerCase() ||
-          (l.coords && osm.coords && l.coords[0] === osm.coords[0] && l.coords[1] === osm.coords[1])
+          (l.coords && osm.coords && Math.abs(l.coords[0] - osm.coords[0]) < 0.0001 && Math.abs(l.coords[1] - osm.coords[1]) < 0.0001)
         );
         if (!alreadyExists) {
           combined.push(osm);
@@ -751,7 +769,22 @@ const MapExplore = () => {
       } else {
         setSearchResults([{ name: 'Không tìm thấy địa điểm', address: 'Thử từ khóa khác quanh Hola', coords: null }]);
       }
-    } catch {
+    } catch (err) {
+      console.warn('API/OSM search error, falling back to local search:', err);
+      // Fallback search local matches in allMapPlaces
+      const normQuery = normalizeVietnamese(query);
+      const localMatches = allMapPlaces.filter(p =>
+        normalizeVietnamese(p.name).includes(normQuery) ||
+        normalizeVietnamese(p.description || '').includes(normQuery) ||
+        (p.menu || []).some(m => normalizeVietnamese(m.name || '').includes(normQuery))
+      ).map(p => ({
+        name: p.name,
+        address: p.description || p.tips || 'Cửa hàng trên hệ thống HolaMate',
+        coords: p.coords,
+        isLocal: true,
+        place: p
+      }));
+
       if (localMatches.length > 0) {
         setSearchResults(localMatches);
       } else {
@@ -765,17 +798,9 @@ const MapExplore = () => {
   const flyToSearchResult = useCallback((result) => {
     if (!result.coords || !mapRef.current) return;
 
-    // Do NOT clear search results or query box, keeping the context intact (Google Maps style)
-    mapRef.current.flyTo([result.coords[1], result.coords[0]], 16, { duration: 1.5 });
+    mapRef.current.flyTo([result.coords[1], result.coords[0]], 16, { duration: 1.2 });
 
-    if (result.isLocal && result.place) {
-      setSelectedPlace(result.place);
-      setIsCheckoutMode(false);
-      return;
-    }
-
-    // Fallback for custom search place (e.g. from Google Maps/OSM)
-    const searchPlace = {
+    const place = result.isLocal && result.place ? result.place : {
       id: result.place?.id || `search_${normalizeVietnamese(result.name)}_${result.coords?.[0] || 0}_${result.coords?.[1] || 0}`,
       name: result.name,
       description: result.address,
@@ -785,8 +810,18 @@ const MapExplore = () => {
       category: 'explore',
       menu: []
     };
-    setSelectedPlace(searchPlace);
+
+    setSelectedPlace(place);
     setIsCheckoutMode(false);
+
+    // Programmatically open tooltip on the marker once flight finishes
+    const key = String(place.id || place.name);
+    if (markersRef.current && typeof markersRef.current.get === 'function' && markersRef.current.has(key)) {
+      const marker = markersRef.current.get(key);
+      setTimeout(() => {
+        if (marker) marker.openTooltip();
+      }, 1200);
+    }
   }, []);
 
 
@@ -1021,20 +1056,30 @@ const MapExplore = () => {
           <div style={{ flex: 1, position: 'relative' }}>
             <input
               type="text" value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSearch()}
+              onChange={e => {
+                setSearchQuery(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') {
+                  handleSearch();
+                  setShowSuggestions(false);
+                }
+              }}
               placeholder="Tìm quán ăn, món ăn, địa danh..."
               style={{ width: '100%', padding: '8px 28px 8px 12px', borderRadius: 8, border: '1px solid rgba(242,112,36,0.25)', background: 'rgba(255,255,255,.05)', color: '#fff', fontSize: '.84rem', fontFamily: 'Inter,sans-serif', outline: 'none' }}
             />
             {searchQuery && (
               <button
-                onClick={() => { setSearchQuery(''); setSearchResults([]); }}
+                onClick={() => { setSearchQuery(''); setSearchResults([]); setShowSuggestions(false); }}
                 style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', fontSize: '1rem', padding: 0 }}
               >
                 &times;
               </button>
             )}
-            {searchSuggestions.length > 0 && (
+            {showSuggestions && searchSuggestions.length > 0 && (
               <div style={{
                 position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 1200,
                 background: 'rgba(15, 23, 42, 0.98)', backdropFilter: 'blur(16px)',
@@ -1048,6 +1093,7 @@ const MapExplore = () => {
                     onClick={() => {
                       flyToPlace(place);
                       setSearchQuery(place.name);
+                      setShowSuggestions(false);
                     }}
                     style={{
                       padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,0.06)',
@@ -1069,7 +1115,7 @@ const MapExplore = () => {
               </div>
             )}
           </div>
-          <button onClick={handleSearch} disabled={isSearching} style={{ padding: '8px 12px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg,#F27024,#FF5722)', color: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: '.84rem' }}>
+          <button onClick={() => { handleSearch(); setShowSuggestions(false); }} disabled={isSearching} style={{ padding: '8px 12px', borderRadius: 8, border: 'none', background: 'linear-gradient(135deg,#F27024,#FF5722)', color: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: '.84rem' }}>
             {isSearching ? '⏳' : '🔍'}
           </button>
         </div>

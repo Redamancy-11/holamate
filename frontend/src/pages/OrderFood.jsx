@@ -22,6 +22,207 @@ const normalizeVietnamese = (str) => {
     .replace(/Đ/g, 'd');
 };
 
+const DISH_CATEGORIES = {
+  com_chao: {
+    label: 'Cơm & Cháo',
+    emoji: '🍚',
+    group: 'food',
+    matches: (name) => {
+      const n = normalizeVietnamese(name);
+      const words = n.split(/\s+/);
+      return words.includes('com') || words.includes('chao') || words.includes('xoi') || words.includes('rice') || words.includes('porridge') || words.includes('congee');
+    }
+  },
+  bun_pho_mi: {
+    label: 'Bún, Phở & Mì',
+    emoji: '🍜',
+    group: 'food',
+    matches: (name) => {
+      const n = normalizeVietnamese(name);
+      const words = n.split(/\s+/);
+      const hasWord = (w) => words.includes(w);
+      return hasWord('bun') || hasWord('pho') || hasWord('mi') || hasWord('mien') || n.includes('hu tieu') || hasWord('noodle') || hasWord('noodles') || n.includes('banh da');
+    }
+  },
+  banhmi_sandwich: {
+    label: 'Bánh mì & Sandwich',
+    emoji: '🥖',
+    group: 'food',
+    matches: (name) => {
+      const n = normalizeVietnamese(name);
+      const words = n.split(/\s+/);
+      return n.includes('banh mi') || n.includes('banh my') || words.includes('sandwich') || words.includes('burger') || words.includes('hotdog');
+    }
+  },
+  anvat_snack: {
+    label: 'Ăn vặt & Snack',
+    emoji: '🍢',
+    group: 'food',
+    matches: (name) => {
+      const n = normalizeVietnamese(name);
+      const words = n.split(/\s+/);
+      const hasWord = (w) => words.includes(w);
+      return n.includes('nem chua') || n.includes('khoai tay') || n.includes('ngo chien') || n.includes('xuc xich') || n.includes('ca vien') || n.includes('bo vien') || n.includes('banh trang') || hasWord('che') || hasWord('kem') || hasWord('snack') || hasWord('popcorn') || n.includes('an vat') || n.includes('huong duong') || n.includes('kho bo') || n.includes('chan ga') || n.includes('kho ga') || hasWord('tokbokki') || n.includes('xien que');
+    }
+  },
+  ca_phe: {
+    label: 'Cà phê',
+    emoji: '☕',
+    group: 'drink',
+    matches: (name) => {
+      const n = normalizeVietnamese(name);
+      const words = n.split(/\s+/);
+      const hasWord = (w) => words.includes(w);
+      return n.includes('ca phe') || n.includes('cafe') || hasWord('coffee') || hasWord('espresso') || hasWord('cappuccino') || hasWord('latte') || hasWord('americano') || n.includes('bac xiu');
+    }
+  },
+  tra_trasua: {
+    label: 'Trà & Trà sữa',
+    emoji: '🧋',
+    group: 'drink',
+    matches: (name) => {
+      const n = normalizeVietnamese(name);
+      const words = n.split(/\s+/);
+      const hasWord = (w) => words.includes(w);
+      return n.includes('tra sua') || hasWord('tra') || hasWord('tea') || n.includes('o long') || hasWord('matcha');
+    }
+  },
+  nuocep_sinhto: {
+    label: 'Nước ép & Sinh tố',
+    emoji: '🍹',
+    group: 'drink',
+    matches: (name) => {
+      const n = normalizeVietnamese(name);
+      const words = n.split(/\s+/);
+      const hasWord = (w) => words.includes(w);
+      return n.includes('nuoc ep') || n.includes('sinh to') || hasWord('juice') || hasWord('smoothie') || n.includes('cam vat') || n.includes('chanh leo');
+    }
+  },
+  do_uong_khac: {
+    label: 'Đồ uống khác',
+    emoji: '🧃',
+    group: 'drink',
+    matches: (name) => {
+      const n = normalizeVietnamese(name);
+      const words = n.split(/\s+/);
+      const hasWord = (w) => words.includes(w);
+      return hasWord('coca') || hasWord('pepsi') || hasWord('7up') || hasWord('fanta') || hasWord('sprite') || hasWord('lavie') || hasWord('aquafina') || hasWord('sting') || n.includes('redbull') || n.includes('bo huc') || n.includes('sua tuoi') || n.includes('nuoc ngot') || n.includes('soda') || hasWord('bia') || hasWord('beer');
+    }
+  }
+};
+
+const isNonFnbVendor = (v) => {
+  const name = normalizeVietnamese(v.name || '');
+  const cat = normalizeVietnamese(v.category || '');
+  
+  const badKeywords = [
+    'karaoke', 'massage', 'spa', 'hotel', 'nha nghi', 'motel', 
+    'bi-a', 'billiards', 'quan ao', 'thoi trang', 'sua xe', 'rua xe',
+    'xang', 'sieu thi', 'tap hoa', 'dai hoc', 'truong hoc', 'benh vien',
+    'nha thuoc', 'thuoc tay', 'phong kham', 'tiem vang', 'cam do'
+  ];
+  
+  return badKeywords.some(kw => name.includes(kw) || cat.includes(kw));
+};
+
+const getVendorPrimaryGroups = (vendor) => {
+  const name = normalizeVietnamese(vendor.name || '');
+  const cat = normalizeVietnamese(vendor.category || '');
+  
+  const groups = new Set();
+  
+  // 1. Check vendor category and name for Cơm & Cháo
+  if (
+    cat.includes('com') || cat.includes('chao') || cat.includes('xoi') ||
+    name.includes('com') || name.includes('chao') || name.includes('xoi')
+  ) {
+    groups.add('com_chao');
+  }
+  
+  // 2. Check for Bún, Phở & Mì
+  if (
+    cat.includes('bun') || cat.includes('pho') || cat.includes('mi ') || cat.includes('mien') || cat.includes('hu tieu') || cat.includes('noodle') || cat.includes('banh da') ||
+    name.includes('bun') || name.includes('pho') || name.includes('mi ') || name.includes('mien') || name.includes('hu tieu') || name.includes('noodle') || name.includes('banh da')
+  ) {
+    groups.add('bun_pho_mi');
+  }
+  
+  // 3. Check for Bánh mì & Sandwich
+  if (
+    cat.includes('banh mi') || cat.includes('sandwich') || cat.includes('burger') ||
+    name.includes('banh mi') || name.includes('sandwich') || name.includes('burger')
+  ) {
+    groups.add('banhmi_sandwich');
+  }
+  
+  // 4. Check for Cà phê
+  if (
+    cat.includes('ca phe') || cat.includes('cafe') || cat.includes('coffee') ||
+    name.includes('ca phe') || name.includes('cafe') || name.includes('coffee')
+  ) {
+    groups.add('ca_phe');
+  }
+  
+  // 5. Check for Trà & Trà sữa
+  if (
+    cat.includes('tra sua') || cat.includes('tra tran chau') || cat.includes('phong tra') || cat.includes('tea') ||
+    name.includes('tra sua') || name.includes('tra chanh') || name.includes('tea')
+  ) {
+    groups.add('tra_trasua');
+  }
+  
+  // 6. Check for Nước ép & Sinh tố
+  if (
+    cat.includes('nuoc ep') || cat.includes('sinh to') || cat.includes('juice') || cat.includes('smoothie') ||
+    name.includes('nuoc ep') || name.includes('sinh to') || name.includes('juice') || name.includes('smoothie')
+  ) {
+    groups.add('nuocep_sinhto');
+  }
+
+  // 7. Check for Ăn vặt & Snack / Kem / Chè
+  if (
+    cat.includes('an vat') || cat.includes('snack') || cat.includes('kem') || cat.includes('che') || cat.includes('banh ngot') || cat.includes('tiem banh') ||
+    name.includes('an vat') || name.includes('snack') || name.includes('kem') || name.includes('che') || name.includes('tiem banh') || name.includes('banh trang')
+  ) {
+    groups.add('anvat_snack');
+  }
+  
+  // 8. Dynamic scan of menu items if no group matches yet
+  if (groups.size === 0) {
+    const menu = Array.isArray(vendor.menu) ? vendor.menu : [];
+    const counts = {};
+    menu.forEach(item => {
+      Object.entries(DISH_CATEGORIES).forEach(([key, config]) => {
+        if (config.matches(item.name)) {
+          counts[key] = (counts[key] || 0) + 1;
+        }
+      });
+    });
+    
+    Object.entries(counts).forEach(([key, count]) => {
+      // Beverage rules: only classify general restaurant as beverage if they have >= 3 beverage items or > 40% menu
+      if (['ca_phe', 'tra_trasua', 'nuocep_sinhto', 'do_uong_khac'].includes(key)) {
+        if (count >= 3 || count / menu.length >= 0.4) {
+          groups.add(key);
+        }
+      } else {
+        groups.add(key);
+      }
+    });
+  }
+  
+  // If still empty, default to general food restaurant groups
+  if (groups.size === 0) {
+    const catLower = cat.toLowerCase();
+    if (catLower.includes('nha hang') || catLower.includes('quan an')) {
+      groups.add('com_chao');
+      groups.add('bun_pho_mi');
+    }
+  }
+  
+  return groups;
+};
+
 const OrderFood = () => {
   const location = useLocation();
   const { user, sellerUser, loading: authLoading, setShowAuthModal, notificationClickedOrder, setNotificationClickedOrder } = useContext(AuthContext);
@@ -35,6 +236,19 @@ const OrderFood = () => {
   // Search States
   const [searchQuery, setSearchQuery] = useState('');
   const [searchMode, setSearchMode] = useState('dish'); // 'dish' | 'vendor'
+
+  // Filter States
+  const [activeCategory, setActiveCategory] = useState(null);
+  const [maxPrice, setMaxPrice] = useState(500000);
+  const [visibleCount, setVisibleCount] = useState(24);
+
+  const handleCategoryClick = (catKey) => {
+    setActiveCategory(prev => prev === catKey ? null : catKey);
+  };
+
+  useEffect(() => {
+    setVisibleCount(24);
+  }, [activeCategory, searchQuery]);
 
   // Checkout form state
   const [customerName, setCustomerName] = useState('');
@@ -179,22 +393,23 @@ const OrderFood = () => {
         const response = await getVendors();
         const vendorsList = Array.isArray(response) ? response : (response?.data || []);
 
-        // Filter to keep only curated peak Hanoi vendors OR custom seller shops
-        const peakIds = [
-          'highlands-hola',
-          'cafe-bao-cap',
-          'bay-coffee',
-          'twitter-beans',
-          '1988-bbq',
-          'bun-dau-hola',
-          'com-tam-ktx',
-          'ga-ri-phu-binh',
-          'lau-cua-hoalac'
-        ];
+        // Include all active vendors with menus or custom seller stores, excluding non-F&B ones
+        const filtered = vendorsList.filter(v => {
+          const menuCount = Array.isArray(v.menu) ? v.menu.length : 0;
+          const isActive = v.status !== 'inactive';
+          return isActive && (menuCount > 0 || v.owner_id || v.ownerId) && !isNonFnbVendor(v);
+        });
 
-        const filtered = vendorsList.filter(v =>
-          peakIds.includes(v.id) || v.owner_id || v.ownerId
-        );
+        // Sort priority chains first, then by rating
+        const priorityIds = ['highlands-hola', 'twitter-beans', 'bay-coffee'];
+        filtered.sort((a, b) => {
+          const aPriority = priorityIds.indexOf(a.id);
+          const bPriority = priorityIds.indexOf(b.id);
+          if (aPriority !== -1 && bPriority !== -1) return aPriority - bPriority;
+          if (aPriority !== -1) return -1;
+          if (bPriority !== -1) return 1;
+          return (b.rating || 0) - (a.rating || 0);
+        });
 
         setVendors(filtered);
         if (filtered.length > 0) {
@@ -481,12 +696,51 @@ const OrderFood = () => {
     return { steps, activeIdx };
   };
 
-  // Search Results computations
+  // Search and Filter Results computations
   const filteredVendors = useMemo(() => {
-    if (!searchQuery.trim() || searchMode !== 'vendor') return vendors;
-    const query = normalizeVietnamese(searchQuery.trim());
-    return vendors.filter(v => normalizeVietnamese(v.name || '').includes(query));
-  }, [vendors, searchQuery, searchMode]);
+    let result = vendors;
+
+    // 1. Search by name (if searchMode is vendor and query exists)
+    if (searchQuery.trim() && searchMode === 'vendor') {
+      const query = normalizeVietnamese(searchQuery.trim());
+      result = result.filter(v => normalizeVietnamese(v.name || '').includes(query));
+    }
+
+    // 2. Filter by Category
+    if (activeCategory) {
+      result = result.filter(v => {
+        // Must belong to primary classification category
+        const primaryGroups = getVendorPrimaryGroups(v);
+        if (!primaryGroups.has(activeCategory)) return false;
+
+        // Must have at least one item matching within price limit
+        const menu = Array.isArray(v.menu) ? v.menu : [];
+        const catConfig = DISH_CATEGORIES[activeCategory];
+        return menu.some(item => catConfig.matches(item.name) && item.price <= maxPrice);
+      });
+    } else {
+      // Filter by max price even if no category is selected
+      result = result.filter(v => {
+        const menu = Array.isArray(v.menu) ? v.menu : [];
+        if (menu.length === 0) return true; // Keep shops with empty menu (like new sellers)
+        return menu.some(item => item.price <= maxPrice);
+      });
+    }
+
+    return result;
+  }, [vendors, searchQuery, searchMode, activeCategory, maxPrice]);
+
+  // Synchronize selection when filters change to ensure the active menu is relevant
+  useEffect(() => {
+    if (filteredVendors.length > 0) {
+      const isStillVisible = filteredVendors.some(v => (v.id || v._id) === (selectedVendor?.id || selectedVendor?._id));
+      if (!isStillVisible) {
+        setSelectedVendor(filteredVendors[0]);
+      }
+    } else {
+      setSelectedVendor(null);
+    }
+  }, [filteredVendors, selectedVendor]);
 
   const matchedDishItems = useMemo(() => {
     if (!searchQuery.trim() || searchMode !== 'dish') return [];
@@ -495,7 +749,11 @@ const OrderFood = () => {
     vendors.forEach(vendor => {
       const menu = Array.isArray(vendor.menu) ? vendor.menu : [];
       menu.forEach(item => {
-        if (normalizeVietnamese(item.name || '').includes(query)) {
+        const matchesQuery = normalizeVietnamese(item.name || '').includes(query);
+        const matchesCategory = !activeCategory || DISH_CATEGORIES[activeCategory].matches(item.name);
+        const matchesPrice = item.price <= maxPrice;
+
+        if (matchesQuery && matchesCategory && matchesPrice) {
           results.push({
             vendor,
             item
@@ -504,7 +762,17 @@ const OrderFood = () => {
       });
     });
     return results;
-  }, [vendors, searchQuery, searchMode]);
+  }, [vendors, searchQuery, searchMode, activeCategory, maxPrice]);
+
+  const visibleMenu = useMemo(() => {
+    if (!selectedVendor) return [];
+    const menu = Array.isArray(selectedVendor.menu) ? selectedVendor.menu : [];
+    return menu.filter(item => {
+      const matchesCategory = !activeCategory || DISH_CATEGORIES[activeCategory].matches(item.name);
+      const matchesPrice = item.price <= maxPrice;
+      return matchesCategory && matchesPrice;
+    });
+  }, [selectedVendor, activeCategory, maxPrice]);
 
   if (authLoading) {
     return (
@@ -752,6 +1020,140 @@ const OrderFood = () => {
                     </div>
                   </div>
 
+                  {/* Filter Panel */}
+                  <div style={{
+                    background: 'rgba(255,255,255,0.02)',
+                    border: '1px solid rgba(255,255,255,0.06)',
+                    borderRadius: 20,
+                    padding: '20px 24px',
+                    marginBottom: 32
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+                      <h3 style={{ fontSize: '1.05rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span>🎛️ Bộ lọc</span>
+                      </h3>
+                      {(activeCategory || maxPrice < 500000) && (
+                        <button
+                          onClick={() => {
+                            setActiveCategory(null);
+                            setMaxPrice(500000);
+                          }}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#F27024',
+                            fontSize: '.82rem',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            padding: 0
+                          }}
+                        >
+                          Xóa bộ lọc
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Food Group */}
+                    <div style={{ marginBottom: 18 }}>
+                      <span style={{ fontSize: '.75rem', fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 10 }}>
+                        ĐỒ ĂN
+                      </span>
+                      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                        {Object.entries(DISH_CATEGORIES)
+                          .filter(([_, cat]) => cat.group === 'food')
+                          .map(([key, cat]) => {
+                            const isActive = activeCategory === key;
+                            return (
+                              <button
+                                key={key}
+                                onClick={() => handleCategoryClick(key)}
+                                style={{
+                                  padding: '8px 18px',
+                                  borderRadius: 50,
+                                  border: isActive ? '1px solid #F27024' : '1px solid rgba(255,255,255,0.08)',
+                                  background: isActive ? 'rgba(242,112,36,0.12)' : 'rgba(255,255,255,0.03)',
+                                  color: isActive ? '#FF9800' : 'rgba(255,255,255,0.8)',
+                                  fontSize: '.84rem',
+                                  fontWeight: isActive ? 600 : 500,
+                                  cursor: 'pointer',
+                                  transition: 'all 0.2s',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 6
+                                }}
+                                onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.border = '1px solid rgba(242,112,36,0.5)'; }}
+                                onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.border = '1px solid rgba(255,255,255,0.08)'; }}
+                              >
+                                <span style={{ fontSize: '1rem' }}>{cat.emoji}</span> {cat.label}
+                              </button>
+                            );
+                          })}
+                      </div>
+                    </div>
+
+                    {/* Drink Group */}
+                    <div style={{ marginBottom: 20 }}>
+                      <span style={{ fontSize: '.75rem', fontWeight: 800, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 10 }}>
+                        ĐỒ UỐNG
+                      </span>
+                      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                        {Object.entries(DISH_CATEGORIES)
+                          .filter(([_, cat]) => cat.group === 'drink')
+                          .map(([key, cat]) => {
+                            const isActive = activeCategory === key;
+                            return (
+                              <button
+                                key={key}
+                                onClick={() => handleCategoryClick(key)}
+                                style={{
+                                  padding: '8px 18px',
+                                  borderRadius: 50,
+                                  border: isActive ? '1px solid #F27024' : '1px solid rgba(255,255,255,0.08)',
+                                  background: isActive ? 'rgba(242,112,36,0.12)' : 'rgba(255,255,255,0.03)',
+                                  color: isActive ? '#FF9800' : 'rgba(255,255,255,0.8)',
+                                  fontSize: '.84rem',
+                                  fontWeight: isActive ? 600 : 500,
+                                  cursor: 'pointer',
+                                  transition: 'all 0.2s',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: 6
+                                }}
+                                onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.border = '1px solid rgba(242,112,36,0.5)'; }}
+                                onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.border = '1px solid rgba(255,255,255,0.08)'; }}
+                              >
+                                <span style={{ fontSize: '1rem' }}>{cat.emoji}</span> {cat.label}
+                              </button>
+                            );
+                          })}
+                      </div>
+                    </div>
+
+                    {/* Max Price Slider */}
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <span style={{ fontSize: '.84rem', fontWeight: 600, color: 'rgba(255,255,255,0.6)' }}>Giá tối đa</span>
+                        <span style={{ fontSize: '.9rem', fontWeight: 700, color: '#FF9800' }}>{formatPrice(maxPrice)}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="10000"
+                        max="500000"
+                        step="5000"
+                        value={maxPrice}
+                        onChange={(e) => setMaxPrice(Number(e.target.value))}
+                        style={{
+                          width: '100%',
+                          accentColor: '#F27024',
+                          background: 'rgba(255,255,255,0.1)',
+                          height: 6,
+                          borderRadius: 3,
+                          cursor: 'pointer'
+                        }}
+                      />
+                    </div>
+                  </div>
+
                   {/* Render Logic Based on Search Mode and Query */}
                   {searchMode === 'dish' && searchQuery.trim() !== '' ? (
                     /* MATCHING DISH ITEMS LIST */
@@ -818,39 +1220,63 @@ const OrderFood = () => {
 
                       {filteredVendors.length === 0 ? (
                         <div style={{ padding: 32, textAlign: 'center', background: 'rgba(255,255,255,0.02)', borderRadius: 16, border: '1px dashed rgba(255,255,255,0.08)', marginBottom: 32 }}>
-                          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '.88rem' }}>Không tìm thấy cửa hàng nào khớp với từ khóa "{searchQuery}"</p>
+                          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '.88rem' }}>Không tìm thấy cửa hàng nào khớp với bộ lọc hoặc tìm kiếm.</p>
                         </div>
                       ) : (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 14, marginBottom: 32 }}>
-                          {filteredVendors.map(v => {
-                            const vId = v.id || v._id;
-                            const currentSelId = selectedVendor?.id || selectedVendor?._id;
-                            const isSelected = currentSelId === vId;
-                            return (
-                              <div
-                                key={vId}
-                                onClick={() => handleSelectVendor(v)}
-                                style={{
-                                  background: isSelected ? 'rgba(242,112,36,0.15)' : 'rgba(255,255,255,0.03)',
-                                  border: isSelected ? '2px solid #F27024' : '1px solid rgba(255,255,255,0.08)',
-                                  borderRadius: 16, padding: '16px', cursor: 'pointer', transition: 'all 0.2s ease',
-                                }}
-                              >
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-                                  <span style={{ background: 'rgba(255,255,255,0.1)', color: '#FF9800', fontSize: '.7rem', fontWeight: 700, padding: '3px 8px', borderRadius: 20 }}>
-                                    {v.category}
-                                  </span>
-                                  <span style={{ color: '#FFD700', fontSize: '.8rem', fontWeight: 700 }}>
-                                    ★ {v.rating || '5.0'}
-                                  </span>
+                        <div>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 14, marginBottom: 20 }}>
+                            {filteredVendors.slice(0, visibleCount).map(v => {
+                              const vId = v.id || v._id;
+                              const currentSelId = selectedVendor?.id || selectedVendor?._id;
+                              const isSelected = currentSelId === vId;
+                              return (
+                                <div
+                                  key={vId}
+                                  onClick={() => handleSelectVendor(v)}
+                                  style={{
+                                    background: isSelected ? 'rgba(242,112,36,0.15)' : 'rgba(255,255,255,0.03)',
+                                    border: isSelected ? '2px solid #F27024' : '1px solid rgba(255,255,255,0.08)',
+                                    borderRadius: 16, padding: '16px', cursor: 'pointer', transition: 'all 0.2s ease',
+                                  }}
+                                >
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                                    <span style={{ background: 'rgba(255,255,255,0.1)', color: '#FF9800', fontSize: '.7rem', fontWeight: 700, padding: '3px 8px', borderRadius: 20 }}>
+                                      {v.category || 'Ẩm thực'}
+                                    </span>
+                                    <span style={{ color: '#FFD700', fontSize: '.8rem', fontWeight: 700 }}>
+                                      ★ {v.rating || '5.0'}
+                                    </span>
+                                  </div>
+                                  <h4 style={{ fontSize: '.92rem', fontWeight: 700, margin: '0 0 6px 0', color: isSelected ? '#FF9800' : '#fff' }}>{v.name}</h4>
+                                  <p style={{ fontSize: '.75rem', color: 'rgba(255,255,255,0.5)', margin: 0, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                                    📍 {v.address ? v.address.split(',')[0] : 'KTX Hòa Lạc'}
+                                  </p>
                                 </div>
-                                <h4 style={{ fontSize: '.92rem', fontWeight: 700, margin: '0 0 6px 0', color: isSelected ? '#FF9800' : '#fff' }}>{v.name}</h4>
-                                <p style={{ fontSize: '.75rem', color: 'rgba(255,255,255,0.5)', margin: 0, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                                  📍 {v.address ? v.address.split(',')[0] : 'KTX Hòa Lạc'}
-                                </p>
-                              </div>
-                            );
-                          })}
+                              );
+                            })}
+                          </div>
+                          {filteredVendors.length > visibleCount && (
+                            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
+                              <button
+                                onClick={() => setVisibleCount(prev => prev + 24)}
+                                style={{
+                                  padding: '10px 24px',
+                                  borderRadius: 50,
+                                  background: 'rgba(255,255,255,0.05)',
+                                  border: '1px solid rgba(255,255,255,0.12)',
+                                  color: '#fff',
+                                  fontWeight: 600,
+                                  fontSize: '.85rem',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; }}
+                              >
+                                Xem thêm cửa hàng ({filteredVendors.length - visibleCount})
+                              </button>
+                            </div>
+                          )}
                         </div>
                       )}
 
@@ -906,36 +1332,44 @@ const OrderFood = () => {
                             </div>
                           )}
 
-                          <div className="menu-grid">
-                            {(selectedVendor.menu || []).map((item, idx) => (
-                              <div
-                                key={idx}
-                                style={{
-                                  background: 'rgba(255,255,255,0.02)',
-                                  border: '1px solid rgba(255,255,255,0.06)',
-                                  borderRadius: 16, padding: '16px 20px',
-                                  display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-                                }}
-                              >
-                                <div>
-                                  <h4 style={{ margin: '0 0 6px 0', fontSize: '.95rem', fontWeight: 700 }}>{item.name}</h4>
-                                  <span style={{ color: '#FF9800', fontWeight: 700, fontSize: '.9rem' }}>{formatPrice(item.price)}</span>
-                                </div>
-                                <button
-                                  onClick={() => addToCart(item)}
+                          {visibleMenu.length === 0 ? (
+                            <div style={{ padding: 32, textAlign: 'center', background: 'rgba(255,255,255,0.01)', borderRadius: 16, border: '1px dashed rgba(255,255,255,0.08)' }}>
+                              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '.86rem', margin: 0 }}>
+                                Không có món ăn nào khớp với bộ lọc hoặc mức giá đã chọn.
+                              </p>
+                            </div>
+                          ) : (
+                            <div className="menu-grid">
+                              {visibleMenu.map((item, idx) => (
+                                <div
+                                  key={idx}
                                   style={{
-                                    width: 34, height: 34, borderRadius: '50%',
-                                    background: 'linear-gradient(135deg,#F27024,#FF5722)',
-                                    border: 'none', color: '#fff', fontSize: '1.2rem', fontWeight: 900,
-                                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    transition: 'all 0.18s ease'
+                                    background: 'rgba(255,255,255,0.02)',
+                                    border: '1px solid rgba(255,255,255,0.06)',
+                                    borderRadius: 16, padding: '16px 20px',
+                                    display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                                   }}
                                 >
-                                  +
-                                </button>
-                              </div>
-                            ))}
-                          </div>
+                                  <div>
+                                    <h4 style={{ margin: '0 0 6px 0', fontSize: '.95rem', fontWeight: 700 }}>{item.name}</h4>
+                                    <span style={{ color: '#FF9800', fontWeight: 700, fontSize: '.9rem' }}>{formatPrice(item.price)}</span>
+                                  </div>
+                                  <button
+                                    onClick={() => addToCart(item)}
+                                    style={{
+                                      width: 34, height: 34, borderRadius: '50%',
+                                      background: 'linear-gradient(135deg,#F27024,#FF5722)',
+                                      border: 'none', color: '#fff', fontSize: '1.2rem', fontWeight: 900,
+                                      cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                      transition: 'all 0.18s ease'
+                                    }}
+                                  >
+                                    +
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
